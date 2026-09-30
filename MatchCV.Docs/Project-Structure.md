@@ -11,6 +11,16 @@ MatchCV/
 ├── MatchCV.AI/
 ├── MatchCV.Api/
 ├── MatchCV.Application/
+│   ├── DTOs/
+│   │   ├── AnalysisResult.py
+│   │   └── AnalyzeResumeRequest.py
+│   ├── Interfaces/
+│   │   ├── __init__.py
+│   │   └── IAnalysisProvider.py
+│   └── UseCases/
+│   │   ├── __init__.py
+│   │   └── AnalyzeResumeUseCase.py
+│   └── __init__.py
 ├── MatchCV.Db/
 ├── MatchCV.Docs/
 │   ├── BusinessRules/
@@ -103,16 +113,16 @@ A API não deve conter as regras principais de negócio nem implementar diretame
 
 ### MatchCV.Application
 
-Responsável pelos casos de uso e pela orquestração da aplicação.
+Responsável pela orquestração dos casos de uso da aplicação.
 
-Exemplos de responsabilidades:
+Atualmente contém:
 
-* iniciar uma análise;
-* coordenar validações;
-* chamar o Parser;
-* chamar a análise de IA;
-* controlar o fluxo da análise;
-* coordenar repositórios e serviços.
+* contratos para serviços externos utilizados pelos casos de uso;
+* DTOs de entrada e saída;
+* casos de uso de análise;
+* orquestração entre domínio, parser e serviços de IA.
+
+O Application não deve conter detalhes de infraestrutura, HTTP ou implementação concreta de provedores externos.
 
 ### MatchCV.Domain
 

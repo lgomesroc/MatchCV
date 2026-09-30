@@ -19,11 +19,21 @@ class Analysis:
     resume_id: UUID
     job_description_id: UUID
     status: AnalysisStatus = AnalysisStatus.PENDING
-    evidenced_requirements: List[str] = field(default_factory=list)
-    unevidenced_requirements: List[str] = field(default_factory=list)
-    gaps: List[str] = field(default_factory=list)
-    resume_issues: List[str] = field(default_factory=list)
-    suggestions: List[str] = field(default_factory=list)
+    evidenced_requirements: List[str] = field(
+        default_factory=list
+    )
+    unevidenced_requirements: List[str] = field(
+        default_factory=list
+    )
+    gaps: List[str] = field(
+        default_factory=list
+    )
+    resume_issues: List[str] = field(
+        default_factory=list
+    )
+    suggestions: List[str] = field(
+        default_factory=list
+    )
 
     @classmethod
     def create(
