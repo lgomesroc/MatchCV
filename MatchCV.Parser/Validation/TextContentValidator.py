@@ -1,0 +1,138 @@
+import re
+
+from MatchCV.Parser.Exceptions.ParserException import ParserException
+
+
+class TextContentValidator:
+    """Valida regras estruturais comuns para conteúdos textuais."""
+
+    @staticmethod
+    def validate_required(value: str | None, field_name: str) -> str:
+        if value is None:
+            raise ParserException(
+                f"{field_name} é obrigatório."
+            )
+
+        if not value:
+            raise ParserException(
+                f"{field_name} não pode ser vazio."
+            )
+
+        if not value.strip():
+            raise ParserException(
+                f"{field_name} não pode conter somente espaços."
+            )
+
+        if value != value.strip():
+            raise ParserException(
+                f"{field_name} não pode possuir espaços no início ou no final."
+            )
+
+        if re.search(r"\s{2,}", value):
+            raise ParserException(
+                f"{field_name} não pode possuir espaços consecutivos."
+            )
+
+        return value
+
+    @staticmethod
+    def validate_not_only_numbers(
+        value: str,
+        field_name: str,
+    ) -> None:
+        if value and all(
+            character.isdigit() or character.isspace()
+            for character in value
+        ):
+            raise ParserException(
+                f"{field_name} não pode conter somente números."
+            )
+
+    @staticmethod
+    def validate_not_only_special_characters(
+        value: str,
+        field_name: str,
+    ) -> None:
+        characters = [
+            character
+            for character in value
+            if not character.isspace()
+        ]
+
+        if characters and all(
+            not character.isalnum()
+            for character in characters
+        ):
+            raise ParserException(
+                f"{field_name} não pode conter somente caracteres especiais."
+            )
+
+    @staticmethod
+    def validate_first_character(
+        value: str,
+        field_name: str,
+        allow_dot: bool = False,
+    ) -> None:
+        if not value:
+            return
+
+        first_character = value[0]
+
+        if first_character.isalnum():
+            return
+
+        if allow_dot and first_character == ".":
+            return
+
+        raise ParserException(
+            f"{field_name} não pode começar com caractere especial."
+        )
+
+    @staticmethod
+    def validate_no_consecutive_special_characters(
+        value: str,
+        field_name: str,
+    ) -> None:
+        for current, following in zip(value, value[1:]):
+            current_is_special = (
+                not current.isalnum()
+                and not current.isspace()
+            )
+
+            following_is_special = (
+                not following.isalnum()
+                and not following.isspace()
+            )
+
+            if current_is_special and following_is_special:
+                raise ParserException(
+                    f"{field_name} não pode possuir caracteres "
+                    "especiais consecutivos."
+                )
+
+    @staticmethod
+    def validate_name(value: str | None) -> str:
+        field_name = "O nome"
+
+        normalized_value = TextContentValidator.validate_required(
+            value,
+            field_name,
+        )
+
+        TextContentValidator.validate_not_only_numbers(
+            normalized_value,
+            field_name,
+        )
+
+        TextContentValidator.validate_first_character(
+            normalized_value,
+            field_name,
+            allow_dot=False,
+        )
+
+        TextContentValidator.validate_no_consecutive_special_characters(
+            normalized_value,
+            field_name,
+        )
+
+        return normalized_value
