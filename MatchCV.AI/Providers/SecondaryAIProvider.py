@@ -1,3 +1,6 @@
+from MatchCV.AI.Exceptions.AIProviderException import (
+    AIProviderException,
+)
 from MatchCV.AI.Models.AIAnalysisResponse import (
     AIAnalysisResponse,
 )
@@ -57,6 +60,24 @@ class SecondaryAIProvider(IAIProvider):
             timeout_seconds=self._config.timeout_seconds,
         )
 
-        content = response["choices"][0]["message"]["content"]
+        try:
+            content = response["choices"][0]["message"]["content"]
+        except (
+            KeyError,
+            IndexError,
+            TypeError,
+        ) as exception:
+            raise AIProviderException(
+                "A resposta do segundo provedor não possui "
+                "o formato esperado.",
+                retryable=False,
+            ) from exception
+
+        if not isinstance(content, str):
+            raise AIProviderException(
+                "O conteúdo retornado pelo segundo provedor "
+                "é inválido.",
+                retryable=False,
+            )
 
         return AIResponseParser.parse(content)

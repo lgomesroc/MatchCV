@@ -1,0 +1,25 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: matchcv-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: matchcv
+      POSTGRES_USER: matchcv
+      POSTGRES_PASSWORD: matchcv
+    ports:
+      - "5432:5432"
+    volumes:
+      - matchcv-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U matchcv -d matchcv"
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  matchcv-postgres-data:
