@@ -1,0 +1,257 @@
+# Estrutura do Projeto
+
+Este documento descreve a organização do projeto MatchCV e a responsabilidade de cada módulo.
+
+A estrutura foi planejada para separar domínio, aplicação, infraestrutura, processamento de documentos, inteligência artificial, testes e interface.
+
+## Estrutura geral
+
+```text
+MatchCV/
+├── MatchCV.AI/
+├── MatchCV.Api/
+├── MatchCV.Application/
+├── MatchCV.Db/
+├── MatchCV.Docs/
+│   ├── BusinessRules/
+│   │   └── business-rules.md
+│   ├── Project-Structure.md
+│   └── Technologies.md
+├── MatchCV.Domain/
+│   ├── __init__.py
+│   ├── Entities/
+│   │   ├── __init__.py
+│   │   ├── Analysis.py
+│   │   ├── JobDescription.py
+│   │   └── Resume.py
+│   ├── Enums/
+│   │   ├── __init__.py
+│   │   ├── FileType.py
+│   │   └── UserRole.py
+│   ├── Exceptions/
+│   │   ├── __init__.py
+│   │   └── DomainException.py
+│   └── ValueObjects/
+│   │   └── __init__.py
+├── MatchCV.Frontend/
+├── MatchCV.Infrastructure/
+├── MatchCV.Parser/
+│   ├── __init__.py
+│   ├── Exceptions/
+│   │   ├── __init__.py
+│   │   └── ParserException.py
+│   ├── Interfaces/
+│   │   ├── __init__.py
+│   │   └── IResumeParser.py
+│   ├── Models/
+│   │   ├── __init__.py
+│   │   └── ParsedResume.py
+│   ├── Parsers/
+│   │   ├── __init__.py
+│   │   ├── DocResumeParser.py
+│   │   ├── DocxResumeParser.py
+│   │   └── PdfResumeParser.py
+│   ├── Services/
+│   │   ├── __init__.py
+│   │   └── ResumeParserService.py
+│   └── Validation/
+│   │   ├── __init__.py
+│   │   ├── Data/
+│   │   │   └── __init__.py
+│   │   ├── ProfanityValidator.py
+│   │   ├── ResumeFileValidator.py
+│   │   ├── ResumeStructureValidator.py
+│   │   └── TextContentValidator.py
+│
+├── MatchCV.Tests/
+│   ├── Integration/
+│   │   ├── Api/
+│   │   ├── Database/
+│   │   ├── Parser/
+│   │   └── Repositories/
+│   │
+│   └── Unit/
+│   │   ├── Application/
+│   │   ├── Domain/
+│   │   └── Parser/
+├── MatchCV.Worker/
+│
+├── .env.example
+├── .gitignore
+├── docker-compose.yml
+└── README.md
+```
+
+## Responsabilidades
+
+### MatchCV.Api
+
+Responsável pela exposição HTTP da aplicação.
+
+Responsabilidades previstas:
+
+* endpoints;
+* recebimento de requisições;
+* upload de currículo;
+* recebimento da descrição da vaga;
+* respostas HTTP;
+* autenticação;
+* autorização;
+* tratamento de erros HTTP.
+
+A API não deve conter as regras principais de negócio nem implementar diretamente o processamento de documentos.
+
+### MatchCV.Application
+
+Responsável pelos casos de uso e pela orquestração da aplicação.
+
+Exemplos de responsabilidades:
+
+* iniciar uma análise;
+* coordenar validações;
+* chamar o Parser;
+* chamar a análise de IA;
+* controlar o fluxo da análise;
+* coordenar repositórios e serviços.
+
+### MatchCV.Domain
+
+Contém os conceitos e regras centrais do domínio.
+
+Atualmente contém:
+
+* `Resume`;
+* `JobDescription`;
+* `Analysis`;
+* `FileType`;
+* `UserRole`;
+* `DomainException`.
+
+O domínio não deve depender de infraestrutura externa.
+
+### MatchCV.Infrastructure
+
+Responsável por infraestrutura e integrações externas.
+
+Responsabilidades previstas:
+
+* banco de dados;
+* repositórios;
+* configuração de infraestrutura;
+* serviços externos;
+* persistência;
+* componentes necessários para integração com recursos externos.
+
+### MatchCV.AI
+
+Responsável pela integração com inteligência artificial.
+
+Responsabilidades previstas:
+
+* contrato dos provedores;
+* implementação dos dois provedores;
+* seleção do provedor;
+* fallback quando aplicável;
+* tratamento de erros;
+* montagem das solicitações;
+* interpretação estruturada das respostas.
+
+A camada de IA não deve substituir o Parser.
+
+### MatchCV.Parser
+
+Responsável pelo processamento dos documentos enviados pelo candidato.
+
+Responsabilidades:
+
+* PDF;
+* DOC;
+* DOCX;
+* validação estrutural;
+* extração de texto;
+* quantidade de páginas;
+* detecção de documento sem texto útil;
+* análise de estrutura;
+* detecção de layout incompatível;
+* identificação de documentos protegidos ou corrompidos;
+* produção de uma representação estruturada do currículo.
+
+O Parser responde o que existe no documento.
+
+A IA será responsável posteriormente por interpretar o conteúdo em relação à vaga.
+
+### MatchCV.Worker
+
+Responsável por processamentos assíncronos que possam ser retirados do fluxo HTTP principal.
+
+Exemplos futuros:
+
+* processamento de análise;
+* processamento de IA;
+* tarefas de limpeza;
+* remoção de arquivos temporários.
+
+### MatchCV.Tests
+
+Contém os testes do projeto.
+
+#### Unit
+
+Testes isolados de:
+
+* domínio;
+* aplicação;
+* Parser;
+* validações;
+* regras de negócio.
+
+#### Integration
+
+Testes de integração de:
+
+* API;
+* banco de dados;
+* repositórios;
+* Parser;
+* integrações relevantes.
+
+Testes de IA não devem depender obrigatoriamente de chamadas reais aos provedores.
+
+### MatchCV.Db
+
+Contém recursos relacionados ao banco de dados.
+
+Responsabilidades futuras:
+
+* scripts;
+* inicialização;
+* migrations, quando aplicável;
+* configuração de banco;
+* dados técnicos necessários ao ambiente.
+
+### MatchCV.Frontend
+
+Responsável pela interface do usuário.
+
+Responsabilidades futuras:
+
+* upload do currículo;
+* entrada da descrição da vaga;
+* apresentação dos resultados;
+* cadastro de usuários;
+* autenticação;
+* funcionalidades administrativas.
+
+### MatchCV.Docs
+
+Centraliza a documentação do projeto.
+
+A documentação deve permanecer separada do código de implementação.
+
+## Princípio de organização
+
+Cada módulo deve possuir uma responsabilidade clara.
+
+O crescimento da estrutura não é um problema quando a separação representa responsabilidades reais do sistema.
+
+O objetivo é evitar tanto um projeto monolítico desorganizado quanto a criação de abstrações sem responsabilidade prática.
