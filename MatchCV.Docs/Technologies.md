@@ -1,507 +1,185 @@
-# Estrutura do Projeto
+# Tecnologias
 
-Este documento apresenta a estrutura do projeto MatchCV em sua organização planejada.
+Este documento registra as tecnologias utilizadas ou previstas no projeto MatchCV.
 
-A estrutura foi definida para separar responsabilidades entre domínio, aplicação, infraestrutura, processamento de documentos, inteligência artificial, processamento assíncrono, testes, banco de dados, frontend e documentação.
+As versões específicas serão definidas conforme a implementação e a configuração dos ambientes de desenvolvimento e execução.
 
-## Estrutura completa
+## Backend
 
-```text
-MatchCV/
-├── MatchCV.AI/
-├── MatchCV.Api/
-├── MatchCV.Application/
-├── MatchCV.Db/
-├── MatchCV.Docs/
-│   ├── BusinessRules/
-│   │   └── business-rules.md
-│   ├── Project-Structure.md
-│   └── Technologies.md
-├── MatchCV.Domain/
-│   ├── __init__.py
-│   ├── Entities/
-│   │   ├── __init__.py
-│   │   ├── Analysis.py
-│   │   ├── JobDescription.py
-│   │   └── Resume.py
-│   ├── Enums/
-│   │   ├── __init__.py
-│   │   ├── FileType.py
-│   │   └── UserRole.py
-│   ├── Exceptions/
-│   │   ├── __init__.py
-│   │   └── DomainException.py
-│   └── ValueObjects/
-│       └── __init__.py
-├── MatchCV.Frontend/
-├── MatchCV.Infrastructure/
-├── MatchCV.Parser/
-│   ├── __init__.py
-│   │
-│   ├── Exceptions/
-│   │   ├── __init__.py
-│   │   └── ParserException.py
-│   ├── Interfaces/
-│   │   ├── __init__.py
-│   │   └── IResumeParser.py
-│   ├── Models/
-│   │   ├── __init__.py
-│   │   └── ParsedResume.py
-│   ├── Parsers/
-│   │   └── __init__.py
-│   ├── Services/
-│   │   ├── __init__.py
-│   │   └── ResumeParserService.py
-│   └── Validation/
-│       ├── __init__.py
-│       └── ResumeFileValidator.py
-├── MatchCV.Tests/
-│   ├── Integration/
-│   │   ├── Api/
-│   │   ├── Database/
-│   │   ├── Parser/
-│   │   └── Repositories/
-│   └── Unit/
-│   │   ├── Application/
-│   │   ├── Domain/
-│   │   └── Parser/
-├── MatchCV.Worker/
-├── .env.example
-├── .gitignore
-├── docker-compose.yml
-└── README.md
-```
+### Python
 
-## Arquivos da raiz
+Linguagem principal do backend e dos componentes de processamento do MatchCV.
 
-### `.env.example`
+Utilização prevista:
 
-Modelo das variáveis de ambiente necessárias para executar o projeto.
+* domínio;
+* aplicação;
+* API;
+* Parser;
+* integração com IA;
+* Worker;
+* testes.
 
-Não deve conter credenciais reais.
+## API
 
-### `.gitignore`
+### FastAPI
 
-Define arquivos e diretórios que não devem ser versionados.
+Framework previsto para exposição da API HTTP.
 
-Exemplos:
-
-* `.env`;
-* ambientes virtuais;
-* arquivos temporários;
-* caches;
-* arquivos gerados;
-* arquivos de build;
-* arquivos específicos do sistema operacional.
-
-### `docker-compose.yml`
-
-Configuração dos serviços necessários para o ambiente de desenvolvimento através do Docker Compose.
-
-### `README.md`
-
-Documento principal do projeto.
-
-Apresenta:
-
-* objetivo;
-* funcionamento;
-* arquitetura;
-* principais características;
-* documentação;
-* status;
-* informações gerais de execução.
-
----
-
-# Módulos
-
-## `MatchCV.AI`
-
-Responsável pela integração com inteligência artificial.
-
-Responsabilidades previstas:
-
-* abstração dos provedores;
-* implementação dos dois provedores;
-* seleção de provedor;
-* fallback quando aplicável;
-* tratamento de erros;
-* comunicação com APIs externas;
-* interpretação estruturada das respostas da IA.
-
-A camada de IA não será responsável pela extração dos documentos.
-
----
-
-## `MatchCV.Api`
-
-Responsável pela exposição HTTP da aplicação.
-
-Responsabilidades previstas:
+Responsabilidades:
 
 * endpoints;
-* upload de currículos;
+* upload de arquivos;
 * recebimento da descrição da vaga;
-* respostas HTTP;
 * autenticação;
 * autorização;
-* tratamento de erros;
-* documentação da API.
+* comunicação com a camada Application.
 
-A API não deve concentrar regras de negócio ou código de parsing.
+## Banco de dados
 
----
+### Microsoft SQL Server
 
-## `MatchCV.Application`
+Banco de dados relacional principal do projeto.
 
-Responsável pelos casos de uso e pela orquestração da aplicação.
+O ambiente de desenvolvimento será executado através de Docker.
 
-Responsabilidades previstas:
+## Containerização
 
-* iniciar análise;
-* coordenar validações;
-* chamar o Parser;
-* chamar a camada de IA;
-* coordenar repositórios;
-* controlar o fluxo dos casos de uso;
-* aplicar regras de aplicação.
+### Docker
 
----
+Utilizado para padronizar componentes de infraestrutura e ambientes de desenvolvimento.
 
-## `MatchCV.Db`
+### Docker Compose
 
-Responsável pelos recursos relacionados ao banco de dados.
+Utilizado para orquestrar os serviços necessários ao ambiente local.
 
-Responsabilidades previstas:
+## Processamento de documentos
 
-* scripts;
-* configuração;
-* migrations;
-* inicialização;
-* recursos necessários ao banco de dados.
-
-O banco de dados principal planejado é o Microsoft SQL Server.
-
----
-
-## `MatchCV.Docs`
-
-Responsável pela documentação do projeto.
-
-### `BusinessRules/`
-
-Contém as regras de negócio.
-
-```text
-MatchCV.Docs/
-└── BusinessRules/
-    └── business-rules.md
-```
-
-### `Project-Structure.md`
-
-Documenta a organização dos arquivos e módulos do projeto.
-
-### `Technologies.md`
-
-Documenta as tecnologias utilizadas ou planejadas.
-
----
-
-## `MatchCV.Domain`
-
-Contém os conceitos e regras centrais do domínio.
-
-### `Entities/`
-
-Entidades principais do sistema.
-
-```text
-Entities/
-├── __init__.py
-├── Analysis.py
-├── JobDescription.py
-└── Resume.py
-```
-
-#### `Analysis.py`
-
-Representa uma análise entre currículo e descrição de vaga.
-
-#### `JobDescription.py`
-
-Representa a descrição da oportunidade analisada.
-
-#### `Resume.py`
-
-Representa o currículo após suas informações básicas terem sido validadas.
-
-### `Enums/`
-
-Enumerações utilizadas pelo domínio.
-
-```text
-Enums/
-├── __init__.py
-├── FileType.py
-└── UserRole.py
-```
-
-#### `FileType.py`
-
-Define os formatos de currículo suportados:
+O MatchCV terá suporte a:
 
 * PDF;
 * DOC;
 * DOCX.
 
-#### `UserRole.py`
+As bibliotecas específicas de processamento serão definidas conforme a implementação de cada formato.
 
-Define os papéis de usuário:
+O Parser será isolado da aplicação para evitar que as dependências específicas dos formatos contaminem as demais camadas.
 
-* USER;
-* ADMIN.
+## Inteligência Artificial
 
-### `Exceptions/`
+O MatchCV utilizará dois provedores de inteligência artificial.
 
-Exceções específicas do domínio.
+A arquitetura utilizará uma abstração comum para os provedores, permitindo:
 
-```text
-Exceptions/
-├── __init__.py
-└── DomainException.py
-```
+* troca de provedor;
+* fallback quando aplicável;
+* testes sem chamadas reais;
+* isolamento das dependências externas.
 
-### `ValueObjects/`
+Os provedores específicos serão registrados neste documento quando definidos.
 
-Objetos de valor do domínio.
+## Frontend
 
-Novos objetos serão adicionados conforme surgirem necessidades reais do domínio.
+A interface será desenvolvida em tecnologia web.
 
----
+O frontend ficará isolado em:
 
-## `MatchCV.Frontend`
+`MatchCV.Frontend`
 
-Responsável pela interface de usuário da aplicação.
+A tecnologia e as versões definitivas serão registradas conforme a implementação do frontend.
 
-Responsabilidades previstas:
+## Testes
 
-* upload do currículo;
-* entrada da descrição da vaga;
-* apresentação dos resultados;
-* cadastro;
-* autenticação;
-* funcionalidades administrativas;
-* interação com a API.
+Serão utilizados testes:
 
-A tecnologia definitiva do frontend será registrada em `MatchCV.Docs/Technologies.md`.
+* unitários;
+* integração;
+* testes específicos do Parser;
+* testes de regras de negócio;
+* testes de integração da API;
+* testes de integração com banco.
 
----
+A integração real com provedores de IA não será requisito para os testes unitários.
 
-## `MatchCV.Infrastructure`
+## Controle de versão
 
-Responsável pelas implementações de infraestrutura.
+### Git
 
-Responsabilidades previstas:
+Utilizado para controle de versão.
 
-* persistência;
-* repositórios;
-* acesso ao banco;
-* configurações;
-* integrações externas;
-* serviços de infraestrutura.
-
-Essa camada implementará os contratos necessários definidos pelas camadas superiores.
-
----
-
-## `MatchCV.Parser`
-
-Responsável exclusivamente pelo processamento e extração das informações dos documentos.
-
-Atualmente:
+O fluxo planejado é:
 
 ```text
-MatchCV.Parser/
-├── __init__.py
-│
-├── Exceptions/
-│   ├── __init__.py
-│   └── ParserException.py
-│
-├── Interfaces/
-│   ├── __init__.py
-│   └── IResumeParser.py
-│
-├── Models/
-│   ├── __init__.py
-│   └── ParsedResume.py
-│
-├── Parsers/
-│   └── __init__.py
-│
-├── Services/
-│   ├── __init__.py
-│   └── ResumeParserService.py
-│
-└── Validation/
-    ├── __init__.py
-    └── ResumeFileValidator.py
+branch de desenvolvimento
+        ↓
+commit
+        ↓
+push
+        ↓
+Pull Request
+        ↓
+main protegida
+        ↓
+deploy
 ```
 
-### `Exceptions/`
+## CI/CD
 
-Exceções relacionadas ao processamento dos documentos.
+O projeto terá pipeline de CI/CD.
 
-#### `ParserException.py`
-
-Representa erros específicos encontrados durante o processamento de documentos.
-
-### `Interfaces/`
-
-Contratos utilizados pelos parsers.
-
-#### `IResumeParser.py`
-
-Define o contrato comum para os parsers de currículo.
-
-### `Models/`
-
-Modelos de dados produzidos pelo Parser.
-
-#### `ParsedResume.py`
-
-Representa o resultado estruturado do processamento do currículo.
-
-Informações previstas:
-
-* nome do arquivo;
-* tipo;
-* tamanho;
-* quantidade de páginas;
-* texto extraído;
-* possibilidade de extração de texto;
-* estrutura de colunas;
-* presença de imagens.
-
-### `Parsers/`
-
-Implementações específicas para cada formato.
-
-Serão adicionados:
-
-* parser PDF;
-* parser DOC;
-* parser DOCX.
-
-### `Services/`
-
-Serviços responsáveis por coordenar o processamento.
-
-#### `ResumeParserService.py`
-
-Seleciona o parser adequado de acordo com o formato do documento.
-
-### `Validation/`
-
-Validações relacionadas aos arquivos.
-
-#### `ResumeFileValidator.py`
-
-Valida características básicas como:
-
-* nome;
-* tamanho;
-* extensão;
-* formatos permitidos.
-
-Validações estruturais mais avançadas serão adicionadas posteriormente.
-
----
-
-## `MatchCV.Tests`
-
-Contém os testes automatizados.
+A ordem planejada é:
 
 ```text
-MatchCV.Tests/
-├── Integration/
-│   ├── Api/
-│   ├── Database/
-│   ├── Parser/
-│   └── Repositories/
-│
-└── Unit/
-    ├── Application/
-    ├── Domain/
-    └── Parser/
+Git
+ ↓
+Testes
+ ↓
+CI
+ ↓
+Build
+ ↓
+Deploy
 ```
 
-### `Unit/`
+Observabilidade será adicionada posteriormente, depois que o fluxo principal de CI/CD estiver estabelecido.
 
-Testes isolados.
+## Ambiente
 
-#### `Domain/`
+O projeto deverá funcionar em:
 
-Testes das regras e entidades do domínio.
+* Windows;
+* Linux.
 
-#### `Application/`
+A infraestrutura dependente do sistema operacional deverá ser isolada sempre que possível.
 
-Testes dos casos de uso e orquestração.
+## Segurança
 
-#### `Parser/`
+As configurações sensíveis não devem ser armazenadas no código-fonte.
 
-Testes das validações e componentes do Parser.
+O projeto utilizará variáveis de ambiente e um arquivo:
 
-### `Integration/`
+`.env.example`
 
-Testes envolvendo componentes reais integrados.
+O arquivo `.env` real não deve ser versionado.
 
-#### `Api/`
+## Privacidade
 
-Testes de integração dos endpoints.
+O processamento de currículos deverá seguir:
 
-#### `Database/`
+* minimização de dados;
+* retenção temporária;
+* ausência de armazenamento permanente do currículo original;
+* ausência de currículos reais no repositório;
+* ausência do conteúdo completo do currículo nos logs.
 
-Testes de integração com o banco de dados.
+## Documentação
 
-#### `Parser/`
+A documentação técnica será mantida em:
 
-Testes de integração do processamento dos documentos.
+`MatchCV.Docs`
 
-#### `Repositories/`
+Documentos principais:
 
-Testes de integração dos repositórios.
-
----
-
-## `MatchCV.Worker`
-
-Responsável por processamento assíncrono.
-
-Responsabilidades futuras:
-
-* processamento de análises;
-* processamento de IA;
-* tarefas de limpeza;
-* remoção de arquivos temporários;
-* tarefas que não precisam permanecer no fluxo HTTP.
-
----
-
-# Princípios da estrutura
-
-A estrutura do MatchCV deve crescer conforme surgirem responsabilidades reais.
-
-Não devem ser criados arquivos ou camadas apenas para aumentar artificialmente o tamanho do projeto.
-
-Cada módulo deve possuir responsabilidade definida e suas dependências devem respeitar a arquitetura estabelecida.
-
-O Parser deve permanecer separado da IA.
-
-O domínio deve permanecer independente de infraestrutura.
-
-A API deve permanecer responsável pela exposição HTTP, enquanto os casos de uso ficam na camada Application.
-
-Os testes devem acompanhar a implementação das funcionalidades.
+* `BusinessRules/business-rules.md`
+* `Project-Structure.md`
+* `Technologies.md`
