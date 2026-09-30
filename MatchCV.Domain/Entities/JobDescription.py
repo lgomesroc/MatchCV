@@ -2,10 +2,10 @@ from dataclasses import dataclass
 from uuid import UUID, uuid4
 
 from MatchCV.Domain.Exceptions.DomainException import DomainException
-from MatchCV.Parser.Validation.ProfanityValidator import (
+from MatchCV.Domain.Validation.ProfanityValidator import (
     ProfanityValidator,
 )
-from MatchCV.Parser.Validation.TextContentValidator import (
+from MatchCV.Domain.Validation.TextContentValidator import (
     TextContentValidator,
 )
 
@@ -23,14 +23,11 @@ class JobDescription:
         cls,
         content: str,
     ) -> "JobDescription":
-        try:
-            normalized_content = (
-                TextContentValidator.validate_job_description(
-                    content
-                )
+        normalized_content = (
+            TextContentValidator.validate_job_description(
+                content
             )
-        except Exception as exception:
-            raise DomainException(str(exception)) from exception
+        )
 
         useful_characters = len(
             "".join(
@@ -52,13 +49,10 @@ class JobDescription:
                 "3000 caracteres."
             )
 
-        try:
-            ProfanityValidator.validate(
-                normalized_content,
-                "A descrição da vaga",
-            )
-        except Exception as exception:
-            raise DomainException(str(exception)) from exception
+        ProfanityValidator.validate(
+            normalized_content,
+            "A descrição da vaga",
+        )
 
         return cls(
             id=uuid4(),

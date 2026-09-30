@@ -1,6 +1,6 @@
 import re
 
-from MatchCV.Parser.Exceptions.ParserException import ParserException
+from MatchCV.Domain.Exceptions.DomainException import DomainException
 
 
 class TextContentValidator:
@@ -12,28 +12,28 @@ class TextContentValidator:
         field_name: str,
     ) -> str:
         if value is None:
-            raise ParserException(
+            raise DomainException(
                 f"{field_name} é obrigatório."
             )
 
         if not value:
-            raise ParserException(
+            raise DomainException(
                 f"{field_name} não pode ser vazio."
             )
 
         if not value.strip():
-            raise ParserException(
+            raise DomainException(
                 f"{field_name} não pode conter somente espaços."
             )
 
         if value != value.strip():
-            raise ParserException(
+            raise DomainException(
                 f"{field_name} não pode possuir espaços "
                 "no início ou no final."
             )
 
         if re.search(r"\s{2,}", value):
-            raise ParserException(
+            raise DomainException(
                 f"{field_name} não pode possuir espaços consecutivos."
             )
 
@@ -54,7 +54,7 @@ class TextContentValidator:
             character.isdigit()
             for character in characters
         ):
-            raise ParserException(
+            raise DomainException(
                 f"{field_name} não pode conter somente números."
             )
 
@@ -73,7 +73,7 @@ class TextContentValidator:
             not character.isalnum()
             for character in characters
         ):
-            raise ParserException(
+            raise DomainException(
                 f"{field_name} não pode conter somente "
                 "caracteres especiais."
             )
@@ -95,7 +95,7 @@ class TextContentValidator:
         if allow_dot and first_character == ".":
             return
 
-        raise ParserException(
+        raise DomainException(
             f"{field_name} não pode começar com "
             "caractere especial."
         )
@@ -120,7 +120,7 @@ class TextContentValidator:
             )
 
             if current_is_special and following_is_special:
-                raise ParserException(
+                raise DomainException(
                     f"{field_name} não pode possuir "
                     "caracteres especiais consecutivos."
                 )

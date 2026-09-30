@@ -1,7 +1,7 @@
 import re
 import unicodedata
 
-from MatchCV.Parser.Exceptions.ParserException import ParserException
+from MatchCV.Domain.Exceptions.DomainException import DomainException
 
 
 class ProfanityValidator:
@@ -68,9 +68,7 @@ class ProfanityValidator:
     )
 
     SEPARATOR_PATTERN = re.compile(r"[\s*_.\-/\\|]+")
-
     NON_ALPHANUMERIC_PATTERN = re.compile(r"[^a-z0-9\s]")
-
     WHITESPACE_PATTERN = re.compile(r"\s+")
 
     @classmethod
@@ -93,7 +91,7 @@ class ProfanityValidator:
                 normalized_value,
                 normalized_term,
             ):
-                raise ParserException(
+                raise DomainException(
                     f"{field_name} contém conteúdo inadequado."
                 )
 

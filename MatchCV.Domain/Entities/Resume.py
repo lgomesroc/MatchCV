@@ -3,7 +3,7 @@ from uuid import UUID, uuid4
 
 from MatchCV.Domain.Enums.FileType import FileType
 from MatchCV.Domain.Exceptions.DomainException import DomainException
-from MatchCV.Parser.Validation.ProfanityValidator import (
+from MatchCV.Domain.Validation.ProfanityValidator import (
     ProfanityValidator,
 )
 
@@ -76,13 +76,10 @@ class Resume:
                 "30 caracteres úteis."
             )
 
-        try:
-            ProfanityValidator.validate(
-                normalized_text,
-                "O currículo",
-            )
-        except Exception as exception:
-            raise DomainException(str(exception)) from exception
+        ProfanityValidator.validate(
+            normalized_text,
+            "O currículo",
+        )
 
         return cls(
             id=uuid4(),

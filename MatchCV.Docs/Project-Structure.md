@@ -32,6 +32,10 @@ MatchCV/
 │   ├── Exceptions/
 │   │   ├── __init__.py
 │   │   └── DomainException.py
+│   ├── Validation/
+│   │   ├── __init__.py
+│   │   ├── ProfanityValidator.py
+│   │   └── TextContentValidator.py
 │   └── ValueObjects/
 │   │   └── __init__.py
 ├── MatchCV.Frontend/
@@ -59,10 +63,8 @@ MatchCV/
 │   │   ├── __init__.py
 │   │   ├── Data/
 │   │   │   └── __init__.py
-│   │   ├── ProfanityValidator.py
 │   │   ├── ResumeFileValidator.py
 │   │   ├── ResumeStructureValidator.py
-│   │   └── TextContentValidator.py
 ├── MatchCV.Tests/
 │   ├── Integration/
 │   │   ├── Api/
@@ -124,7 +126,9 @@ Atualmente contém:
 * `User`;
 * `FileType`;
 * `UserRole`;
-* `DomainException`
+* `DomainException`;
+* `Validation/TextContentValidator`;
+* `Validation/ProfanityValidator`.
 
 O domínio não deve depender de infraestrutura externa.
 
@@ -159,25 +163,24 @@ A camada de IA não deve substituir o Parser.
 
 ### MatchCV.Parser
 
-Responsável pelo processamento dos documentos enviados pelo candidato.
+Responsável pelo processamento e validação específica de documentos de currículo.
 
-Responsabilidades:
+Atualmente contém:
 
-* PDF;
-* DOC;
-* DOCX;
-* validação estrutural;
+* contratos de parser;
+* modelos de currículo processado;
+* seleção do parser conforme o formato;
+* parsers específicos para PDF, DOC e DOCX;
+* validação do arquivo recebido;
+* validação da estrutura do documento;
 * extração de texto;
-* quantidade de páginas;
-* detecção de documento sem texto útil;
-* análise de estrutura;
-* detecção de layout incompatível;
+* identificação de quantidade de páginas;
+* verificação de texto extraível;
 * identificação de documentos protegidos ou corrompidos;
-* produção de uma representação estruturada do currículo.
+* identificação de estruturas incompatíveis;
+* representação estruturada do currículo processado.
 
-O Parser responde o que existe no documento.
-
-A IA será responsável posteriormente por interpretar o conteúdo em relação à vaga.
+As regras genéricas de domínio, como validação de nome, conteúdo textual e conteúdo inadequado, pertencem ao `MatchCV.Domain`.
 
 ### MatchCV.Worker
 

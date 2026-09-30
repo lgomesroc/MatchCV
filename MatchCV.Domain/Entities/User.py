@@ -3,10 +3,10 @@ from uuid import UUID, uuid4
 
 from MatchCV.Domain.Enums.UserRole import UserRole
 from MatchCV.Domain.Exceptions.DomainException import DomainException
-from MatchCV.Parser.Validation.ProfanityValidator import (
+from MatchCV.Domain.Validation.ProfanityValidator import (
     ProfanityValidator,
 )
-from MatchCV.Parser.Validation.TextContentValidator import (
+from MatchCV.Domain.Validation.TextContentValidator import (
     TextContentValidator,
 )
 
@@ -27,20 +27,14 @@ class User:
         password_hash: str,
         role: UserRole = UserRole.USER,
     ) -> "User":
-        try:
-            normalized_name = TextContentValidator.validate_name(
-                name
-            )
-        except Exception as exception:
-            raise DomainException(str(exception)) from exception
+        normalized_name = TextContentValidator.validate_name(
+            name
+        )
 
-        try:
-            ProfanityValidator.validate(
-                normalized_name,
-                "O nome",
-            )
-        except Exception as exception:
-            raise DomainException(str(exception)) from exception
+        ProfanityValidator.validate(
+            normalized_name,
+            "O nome",
+        )
 
         if not email or not email.strip():
             raise DomainException(
