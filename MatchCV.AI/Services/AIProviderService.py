@@ -9,8 +9,10 @@ from MatchCV.AI.Services.IAIProvider import IAIProvider
 
 class AIProviderService:
     """
-    Coordena os provedores de IA e executa fallback
-    quando uma falha elegível ocorre.
+    Coordena o provedor principal e o provedor de fallback.
+
+    Uma análise continua sendo uma única consulta mesmo quando
+    ocorre fallback entre os provedores.
     """
 
     def __init__(

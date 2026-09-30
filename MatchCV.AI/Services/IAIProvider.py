@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 
-from MatchCV.AI.Models.AIAnalysisResponse import AIAnalysisResponse
+from MatchCV.AI.Models.AIAnalysisResponse import (
+    AIAnalysisResponse,
+)
 
 
 class IAIProvider(ABC):

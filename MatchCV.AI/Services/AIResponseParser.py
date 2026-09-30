@@ -9,7 +9,7 @@ from MatchCV.AI.Models.AIAnalysisResponse import (
 
 
 class AIResponseParser:
-    """Converte a resposta estruturada do provedor em domínio da IA."""
+    """Valida e converte a resposta JSON do provedor."""
 
     REQUIRED_FIELDS = {
         "evidenced_requirements",
@@ -42,13 +42,15 @@ class AIResponseParser:
 
         if missing_fields:
             raise AIProviderException(
-                "A resposta do provedor não possui todos os campos "
-                "obrigatórios.",
+                "A resposta do provedor não possui todos os "
+                "campos obrigatórios.",
                 retryable=False,
             )
 
         for field_name in cls.REQUIRED_FIELDS:
-            if not isinstance(data[field_name], list):
+            value = data[field_name]
+
+            if not isinstance(value, list):
                 raise AIProviderException(
                     f"O campo '{field_name}' deve ser uma lista.",
                     retryable=False,
@@ -56,7 +58,7 @@ class AIResponseParser:
 
             if not all(
                 isinstance(item, str)
-                for item in data[field_name]
+                for item in value
             ):
                 raise AIProviderException(
                     f"O campo '{field_name}' deve conter somente textos.",

@@ -19,20 +19,22 @@ Regras obrigatórias:
 3. Quando uma informação necessária não estiver presente no
    currículo, classifique-a como não evidenciada.
 
-4. Diferencie ausência de evidência de ausência absoluta de
-   conhecimento. O currículo pode simplesmente não informar algo.
+4. Ausência de evidência não significa necessariamente ausência
+   de conhecimento ou experiência do candidato.
 
 5. Identifique possíveis lacunas entre os requisitos da vaga e
    aquilo que está evidenciado no currículo.
 
-6. Avalie problemas objetivos de apresentação ou conteúdo do
-   currículo que possam prejudicar a compreensão das informações.
+6. Identifique problemas objetivos de conteúdo ou apresentação
+   que possam prejudicar a compreensão do currículo.
 
 7. As sugestões devem ser baseadas exclusivamente nas informações
-   disponíveis e não devem recomendar que o candidato invente
-   experiências ou conhecimentos.
+   disponíveis.
 
-8. Responda exclusivamente no formato estruturado solicitado.
+8. Nunca sugira que o candidato invente experiência, formação,
+   tecnologia, certificação ou resultado.
+
+9. Responda exclusivamente no formato JSON solicitado.
 """.strip()
 
     OUTPUT_FORMAT = """
@@ -61,15 +63,12 @@ Regras obrigatórias:
         resume_text: str,
         job_description: str,
     ) -> str:
-        return f"""
-{cls.SYSTEM_PROMPT}
-
-DESCRIÇÃO DA VAGA:
-{job_description}
-
-CURRÍCULO:
-{resume_text}
-
-FORMATO DE RESPOSTA:
-{cls.OUTPUT_FORMAT}
-""".strip()
+        return (
+            f"{cls.SYSTEM_PROMPT}\n\n"
+            f"DESCRIÇÃO DA VAGA:\n"
+            f"{job_description}\n\n"
+            f"CURRÍCULO:\n"
+            f"{resume_text}\n\n"
+            f"FORMATO DE RESPOSTA:\n"
+            f"{cls.OUTPUT_FORMAT}"
+        )

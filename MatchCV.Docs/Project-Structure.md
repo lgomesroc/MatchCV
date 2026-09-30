@@ -9,7 +9,6 @@ A estrutura foi planejada para separar domínio, aplicação, infraestrutura, pr
 ```text
 MatchCV/
 ├── MatchCV.AI/
-│   ├── __init__.py
 │   ├── Exceptions/
 │   │   ├── __init__.py
 │   │   └── AIProviderException.py
@@ -18,13 +17,19 @@ MatchCV/
 │   │   ├── AIAnalysisResponse.py
 │   │   └── AIProviderConfig.py
 │   ├── Providers/
-│   │   └── __init__.py
+│   │   ├──  __init__.py
+│   │   ├── AIAnalysisResponse.py
+│   │   ├── AIProviderConfig.py
+│   │   ├── AIProviderException.py
+│   │   └──SecondaryAIProvider.py
 │   └── Services/
 │   │   ├── __init__.py
 │   │   ├── AIProviderService.py
 │   │   ├── AIResponseParser.py
 │   │   ├── AnalysisPromptBuilder.py
 │   │   └── IAIProvider.py
+│   │   └── OpenAICompatibleProvider.py
+│   └── __init__.py
 ├── MatchCV.Api/
 ├── MatchCV.Application/
 │   ├── DTOs/
@@ -116,13 +121,15 @@ Responsável pela integração com provedores de inteligência artificial.
 
 Atualmente contém:
 
-* contrato interno para provedores de IA;
-* modelo estruturado da resposta da IA;
+* contratos para provedores de IA;
+* modelos de respostas estruturadas;
 * configuração dos provedores;
 * construção dos prompts;
-* validação e conversão das respostas estruturadas;
-* coordenação entre provedor principal e provedor de fallback;
-* tratamento de falhas elegíveis para fallback.
+* validação das respostas;
+* cliente HTTP;
+* provedor principal;
+* provedor de fallback;
+* coordenação de fallback entre provedores.
 
 O módulo não deve conter regras de negócio específicas da aplicação.
 
