@@ -18,9 +18,6 @@ MatchCV/
 │   │   └── AIProviderConfig.py
 │   ├── Providers/
 │   │   ├──  __init__.py
-│   │   ├── AIAnalysisResponse.py
-│   │   ├── AIProviderConfig.py
-│   │   ├── AIProviderException.py
 │   │   └──SecondaryAIProvider.py
 │   └── Services/
 │   │   ├── __init__.py
@@ -43,6 +40,10 @@ MatchCV/
 │   │   └── AnalyzeResumeUseCase.py
 │   └── __init__.py
 ├── MatchCV.Db/
+│   │   ├── Migrations/
+│   │   │   ├── __init__.py
+│   │   │   └── 001_initial_schema.sql
+│   └── __init__.py
 ├── MatchCV.Docs/
 │   ├── BusinessRules/
 │   │   └── business-rules.md
@@ -71,6 +72,21 @@ MatchCV/
 │   │   └── __init__.py
 ├── MatchCV.Frontend/
 ├── MatchCV.Infrastructure/
+│   │   ├── __init__.py
+│   │   ├── Config/
+│   │   │   ├── __init__.py
+│   │   │   ├── AISettings.py
+│   │   │   └── AppSettings.py
+│   │   ├── Database/
+│   │   │   ├── __init__.py
+│   │   │   └── DatabaseConnection.py
+│   │   ├── Repositories/
+│   │   │   ├── __init__.py
+│   │   │   ├── AnalysisRepository.py
+│   │   │   ├── JobDescriptionRepository.py
+│   │   │   └── UserRepository.py
+│   │   └── Services/
+│   │   │   └── __init__.py
 ├── MatchCV.Parser/
 │   ├── __init__.py
 │   ├── Exceptions/
