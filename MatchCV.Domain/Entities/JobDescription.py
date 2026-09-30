@@ -2,6 +2,12 @@ from dataclasses import dataclass
 from uuid import UUID, uuid4
 
 from MatchCV.Domain.Exceptions.DomainException import DomainException
+from MatchCV.Parser.Validation.ProfanityValidator import (
+    ProfanityValidator,
+)
+from MatchCV.Parser.Validation.TextContentValidator import (
+    TextContentValidator,
+)
 
 
 @dataclass
@@ -9,14 +15,22 @@ class JobDescription:
     id: UUID
     content: str
 
-    @classmethod
-    def create(cls, content: str) -> "JobDescription":
-        if not content or not content.strip():
-            raise DomainException(
-                "A descrição da vaga é obrigatória."
-            )
+    MIN_USEFUL_CHARACTERS = 30
+    MAX_CHARACTERS = 3000
 
-        normalized_content = content.strip()
+    @classmethod
+    def create(
+        cls,
+        content: str,
+    ) -> "JobDescription":
+        try:
+            normalized_content = (
+                TextContentValidator.validate_job_description(
+                    content
+                )
+            )
+        except Exception as exception:
+            raise DomainException(str(exception)) from exception
 
         useful_characters = len(
             "".join(
@@ -26,15 +40,25 @@ class JobDescription:
             )
         )
 
-        if useful_characters < 30:
+        if useful_characters < cls.MIN_USEFUL_CHARACTERS:
             raise DomainException(
-                "A descrição da vaga deve possuir pelo menos 30 caracteres úteis."
+                "A descrição da vaga deve possuir pelo menos "
+                "30 caracteres úteis."
             )
 
-        if len(normalized_content) > 3000:
+        if len(normalized_content) > cls.MAX_CHARACTERS:
             raise DomainException(
-                "A descrição da vaga não pode ultrapassar 3000 caracteres."
+                "A descrição da vaga não pode ultrapassar "
+                "3000 caracteres."
             )
+
+        try:
+            ProfanityValidator.validate(
+                normalized_content,
+                "A descrição da vaga",
+            )
+        except Exception as exception:
+            raise DomainException(str(exception)) from exception
 
         return cls(
             id=uuid4(),

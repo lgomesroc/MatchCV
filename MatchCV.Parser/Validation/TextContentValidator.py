@@ -7,7 +7,10 @@ class TextContentValidator:
     """Valida regras estruturais comuns para conteúdos textuais."""
 
     @staticmethod
-    def validate_required(value: str | None, field_name: str) -> str:
+    def validate_required(
+        value: str | None,
+        field_name: str,
+    ) -> str:
         if value is None:
             raise ParserException(
                 f"{field_name} é obrigatório."
@@ -25,7 +28,8 @@ class TextContentValidator:
 
         if value != value.strip():
             raise ParserException(
-                f"{field_name} não pode possuir espaços no início ou no final."
+                f"{field_name} não pode possuir espaços "
+                "no início ou no final."
             )
 
         if re.search(r"\s{2,}", value):
@@ -40,9 +44,15 @@ class TextContentValidator:
         value: str,
         field_name: str,
     ) -> None:
-        if value and all(
-            character.isdigit() or character.isspace()
+        characters = [
+            character
             for character in value
+            if not character.isspace()
+        ]
+
+        if characters and all(
+            character.isdigit()
+            for character in characters
         ):
             raise ParserException(
                 f"{field_name} não pode conter somente números."
@@ -64,7 +74,8 @@ class TextContentValidator:
             for character in characters
         ):
             raise ParserException(
-                f"{field_name} não pode conter somente caracteres especiais."
+                f"{field_name} não pode conter somente "
+                "caracteres especiais."
             )
 
     @staticmethod
@@ -85,7 +96,8 @@ class TextContentValidator:
             return
 
         raise ParserException(
-            f"{field_name} não pode começar com caractere especial."
+            f"{field_name} não pode começar com "
+            "caractere especial."
         )
 
     @staticmethod
@@ -93,7 +105,10 @@ class TextContentValidator:
         value: str,
         field_name: str,
     ) -> None:
-        for current, following in zip(value, value[1:]):
+        for current, following in zip(
+            value,
+            value[1:],
+        ):
             current_is_special = (
                 not current.isalnum()
                 and not current.isspace()
@@ -106,20 +121,29 @@ class TextContentValidator:
 
             if current_is_special and following_is_special:
                 raise ParserException(
-                    f"{field_name} não pode possuir caracteres "
-                    "especiais consecutivos."
+                    f"{field_name} não pode possuir "
+                    "caracteres especiais consecutivos."
                 )
 
     @staticmethod
-    def validate_name(value: str | None) -> str:
+    def validate_name(
+        value: str | None,
+    ) -> str:
         field_name = "O nome"
 
-        normalized_value = TextContentValidator.validate_required(
-            value,
-            field_name,
+        normalized_value = (
+            TextContentValidator.validate_required(
+                value,
+                field_name,
+            )
         )
 
         TextContentValidator.validate_not_only_numbers(
+            normalized_value,
+            field_name,
+        )
+
+        TextContentValidator.validate_not_only_special_characters(
             normalized_value,
             field_name,
         )
@@ -133,6 +157,37 @@ class TextContentValidator:
         TextContentValidator.validate_no_consecutive_special_characters(
             normalized_value,
             field_name,
+        )
+
+        return normalized_value
+
+    @staticmethod
+    def validate_job_description(
+        value: str | None,
+    ) -> str:
+        field_name = "A descrição da vaga"
+
+        normalized_value = (
+            TextContentValidator.validate_required(
+                value,
+                field_name,
+            )
+        )
+
+        TextContentValidator.validate_not_only_numbers(
+            normalized_value,
+            field_name,
+        )
+
+        TextContentValidator.validate_not_only_special_characters(
+            normalized_value,
+            field_name,
+        )
+
+        TextContentValidator.validate_first_character(
+            normalized_value,
+            field_name,
+            allow_dot=True,
         )
 
         return normalized_value

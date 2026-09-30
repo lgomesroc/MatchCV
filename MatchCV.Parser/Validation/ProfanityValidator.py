@@ -5,9 +5,10 @@ from MatchCV.Parser.Exceptions.ParserException import ParserException
 
 
 class ProfanityValidator:
-    """Detecta palavras chulas, palavrões e conteúdo inadequado."""
+    """Detecta palavrões, palavras chulas e conteúdo inadequado."""
 
     DEFAULT_TERMS = {
+        # Português
         "caralho",
         "puta",
         "piru",
@@ -20,9 +21,39 @@ class ProfanityValidator:
         "calcinha",
         "porra",
         "cuzinho",
+        "cusinho",
+        "cuzao",
+        "cusao",
+        "pau",
+        "foda",
+        "foda se",
+        "fodasse",
+        "fuder",
+        "fode",
         "sexo",
+
+        # Inglês
         "sex",
         "fuck",
+        "cock",
+        "asshole",
+        "pussy",
+        "dick",
+        "bastard",
+        "bitch",
+        "bullshit",
+        "crap",
+        "damn",
+        "douche",
+        "douchebag",
+        "fag",
+        "faggot",
+        "jerk",
+        "motherfucker",
+        "shit",
+        "shitty",
+        "slut",
+        "whore",
     }
 
     LEET_TRANSLATION = str.maketrans(
@@ -36,6 +67,12 @@ class ProfanityValidator:
         }
     )
 
+    SEPARATOR_PATTERN = re.compile(r"[\s*_.\-/\\|]+")
+
+    NON_ALPHANUMERIC_PATTERN = re.compile(r"[^a-z0-9\s]")
+
+    WHITESPACE_PATTERN = re.compile(r"\s+")
+
     @classmethod
     def validate(
         cls,
@@ -46,14 +83,16 @@ class ProfanityValidator:
         if value is None:
             return
 
-        normalized = cls._normalize(value)
-
+        normalized_value = cls._normalize(value)
         configured_terms = terms or cls.DEFAULT_TERMS
 
         for term in configured_terms:
             normalized_term = cls._normalize(term)
 
-            if cls._contains_term(normalized, normalized_term):
+            if cls._contains_term(
+                normalized_value,
+                normalized_term,
+            ):
                 raise ParserException(
                     f"{field_name} contém conteúdo inadequado."
                 )
@@ -77,20 +116,17 @@ class ProfanityValidator:
             cls.LEET_TRANSLATION
         )
 
-        normalized = re.sub(
-            r"[*_\-./\\|]+",
+        normalized = cls.SEPARATOR_PATTERN.sub(
             " ",
             normalized,
         )
 
-        normalized = re.sub(
-            r"[^a-z0-9\s]",
+        normalized = cls.NON_ALPHANUMERIC_PATTERN.sub(
             " ",
             normalized,
         )
 
-        normalized = re.sub(
-            r"\s+",
+        normalized = cls.WHITESPACE_PATTERN.sub(
             " ",
             normalized,
         )
@@ -105,7 +141,11 @@ class ProfanityValidator:
         if not normalized_term:
             return False
 
-        pattern = rf"(?<![a-z0-9]){re.escape(normalized_term)}(?![a-z0-9])"
+        pattern = (
+            rf"(?<![a-z0-9])"
+            rf"{re.escape(normalized_term)}"
+            rf"(?![a-z0-9])"
+        )
 
         return re.search(
             pattern,

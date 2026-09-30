@@ -23,7 +23,8 @@ MatchCV/
 │   │   ├── __init__.py
 │   │   ├── Analysis.py
 │   │   ├── JobDescription.py
-│   │   └── Resume.py
+│   │   ├── Resume.py
+│   │   └── User.py
 │   ├── Enums/
 │   │   ├── __init__.py
 │   │   ├── FileType.py
@@ -62,20 +63,17 @@ MatchCV/
 │   │   ├── ResumeFileValidator.py
 │   │   ├── ResumeStructureValidator.py
 │   │   └── TextContentValidator.py
-│
 ├── MatchCV.Tests/
 │   ├── Integration/
 │   │   ├── Api/
 │   │   ├── Database/
 │   │   ├── Parser/
 │   │   └── Repositories/
-│   │
 │   └── Unit/
 │   │   ├── Application/
 │   │   ├── Domain/
 │   │   └── Parser/
 ├── MatchCV.Worker/
-│
 ├── .env.example
 ├── .gitignore
 ├── docker-compose.yml
@@ -120,12 +118,13 @@ Contém os conceitos e regras centrais do domínio.
 
 Atualmente contém:
 
-* `Resume`;
-* `JobDescription`;
 * `Analysis`;
+* `JobDescription`;
+* `Resume`;
+* `User`;
 * `FileType`;
 * `UserRole`;
-* `DomainException`.
+* `DomainException`
 
 O domínio não deve depender de infraestrutura externa.
 
