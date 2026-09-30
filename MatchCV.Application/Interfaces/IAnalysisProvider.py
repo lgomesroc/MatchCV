@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
-from typing import Any
+
+from MatchCV.Application.DTOs.AnalysisResult import AnalysisResult
 
 
 class IAnalysisProvider(ABC):
@@ -10,11 +11,6 @@ class IAnalysisProvider(ABC):
         self,
         resume_text: str,
         job_description: str,
-    ) -> dict[str, Any]:
-        """
-        Analisa o currículo em relação à descrição da vaga.
-
-        O provedor deve retornar uma estrutura de dados
-        compatível com o resultado esperado pela aplicação.
-        """
+    ) -> AnalysisResult:
+        """Analisa o currículo em relação à vaga."""
         raise NotImplementedError

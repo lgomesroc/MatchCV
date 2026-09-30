@@ -1,5 +1,3 @@
-from typing import Any
-
 from MatchCV.Application.DTOs.AnalysisResult import AnalysisResult
 from MatchCV.Application.DTOs.AnalyzeResumeRequest import (
     AnalyzeResumeRequest,
@@ -61,32 +59,11 @@ class AnalyzeResumeUseCase:
         )
 
         analysis.complete(
-            evidenced_requirements=result.get(
-                "evidenced_requirements",
-                [],
-            ),
-            unevidenced_requirements=result.get(
-                "unevidenced_requirements",
-                [],
-            ),
-            gaps=result.get(
-                "gaps",
-                [],
-            ),
-            resume_issues=result.get(
-                "resume_issues",
-                [],
-            ),
-            suggestions=result.get(
-                "suggestions",
-                [],
-            ),
+            evidenced_requirements=result.evidenced_requirements,
+            unevidenced_requirements=result.unevidenced_requirements,
+            gaps=result.gaps,
+            resume_issues=result.resume_issues,
+            suggestions=result.suggestions,
         )
 
-        return AnalysisResult(
-            evidenced_requirements=analysis.evidenced_requirements,
-            unevidenced_requirements=analysis.unevidenced_requirements,
-            gaps=analysis.gaps,
-            resume_issues=analysis.resume_issues,
-            suggestions=analysis.suggestions,
-        )
+        return result
