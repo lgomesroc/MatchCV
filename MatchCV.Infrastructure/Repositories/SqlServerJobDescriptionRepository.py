@@ -13,10 +13,10 @@ from MatchCV.Infrastructure.Models.JobDescriptionRecord import (
 )
 
 
-class PostgresJobDescriptionRepository(
+class SqlServerJobDescriptionRepository(
     IJobDescriptionRepository
 ):
-    """Implementação PostgreSQL do repositório de vagas."""
+    """Implementação SQL Server do repositório de vagas."""
 
     def __init__(
         self,
@@ -29,25 +29,30 @@ class PostgresJobDescriptionRepository(
         job_description: JobDescription,
     ) -> JobDescription:
         with self._database_connection.connection() as connection:
-            with connection.cursor() as cursor:
+            cursor = connection.cursor()
+
+            try:
                 cursor.execute(
                     """
-                    INSERT INTO job_descriptions (
+                    INSERT INTO dbo.job_descriptions (
                         id,
                         content
                     )
                     VALUES (
-                        %s,
-                        %s
+                        ?,
+                        ?
                     )
                     """,
-                    (
-                        job_description.id,
-                        job_description.content,
-                    ),
+                    str(job_description.id),
+                    job_description.content,
                 )
 
-            connection.commit()
+                connection.commit()
+            except Exception:
+                connection.rollback()
+                raise
+            finally:
+                cursor.close()
 
         return job_description
 
@@ -56,26 +61,30 @@ class PostgresJobDescriptionRepository(
         job_description_id: UUID,
     ) -> Optional[JobDescription]:
         with self._database_connection.connection() as connection:
-            with connection.cursor() as cursor:
+            cursor = connection.cursor()
+
+            try:
                 cursor.execute(
                     """
                     SELECT
                         id,
                         content,
                         created_at
-                    FROM job_descriptions
-                    WHERE id = %s
+                    FROM dbo.job_descriptions
+                    WHERE id = ?
                     """,
-                    (job_description_id,),
+                    str(job_description_id),
                 )
 
                 row = cursor.fetchone()
+            finally:
+                cursor.close()
 
         if row is None:
             return None
 
         record = JobDescriptionRecord(
-            id=row[0],
+            id=UUID(str(row[0])),
             content=row[1],
             created_at=row[2],
         )

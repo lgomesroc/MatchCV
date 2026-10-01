@@ -1,5 +1,10 @@
-from dataclasses import dataclass
 import os
+from dataclasses import dataclass
+
+from dotenv import load_dotenv
+
+
+load_dotenv()
 
 
 @dataclass(frozen=True)
@@ -7,7 +12,11 @@ class AppSettings:
     """Configurações gerais da aplicação."""
 
     environment: str
-    database_url: str
+    database_host: str
+    database_port: int
+    database_name: str
+    database_user: str
+    database_password: str
     ai_primary_api_key: str
     ai_primary_model: str
     ai_primary_base_url: str
@@ -24,8 +33,26 @@ class AppSettings:
                 "APP_ENVIRONMENT",
                 "development",
             ),
-            database_url=os.getenv(
-                "DATABASE_URL",
+            database_host=os.getenv(
+                "DATABASE_HOST",
+                "localhost",
+            ),
+            database_port=int(
+                os.getenv(
+                    "DATABASE_PORT",
+                    "1433",
+                )
+            ),
+            database_name=os.getenv(
+                "DATABASE_NAME",
+                "MatchCV",
+            ),
+            database_user=os.getenv(
+                "DATABASE_USER",
+                "sa",
+            ),
+            database_password=os.getenv(
+                "DATABASE_PASSWORD",
                 "",
             ),
             ai_primary_api_key=os.getenv(

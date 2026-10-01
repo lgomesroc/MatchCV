@@ -1,3 +1,4 @@
+import json
 from typing import Optional
 from uuid import UUID
 
@@ -9,11 +10,13 @@ from MatchCV.Domain.Enums.AnalysisStatus import AnalysisStatus
 from MatchCV.Infrastructure.Database.DatabaseConnection import (
     DatabaseConnection,
 )
-from MatchCV.Infrastructure.Models.AnalysisRecord import AnalysisRecord
+from MatchCV.Infrastructure.Models.AnalysisRecord import (
+    AnalysisRecord,
+)
 
 
-class PostgresAnalysisRepository(IAnalysisRepository):
-    """Implementação PostgreSQL do repositório de análises."""
+class SqlServerAnalysisRepository(IAnalysisRepository):
+    """Implementação SQL Server do repositório de análises."""
 
     def __init__(
         self,
@@ -26,10 +29,12 @@ class PostgresAnalysisRepository(IAnalysisRepository):
         analysis: Analysis,
     ) -> Analysis:
         with self._database_connection.connection() as connection:
-            with connection.cursor() as cursor:
+            cursor = connection.cursor()
+
+            try:
                 cursor.execute(
                     """
-                    INSERT INTO analyses (
+                    INSERT INTO dbo.analyses (
                         id,
                         resume_id,
                         job_description_id,
@@ -41,31 +46,49 @@ class PostgresAnalysisRepository(IAnalysisRepository):
                         suggestions
                     )
                     VALUES (
-                        %s,
-                        %s,
-                        %s,
-                        %s,
-                        %s,
-                        %s,
-                        %s,
-                        %s,
-                        %s
+                        ?,
+                        ?,
+                        ?,
+                        ?,
+                        ?,
+                        ?,
+                        ?,
+                        ?,
+                        ?
                     )
                     """,
-                    (
-                        analysis.id,
-                        analysis.resume_id,
-                        analysis.job_description_id,
-                        analysis.status.value,
+                    str(analysis.id),
+                    str(analysis.resume_id),
+                    str(analysis.job_description_id),
+                    analysis.status.value,
+                    json.dumps(
                         analysis.evidenced_requirements,
+                        ensure_ascii=False,
+                    ),
+                    json.dumps(
                         analysis.unevidenced_requirements,
+                        ensure_ascii=False,
+                    ),
+                    json.dumps(
                         analysis.gaps,
+                        ensure_ascii=False,
+                    ),
+                    json.dumps(
                         analysis.resume_issues,
+                        ensure_ascii=False,
+                    ),
+                    json.dumps(
                         analysis.suggestions,
+                        ensure_ascii=False,
                     ),
                 )
 
-            connection.commit()
+                connection.commit()
+            except Exception:
+                connection.rollback()
+                raise
+            finally:
+                cursor.close()
 
         return analysis
 
@@ -74,7 +97,9 @@ class PostgresAnalysisRepository(IAnalysisRepository):
         analysis_id: UUID,
     ) -> Optional[Analysis]:
         with self._database_connection.connection() as connection:
-            with connection.cursor() as cursor:
+            cursor = connection.cursor()
+
+            try:
                 cursor.execute(
                     """
                     SELECT
@@ -89,27 +114,39 @@ class PostgresAnalysisRepository(IAnalysisRepository):
                         suggestions,
                         created_at,
                         completed_at
-                    FROM analyses
-                    WHERE id = %s
+                    FROM dbo.analyses
+                    WHERE id = ?
                     """,
-                    (analysis_id,),
+                    str(analysis_id),
                 )
 
                 row = cursor.fetchone()
+            finally:
+                cursor.close()
 
         if row is None:
             return None
 
         record = AnalysisRecord(
-            id=row[0],
-            resume_id=row[1],
-            job_description_id=row[2],
+            id=UUID(str(row[0])),
+            resume_id=UUID(str(row[1])),
+            job_description_id=UUID(str(row[2])),
             status=AnalysisStatus(row[3]),
-            evidenced_requirements=row[4] or [],
-            unevidenced_requirements=row[5] or [],
-            gaps=row[6] or [],
-            resume_issues=row[7] or [],
-            suggestions=row[8] or [],
+            evidenced_requirements=json.loads(
+                row[4] or "[]"
+            ),
+            unevidenced_requirements=json.loads(
+                row[5] or "[]"
+            ),
+            gaps=json.loads(
+                row[6] or "[]"
+            ),
+            resume_issues=json.loads(
+                row[7] or "[]"
+            ),
+            suggestions=json.loads(
+                row[8] or "[]"
+            ),
             created_at=row[9],
             completed_at=row[10],
         )
@@ -131,32 +168,52 @@ class PostgresAnalysisRepository(IAnalysisRepository):
         analysis: Analysis,
     ) -> Analysis:
         with self._database_connection.connection() as connection:
-            with connection.cursor() as cursor:
+            cursor = connection.cursor()
+
+            try:
                 cursor.execute(
                     """
-                    UPDATE analyses
+                    UPDATE dbo.analyses
                     SET
-                        status = %s,
-                        evidenced_requirements = %s,
-                        unevidenced_requirements = %s,
-                        gaps = %s,
-                        resume_issues = %s,
-                        suggestions = %s,
-                        completed_at = %s
-                    WHERE id = %s
+                        status = ?,
+                        evidenced_requirements = ?,
+                        unevidenced_requirements = ?,
+                        gaps = ?,
+                        resume_issues = ?,
+                        suggestions = ?,
+                        completed_at = ?
+                    WHERE id = ?
                     """,
-                    (
-                        analysis.status.value,
+                    analysis.status.value,
+                    json.dumps(
                         analysis.evidenced_requirements,
-                        analysis.unevidenced_requirements,
-                        analysis.gaps,
-                        analysis.resume_issues,
-                        analysis.suggestions,
-                        analysis.completed_at,
-                        analysis.id,
+                        ensure_ascii=False,
                     ),
+                    json.dumps(
+                        analysis.unevidenced_requirements,
+                        ensure_ascii=False,
+                    ),
+                    json.dumps(
+                        analysis.gaps,
+                        ensure_ascii=False,
+                    ),
+                    json.dumps(
+                        analysis.resume_issues,
+                        ensure_ascii=False,
+                    ),
+                    json.dumps(
+                        analysis.suggestions,
+                        ensure_ascii=False,
+                    ),
+                    analysis.completed_at,
+                    str(analysis.id),
                 )
 
-            connection.commit()
+                connection.commit()
+            except Exception:
+                connection.rollback()
+                raise
+            finally:
+                cursor.close()
 
         return analysis

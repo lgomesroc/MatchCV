@@ -1,25 +1,16 @@
 services:
-  postgres:
-    image: postgres:17
-    container_name: matchcv-postgres
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: matchcv-sqlserver
     restart: unless-stopped
     environment:
-      POSTGRES_DB: matchcv
-      POSTGRES_USER: matchcv
-      POSTGRES_PASSWORD: matchcv
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: ${DATABASE_PASSWORD}
+      MSSQL_PID: Developer
     ports:
-      - "5432:5432"
+      - "1433:1433"
     volumes:
-      - matchcv-postgres-data:/var/lib/postgresql/data
-    healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "pg_isready -U matchcv -d matchcv"
-        ]
-      interval: 5s
-      timeout: 5s
-      retries: 10
+      - matchcv_sqlserver_data:/var/opt/mssql
 
 volumes:
-  matchcv-postgres-data:
+  matchcv_sqlserver_data:
