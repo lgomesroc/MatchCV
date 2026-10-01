@@ -306,25 +306,27 @@ Currículo, descrição da vaga e nome da pessoa devem passar por uma validaçã
 
 A validação deve considerar:
 
-- palavrões;
-- palavras chulas;
-- termos sexuais inadequados ao contexto do sistema;
-- formas comuns de ofuscação;
-- termos em português;
-- termos em inglês.
+* palavrões;
+* palavras chulas;
+* termos sexuais inadequados ao contexto do sistema;
+* termos fisiológicos inadequados ao contexto profissional;
+* expressões vulgares ou de caráter ofensivo;
+* formas comuns de ofuscação;
+* termos em português;
+* termos em inglês.
 
 ### BR-038 — Normalização antes da detecção
 
 Antes da identificação de conteúdo inadequado, o sistema deve normalizar o texto considerando, quando aplicável:
 
-- diferença entre maiúsculas e minúsculas;
-- acentuação;
-- caracteres especiais;
-- asteriscos;
-- separadores;
-- repetição de caracteres;
-- substituição de letras por números;
-- formas simples de ofuscação.
+* diferença entre maiúsculas e minúsculas;
+* acentuação;
+* caracteres especiais;
+* asteriscos;
+* separadores;
+* repetição de caracteres;
+* substituição de letras por números;
+* formas simples de ofuscação.
 
 Exemplos que devem ser considerados equivalentes quando a normalização permitir:
 
@@ -334,59 +336,76 @@ Exemplos que devem ser considerados equivalentes quando a normalização permiti
 
 `c4r4lh0`
 
+`cocô`
+
+`coco`
+
+`cu cabeludo`
+
+`cucabeludo`
+
 ### BR-039 — Exemplos de termos inadequados
 
 A lista inicial deve contemplar termos como:
 
-Português:
+**Português:**
 
-- caralho;
-- puta;
-- piru;
-- piroca;
-- pica;
-- buceta;
-- vagina;
-- pênis;
-- cueca;
-- calcinha;
-- porra;
-- cuzinho;
-- cusinho;
-- cuzão;
-- cusão;
-- pau;
-- foda;
-- foda-se;
-- fodasse;
-- fuder;
-- fode;
-- sexo.
+* caralho;
+* puta;
+* piru;
+* piroca;
+* pica;
+* buceta;
+* vagina;
+* pênis;
+* cueca;
+* calcinha;
+* porra;
+* cuzinho;
+* cusinho;
+* cuzão;
+* cusão;
+* pau;
+* foda;
+* foda-se;
+* fodasse;
+* fuder;
+* fode;
+* sexo;
+* fezes;
+* urina;
+* cocô;
+* coco;
+* xixi;
+* mijar;
+* defecar;
+* cucabeludo;
+* cu cabeludo.
 
-Inglês:
+**Inglês:**
 
-- sex;
-- fuck;
-- cock;
-- asshole;
-- pussy;
-- bastard;
-- bitch;
-- bullshit;
-- crap;
-- damn;
-- douche;
-- douchebag;
-- fag;
-- faggot;
-- jerk;
-- motherfucker;
-- shit;
-- shitty;
-- slut;
-- whore;
-- wtf;
-- dick.
+* sex;
+* fuck;
+* cock;
+* asshole;
+* pussy;
+* bastard;
+* bitch;
+* bullshit;
+* crap;
+* damn;
+* douche;
+* douchebag;
+* fag;
+* faggot;
+* jerk;
+* motherfucker;
+* shit;
+* shitty;
+* slut;
+* whore;
+* wtf;
+* dick.
 
 A lista não deve ficar limitada exclusivamente a esses exemplos.
 
@@ -401,6 +420,10 @@ Exemplo:
 isoladamente não deve ser considerado suficiente para bloquear um conteúdo.
 
 A detecção deve utilizar limites de palavra, contexto e/ou normalização apropriada.
+
+Termos compostos devem ser reconhecidos mesmo quando escritos juntos ou separados por espaços, desde que a normalização permita identificar a expressão.
+
+A validação deve evitar correspondências indevidas em palavras maiores, sem permitir que separadores ou caracteres de ofuscação sejam utilizados para contornar a restrição.
 
 ### BR-041 — Termos técnicos
 

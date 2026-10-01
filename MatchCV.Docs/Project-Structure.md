@@ -35,6 +35,11 @@ MatchCV/
 │   ├── Interfaces/
 │   │   ├── __init__.py
 │   │   └── IAnalysisProvider.py
+│   ├── Repositories/
+│   │   ├── __init__.py
+│   │   ├── IAnalysisRepository.py
+│   │   ├── IJobDescriptionRepository.py
+│   │   └── IUserRepository.py
 │   └── UseCases/
 │   │   ├── __init__.py
 │   │   └── AnalyzeResumeUseCase.py
@@ -73,20 +78,26 @@ MatchCV/
 ├── MatchCV.Frontend/
 ├── MatchCV.Infrastructure/
 │   │   ├── __init__.py
-│   │   ├── Config/
+│   │   ├── Config/ 
 │   │   │   ├── __init__.py
 │   │   │   ├── AISettings.py
 │   │   │   └── AppSettings.py
 │   │   ├── Database/
 │   │   │   ├── __init__.py
 │   │   │   └── DatabaseConnection.py
+│   │   ├── Models/
+│   │   │   ├── __init__.py
+│   │   │   ├── AnalysisRecord.py
+│   │   │   ├── JobDescriptionRecord.py
+│   │   │   └── UserRecord.py
 │   │   ├── Repositories/
 │   │   │   ├── __init__.py
-│   │   │   ├── AnalysisRepository.py
-│   │   │   ├── JobDescriptionRepository.py
-│   │   │   └── UserRepository.py
+│   │   │   ├── PostgresAnalysisRepository.py
+│   │   │   ├── PostgresJobDescriptionRepository.py
+│   │   │   └── PostgresUserRepository.py
 │   │   └── Services/
-│   │   │   └── __init__.py
+│   │   │   ├── __init__.py
+│   │   │   └── AIAnalysisProvider.py
 ├── MatchCV.Parser/
 │   ├── __init__.py
 │   ├── Exceptions/

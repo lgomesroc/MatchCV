@@ -5,8 +5,8 @@ from uuid import UUID
 from MatchCV.Domain.Entities.JobDescription import JobDescription
 
 
-class JobDescriptionRepository(ABC):
-    """Contrato para persistência de descrições de vagas."""
+class IJobDescriptionRepository(ABC):
+    """Contrato de persistência de descrições de vagas."""
 
     @abstractmethod
     def add(

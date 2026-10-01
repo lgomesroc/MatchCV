@@ -5,6 +5,12 @@ from MatchCV.Application.DTOs.AnalyzeResumeRequest import (
 from MatchCV.Application.Interfaces.IAnalysisProvider import (
     IAnalysisProvider,
 )
+from MatchCV.Application.Repositories.IAnalysisRepository import (
+    IAnalysisRepository,
+)
+from MatchCV.Application.Repositories.IJobDescriptionRepository import (
+    IJobDescriptionRepository,
+)
 from MatchCV.Domain.Entities.Analysis import Analysis
 from MatchCV.Domain.Entities.JobDescription import JobDescription
 from MatchCV.Domain.Entities.Resume import Resume
@@ -20,9 +26,15 @@ class AnalyzeResumeUseCase:
         self,
         resume_parser_service: ResumeParserService,
         analysis_provider: IAnalysisProvider,
+        job_description_repository: IJobDescriptionRepository,
+        analysis_repository: IAnalysisRepository,
     ) -> None:
         self._resume_parser_service = resume_parser_service
         self._analysis_provider = analysis_provider
+        self._job_description_repository = (
+            job_description_repository
+        )
+        self._analysis_repository = analysis_repository
 
     def execute(
         self,
@@ -46,24 +58,40 @@ class AnalyzeResumeUseCase:
             extracted_text=parsed_resume.extracted_text,
         )
 
+        self._job_description_repository.add(
+            job_description
+        )
+
         analysis = Analysis.create(
             resume_id=resume.id,
             job_description_id=job_description.id,
         )
 
+        self._analysis_repository.add(analysis)
+
         analysis.start_processing()
 
-        result = self._analysis_provider.analyze(
-            resume_text=resume.extracted_text,
-            job_description=job_description.content,
-        )
+        self._analysis_repository.update(analysis)
 
-        analysis.complete(
-            evidenced_requirements=result.evidenced_requirements,
-            unevidenced_requirements=result.unevidenced_requirements,
-            gaps=result.gaps,
-            resume_issues=result.resume_issues,
-            suggestions=result.suggestions,
-        )
+        try:
+            result = self._analysis_provider.analyze(
+                resume_text=resume.extracted_text,
+                job_description=job_description.content,
+            )
 
-        return result
+            analysis.complete(
+                evidenced_requirements=result.evidenced_requirements,
+                unevidenced_requirements=result.unevidenced_requirements,
+                gaps=result.gaps,
+                resume_issues=result.resume_issues,
+                suggestions=result.suggestions,
+            )
+
+            self._analysis_repository.update(analysis)
+
+            return result
+
+        except Exception:
+            analysis.fail()
+            self._analysis_repository.update(analysis)
+            raise

@@ -5,8 +5,8 @@ from uuid import UUID
 from MatchCV.Domain.Entities.Analysis import Analysis
 
 
-class AnalysisRepository(ABC):
-    """Contrato para persistência de análises."""
+class IAnalysisRepository(ABC):
+    """Contrato de persistência de análises."""
 
     @abstractmethod
     def add(

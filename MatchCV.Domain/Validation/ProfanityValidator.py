@@ -5,10 +5,10 @@ from MatchCV.Domain.Exceptions.DomainException import DomainException
 
 
 class ProfanityValidator:
-    """Detecta palavrões, palavras chulas e conteúdo inadequado."""
+    """Detecta palavrões, termos chulos e conteúdo inadequado."""
 
     DEFAULT_TERMS = {
-        # Português
+        # Português: palavrões e termos chulos
         "caralho",
         "puta",
         "piru",
@@ -31,6 +31,18 @@ class ProfanityValidator:
         "fuder",
         "fode",
         "sexo",
+
+        # Português: termos fisiológicos inadequados
+        "fezes",
+        "urina",
+        "coco",
+        "xixi",
+        "mijar",
+        "defecar",
+
+        # Português: expressões inadequadas
+        "cucabeludo",
+        "cu cabeludo",
 
         # Inglês
         "sex",
@@ -82,7 +94,11 @@ class ProfanityValidator:
             return
 
         normalized_value = cls._normalize(value)
-        configured_terms = terms or cls.DEFAULT_TERMS
+        configured_terms = (
+            cls.DEFAULT_TERMS
+            if terms is None
+            else terms
+        )
 
         for term in configured_terms:
             normalized_term = cls._normalize(term)
@@ -109,21 +125,17 @@ class ProfanityValidator:
         )
 
         normalized = normalized.lower()
-
         normalized = normalized.translate(
             cls.LEET_TRANSLATION
         )
-
         normalized = cls.SEPARATOR_PATTERN.sub(
             " ",
             normalized,
         )
-
         normalized = cls.NON_ALPHANUMERIC_PATTERN.sub(
             " ",
             normalized,
         )
-
         normalized = cls.WHITESPACE_PATTERN.sub(
             " ",
             normalized,

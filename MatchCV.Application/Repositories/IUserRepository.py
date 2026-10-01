@@ -5,14 +5,11 @@ from uuid import UUID
 from MatchCV.Domain.Entities.User import User
 
 
-class UserRepository(ABC):
-    """Contrato para persistência de usuários."""
+class IUserRepository(ABC):
+    """Contrato de persistência de usuários."""
 
     @abstractmethod
-    def add(
-        self,
-        user: User,
-    ) -> User:
+    def add(self, user: User) -> User:
         raise NotImplementedError
 
     @abstractmethod
