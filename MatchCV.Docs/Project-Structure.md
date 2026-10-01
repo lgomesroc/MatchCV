@@ -92,9 +92,9 @@ MatchCV/
 │   │   │   └── UserRecord.py
 │   │   ├── Repositories/
 │   │   │   ├── __init__.py
-│   │   │   ├── PostgresAnalysisRepository.py
-│   │   │   ├── PostgresJobDescriptionRepository.py
-│   │   │   └── PostgresUserRepository.py
+│   │   │   ├── SqlServerAnalysisRepository.py
+│   │   │   ├── SqlServerJobDescriptionRepository.py
+│   │   │   └── SqlServerUserRepository.py
 │   │   └── Services/
 │   │   │   ├── __init__.py
 │   │   │   └── AIAnalysisProvider.py

@@ -12,8 +12,8 @@ from MatchCV.Infrastructure.Database.DatabaseConnection import (
 from MatchCV.Infrastructure.Models.UserRecord import UserRecord
 
 
-class PostgresUserRepository(IUserRepository):
-    """Implementação PostgreSQL do repositório de usuários."""
+class SqlServerUserRepository(IUserRepository):
+    """Implementação SQL Server do repositório de usuários."""
 
     def __init__(
         self,
@@ -26,10 +26,12 @@ class PostgresUserRepository(IUserRepository):
         user: User,
     ) -> User:
         with self._database_connection.connection() as connection:
-            with connection.cursor() as cursor:
+            cursor = connection.cursor()
+
+            try:
                 cursor.execute(
                     """
-                    INSERT INTO users (
+                    INSERT INTO dbo.users (
                         id,
                         name,
                         email,
@@ -37,23 +39,26 @@ class PostgresUserRepository(IUserRepository):
                         role
                     )
                     VALUES (
-                        %s,
-                        %s,
-                        %s,
-                        %s,
-                        %s
+                        ?,
+                        ?,
+                        ?,
+                        ?,
+                        ?
                     )
                     """,
-                    (
-                        user.id,
-                        user.name,
-                        user.email,
-                        user.password_hash,
-                        user.role.value,
-                    ),
+                    str(user.id),
+                    user.name,
+                    user.email,
+                    user.password_hash,
+                    user.role.value,
                 )
 
-            connection.commit()
+                connection.commit()
+            except Exception:
+                connection.rollback()
+                raise
+            finally:
+                cursor.close()
 
         return user
 
@@ -62,7 +67,9 @@ class PostgresUserRepository(IUserRepository):
         user_id: UUID,
     ) -> Optional[User]:
         with self._database_connection.connection() as connection:
-            with connection.cursor() as cursor:
+            cursor = connection.cursor()
+
+            try:
                 cursor.execute(
                     """
                     SELECT
@@ -72,13 +79,15 @@ class PostgresUserRepository(IUserRepository):
                         password_hash,
                         role,
                         created_at
-                    FROM users
-                    WHERE id = %s
+                    FROM dbo.users
+                    WHERE id = ?
                     """,
-                    (user_id,),
+                    str(user_id),
                 )
 
                 row = cursor.fetchone()
+            finally:
+                cursor.close()
 
         if row is None:
             return None
@@ -92,7 +101,9 @@ class PostgresUserRepository(IUserRepository):
         email: str,
     ) -> Optional[User]:
         with self._database_connection.connection() as connection:
-            with connection.cursor() as cursor:
+            cursor = connection.cursor()
+
+            try:
                 cursor.execute(
                     """
                     SELECT
@@ -102,13 +113,15 @@ class PostgresUserRepository(IUserRepository):
                         password_hash,
                         role,
                         created_at
-                    FROM users
-                    WHERE email = %s
+                    FROM dbo.users
+                    WHERE email = ?
                     """,
-                    (email,),
+                    email,
                 )
 
                 row = cursor.fetchone()
+            finally:
+                cursor.close()
 
         if row is None:
             return None
@@ -122,7 +135,7 @@ class PostgresUserRepository(IUserRepository):
         row: tuple,
     ) -> UserRecord:
         return UserRecord(
-            id=row[0],
+            id=UUID(str(row[0])),
             name=row[1],
             email=row[2],
             password_hash=row[3],
