@@ -1,12 +1,15 @@
 from typing import BinaryIO
 
+from MatchCV.Parser.Exceptions.ParserException import ParserException
 from MatchCV.Parser.Interfaces.IResumeParser import IResumeParser
 from MatchCV.Parser.Models.ParsedResume import ParsedResume
-from MatchCV.Parser.Exceptions.ParserException import ParserException
+from MatchCV.Parser.Validation.ResumeStructureValidator import (
+    ResumeStructureValidator,
+)
 
 
 class ResumeParserService:
-    """Serviço responsável por selecionar o parser adequado ao arquivo."""
+    """Serviço responsável por selecionar e validar o parser adequado."""
 
     def __init__(
         self,
@@ -37,11 +40,17 @@ class ResumeParserService:
                 "Formato de currículo não suportado."
             )
 
-        return parser.parse(
+        parsed_resume = parser.parse(
             file_stream=file_stream,
             file_name=file_name,
             file_size_bytes=file_size_bytes,
         )
+
+        ResumeStructureValidator.validate(
+            parsed_resume
+        )
+
+        return parsed_resume
 
     @staticmethod
     def _get_extension(file_name: str) -> str:

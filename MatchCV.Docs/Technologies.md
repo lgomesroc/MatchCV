@@ -4,6 +4,26 @@ Este documento registra as tecnologias utilizadas ou previstas no projeto MatchC
 
 As versões específicas serão definidas conforme a implementação e a configuração dos ambientes de desenvolvimento e execução.
 
+## Objetivo
+
+Registrar as tecnologias utilizadas ou previstas no desenvolvimento do MatchCV.
+
+## Stack principal
+
+| Tecnologia | Finalidade | Situação |
+|---|---|---|
+| Python | Backend e serviços | Em utilização |
+| SQL Server 2022 | Banco de dados | Definido |
+| pyodbc | Driver de conexão | Definido |
+| Docker | Ambiente de desenvolvimento | Definido |
+| Git | Versionamento | Em utilização |
+| GitHub | Repositório remoto | Em utilização |
+| HTML | Estrutura frontend | Planejado |
+| CSS | Estilização frontend | Planejado |
+| JavaScript/TypeScript | Interface | A definir |
+| Framework frontend | Interface web | A definir |
+| Provedores de IA | Análise semântica | Em implementação |
+
 ## Backend
 
 ### Python
@@ -183,3 +203,39 @@ Documentos principais:
 * `BusinessRules/business-rules.md`
 * `Project-Structure.md`
 * `Technologies.md`
+
+## Processamento de documentos
+
+Bibliotecas previstas ou utilizadas:
+
+- pypdf para leitura de PDF.
+- python-docx para leitura de DOCX.
+- Estratégia específica para documentos DOC legados.
+
+## Inteligência artificial
+
+A arquitetura deverá permitir a utilização de dois provedores.
+
+A escolha dos provedores concretos depende da configuração e implementação das integrações.
+
+## Containerização
+
+Docker será utilizado para padronizar o ambiente local, especialmente o SQL Server.
+
+## Compatibilidade
+
+O projeto considera:
+
+- Windows 11.
+- Linux.
+- Docker Desktop.
+- Execução local.
+- Ambientes automatizados de CI.
+
+## Critério de atualização
+
+Toda inclusão ou substituição relevante de tecnologia deve ser registrada neste documento.
+
+## Status
+
+As tecnologias definidas devem ser distinguidas das tecnologias ainda em avaliação.

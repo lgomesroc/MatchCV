@@ -10,12 +10,12 @@ A proposta é analisar o conteúdo apresentado pelo candidato, confrontá-lo com
 
 O MatchCV analisa:
 
-* requisitos da vaga evidenciados no currículo;
-* requisitos da vaga não evidenciados;
-* possíveis lacunas;
-* problemas estruturais ou de conteúdo no currículo;
-* sugestões de melhoria;
-* informações que podem ser interpretadas pela inteligência artificial sem inventar experiências ou qualificações.
+* Requisitos da vaga evidenciados no currículo.
+* Requisitos da vaga não evidenciados.
+* Possíveis lacunas.
+* Problemas estruturais ou de conteúdo no currículo.
+* Sugestões de melhoria.
+* Informações que podem ser interpretadas pela inteligência artificial sem inventar experiências ou qualificações.
 
 O sistema não deve criar experiências, tecnologias, cargos, empresas, certificações, resultados ou qualquer outra informação que não esteja evidenciada no conteúdo fornecido.
 
@@ -23,41 +23,65 @@ O sistema não deve criar experiências, tecnologias, cargos, empresas, certific
 
 ```text
 Usuário
-   ↓
+   |
+   v
 Upload do currículo
-   ↓
+   |
+   v
 Validação do arquivo
-   ↓
+   |
+   v
 Parser
-   ↓
+   |
+   v
 Extração e normalização
-   ↓
+   |
+   v
 Descrição da vaga
-   ↓
+   |
+   v
 Análise com IA
-   ↓
-Comparação currículo × vaga
-   ↓
+   |
+   v
+Comparação currículo x vaga
+   |
+   v
 Resultado da análise
 ```
 
 ## Principais características
 
-* Suporte a PDF, DOC e DOCX;
-* validação do tamanho do arquivo;
-* validação da quantidade de páginas;
-* validação do conteúdo extraído;
-* análise estrutural do currículo;
-* rejeição de documentos que não atendam aos critérios definidos;
-* processamento de descrição de vaga;
-* análise semântica com IA;
-* arquitetura preparada para dois provedores de IA;
-* processamento temporário dos currículos;
-* minimização de dados armazenados;
-* autenticação e autorização previstas para evolução do sistema;
-* testes unitários e de integração;
-* execução em Windows e Linux;
-* infraestrutura de desenvolvimento com Docker.
+* Suporte previsto a PDF, DOC e DOCX.
+* Validação do tamanho do arquivo.
+* Validação da quantidade de páginas.
+* Validação do conteúdo extraído.
+* Análise estrutural do currículo.
+* Rejeição de documentos que não atendam aos critérios definidos.
+* Processamento de descrição de vaga.
+* Análise semântica com IA.
+* Arquitetura preparada para dois provedores de IA.
+* Processamento temporário dos currículos.
+* Minimização de dados armazenados.
+* Autenticação e autorização previstas.
+* Testes unitários e de integração.
+* Execução em Windows e Linux.
+* Infraestrutura de desenvolvimento com Docker.
+
+## Tecnologias
+
+| Componente              | Tecnologia                        |
+| ----------------------- | --------------------------------- |
+| Linguagem principal     | Python                            |
+| Banco de dados          | Microsoft SQL Server              |
+| Driver de banco         | pyodbc                            |
+| Containerização         | Docker                            |
+| API                     | A definir na implementação        |
+| Frontend                | A definir na implementação        |
+| Inteligência artificial | Provedores externos por abstração |
+| Controle de versão      | Git                               |
+| Repositório remoto      | GitHub                            |
+
+Consulte [Technologies.md](MatchCV.Docs/Technologies.md).
 
 ## Arquitetura
 
@@ -77,40 +101,64 @@ O projeto é dividido em módulos com responsabilidades específicas:
 | `MatchCV.Frontend`       | Interface da aplicação                       |
 | `MatchCV.Docs`           | Documentação do projeto                      |
 
-## Regras de negócio
-
-As regras de negócio do sistema estão documentadas separadamente em:
-
-`MatchCV.Docs/BusinessRules/business-rules.md`
-
-A documentação contempla regras relacionadas a:
-
-* currículo;
-* descrição da vaga;
-* parser;
-* inteligência artificial;
-* consultas;
-* usuários;
-* privacidade;
-* segurança;
-* arquitetura;
-* qualidade.
+Consulte [Architecture.md](MatchCV.Docs/Architecture.md) e [Project-Structure.md](MatchCV.Docs/Project-Structure.md).
 
 ## Documentação
 
-A documentação técnica está organizada em `MatchCV.Docs`.
+A documentação técnica está organizada em arquivos separados.
 
-### Estrutura do projeto
+### Arquitetura e estrutura
 
-`MatchCV.Docs/Project-Structure.md`
+* [Arquitetura](MatchCV.Docs/Architecture.md)
+* [Estrutura do projeto](MatchCV.Docs/Project-Structure.md)
+* [Tecnologias](MatchCV.Docs/Technologies.md)
+* [Decisões arquiteturais](MatchCV.Docs/Decisions/Architecture-Decisions.md)
 
-### Tecnologias
+### Backend e integração
 
-`MatchCV.Docs/Technologies.md`
+* [Backend](MatchCV.Docs/Backend.md)
+* [API](MatchCV.Docs/API.md)
+* [Integração da API](MatchCV.Docs/API-Integration.md)
+* [Frontend](MatchCV.Docs/Frontend.md)
+* [Integração com IA](MatchCV.Docs/AI-Integration.md)
+* [Processamento de currículos](MatchCV.Docs/Resume-Processing.md)
 
-### Regras de negócio
+### Infraestrutura e banco de dados
 
-`MatchCV.Docs/BusinessRules/business-rules.md`
+* [Infraestrutura](MatchCV.Docs/Infrastructure.md)
+* [Ambientes](MatchCV.Docs/Environments.md)
+* [Banco de dados](MatchCV.Docs/Database.md)
+* [CI/CD](MatchCV.Docs/CI-CD.md)
+* [Implantação](MatchCV.Docs/Deployment.md)
+
+### Segurança e qualidade
+
+* [Segurança](MatchCV.Docs/Security.md)
+* [Privacidade](MatchCV.Docs/Privacy.md)
+* [Testes](MatchCV.Docs/Testing.md)
+* [Guia de desenvolvimento](MatchCV.Docs/Development-Guide.md)
+
+### Regras e planejamento
+
+* [Regras de negócio](MatchCV.Docs/Business-Rules.md)
+* [Roadmap](MatchCV.Docs/Roadmap.md)
+
+## Regras de negócio
+
+As regras de negócio contemplam:
+
+* Currículo.
+* Descrição da vaga.
+* Parser.
+* Inteligência artificial.
+* Consultas.
+* Usuários.
+* Privacidade.
+* Segurança.
+* Arquitetura.
+* Qualidade.
+
+Consulte [Business-Rules.md](MatchCV.Docs/Business-Rules.md).
 
 ## Status
 
@@ -118,11 +166,15 @@ O projeto está em desenvolvimento.
 
 A implementação está sendo realizada de forma incremental, começando pelo domínio e pelo processamento dos documentos antes da construção das camadas de API, IA, persistência e interface.
 
+O andamento de cada módulo será acompanhado no [Roadmap](MatchCV.Docs/Roadmap.md).
+
 ## Execução
 
 O MatchCV foi planejado para funcionar em ambientes Windows e Linux.
 
 A infraestrutura de desenvolvimento utiliza Docker quando aplicável.
+
+Consulte [Infrastructure.md](MatchCV.Docs/Infrastructure.md) e [Development-Guide.md](MatchCV.Docs/Development-Guide.md).
 
 ## Privacidade
 
@@ -131,6 +183,8 @@ Os currículos enviados ao sistema não fazem parte do armazenamento permanente 
 O projeto segue o princípio de minimização de dados, evitando manter informações pessoais além do período necessário para o processamento.
 
 Currículos reais não devem ser armazenados no repositório.
+
+Consulte [Privacy.md](MatchCV.Docs/Privacy.md).
 
 ## Licença
 

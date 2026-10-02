@@ -19,7 +19,7 @@ MatchCV/
 │   ├── Providers/
 │   │   ├──  __init__.py
 │   │   └──SecondaryAIProvider.py
-│   └── Services/
+│   ├── Services/
 │   │   ├── __init__.py
 │   │   ├── AIProviderService.py
 │   │   ├── AIResponseParser.py
@@ -31,31 +31,52 @@ MatchCV/
 ├── MatchCV.Application/
 │   ├── DTOs/
 │   │   ├── AnalysisResult.py
-│   │   └── AnalyzeResumeRequest.py
+│   │   ├── AnalyzeResumeRequest.py
+│   │   └── ParsedResumeResult.py
 │   ├── Interfaces/
 │   │   ├── __init__.py
-│   │   └── IAnalysisProvider.py
+│   │   ├── IAnalysisProvider.py
+│   │   └── IResumeParserService.py
 │   ├── Repositories/
 │   │   ├── __init__.py
 │   │   ├── IAnalysisRepository.py
 │   │   ├── IJobDescriptionRepository.py
 │   │   └── IUserRepository.py
-│   └── UseCases/
+│   ├── UseCases/
 │   │   ├── __init__.py
 │   │   └── AnalyzeResumeUseCase.py
 │   └── __init__.py
 ├── MatchCV.Db/
-│   │   ├── Migrations/
-│   │   │   ├── __init__.py
-│   │   │   └── 001_initial_schema.sql
+│   ├── Migrations/
+│   │   ├── __init__.py
+│   │   └── 001_initial_schema.sql
 │   └── __init__.py
 ├── MatchCV.Docs/
 │   ├── BusinessRules/
 │   │   └── business-rules.md
+│   ├── Decisions/
+    │   └── Architecture-Decisions.md
+│   ├── AI-Integration.md
+│   ├── API.md
+│   ├── API-Integration.md
+│   ├── Architecture.md
+│   ├── Backend.md
+│   ├── CI-CD.md
+│   ├── Database.md
+│   ├── Deployment.md
+│   ├── Development-Guide.md
+│   ├── Environments.md
+│   ├── Frontend.md
+│   ├── Infrastructure.md
+│   ├── Privacy.md
 │   ├── Project-Structure.md
-│   └── Technologies.md
+│   ├── README.md
+│   ├── Resume-Processing.md
+│   ├── Roadmap.md
+│   ├── Security.md
+│   ├── Technologies.md
+│   └── Testing.md
 ├── MatchCV.Domain/
-│   ├── __init__.py
 │   ├── Entities/
 │   │   ├── __init__.py
 │   │   ├── Analysis.py
@@ -64,6 +85,7 @@ MatchCV/
 │   │   └── User.py
 │   ├── Enums/
 │   │   ├── __init__.py
+│   │   ├──AnalysisStatus.py
 │   │   ├── FileType.py
 │   │   └── UserRole.py
 │   ├── Exceptions/
@@ -75,31 +97,32 @@ MatchCV/
 │   │   └── TextContentValidator.py
 │   └── ValueObjects/
 │   │   └── __init__.py
+│   └── __init__.py
 ├── MatchCV.Frontend/
 ├── MatchCV.Infrastructure/
+│   ├── Config/ 
 │   │   ├── __init__.py
-│   │   ├── Config/ 
-│   │   │   ├── __init__.py
-│   │   │   ├── AISettings.py
-│   │   │   └── AppSettings.py
-│   │   ├── Database/
-│   │   │   ├── __init__.py
-│   │   │   └── DatabaseConnection.py
-│   │   ├── Models/
-│   │   │   ├── __init__.py
-│   │   │   ├── AnalysisRecord.py
-│   │   │   ├── JobDescriptionRecord.py
-│   │   │   └── UserRecord.py
-│   │   ├── Repositories/
-│   │   │   ├── __init__.py
-│   │   │   ├── SqlServerAnalysisRepository.py
-│   │   │   ├── SqlServerJobDescriptionRepository.py
-│   │   │   └── SqlServerUserRepository.py
-│   │   └── Services/
-│   │   │   ├── __init__.py
-│   │   │   └── AIAnalysisProvider.py
+│   │   ├── AISettings.py
+│   │   └── AppSettings.py
+│   ├── Database/
+│   │   ├── __init__.py
+│   │   └── DatabaseConnection.py
+│   ├── Models/
+│   │   ├── __init__.py
+│   │   ├── AnalysisRecord.py
+│   │   ├── JobDescriptionRecord.py
+│   │   └── UserRecord.py
+│   ├── Repositories/
+│   │   ├── __init__.py
+│   │   ├── SqlServerAnalysisRepository.py
+│   │   ├── SqlServerJobDescriptionRepository.py
+│   │   └── SqlServerUserRepository.py
+│   ├── Services/
+│   │   ├── __init__.py
+│   │   ├── AIAnalysisProvider.py
+│   │   └── ResumeParserAdapter.py
+│   └── __init__.py
 ├── MatchCV.Parser/
-│   ├── __init__.py
 │   ├── Exceptions/
 │   │   ├── __init__.py
 │   │   └── ParserException.py
@@ -117,12 +140,13 @@ MatchCV/
 │   ├── Services/
 │   │   ├── __init__.py
 │   │   └── ResumeParserService.py
-│   └── Validation/
+│   ├── Validation/
 │   │   ├── __init__.py
 │   │   ├── Data/
 │   │   │   └── __init__.py
 │   │   ├── ResumeFileValidator.py
 │   │   ├── ResumeStructureValidator.py
+│   └── __init__.py
 ├── MatchCV.Tests/
 │   ├── Integration/
 │   │   ├── Api/
@@ -140,7 +164,47 @@ MatchCV/
 └── README.md
 ```
 
+## Organização da documentação
+
+A documentação está separada por assunto para facilitar manutenção, consulta e evolução.
+
+- `AI-Integration.md`: integração com provedores de inteligência artificial.
+- `API.md`: contratos e endpoints da API.
+- `API-Integration.md`: comunicação entre os componentes.
+- `Architecture.md`: arquitetura e dependências entre camadas.
+- `Backend.md`: organização e responsabilidades do backend.
+- `BusinessRules/`: regras de negócio detalhadas.
+- `CI-CD.md`: integração e entrega contínuas.
+- `Database.md`: estrutura e persistência de dados.
+- `Decisions/`: decisões arquiteturais registradas.
+- `Deployment.md`: implantação e publicação.
+- `Development-Guide.md`: orientações para desenvolvimento.
+- `Environments.md`: configuração dos ambientes.
+- `Frontend.md`: estrutura da interface.
+- `Infrastructure.md`: componentes de infraestrutura.
+- `Privacy.md`: privacidade e tratamento de dados.
+- `README.md`: índice da documentação.
+- `Resume-Processing.md`: processamento de currículos.
+- `Roadmap.md`: planejamento de evolução.
+- `Security.md`: requisitos de segurança.
+- `Technologies.md`: tecnologias adotadas.
+- `Testing.md`: estratégia de testes.
+
 ## Responsabilidades
+
+| Módulo | Responsabilidade |
+|---|---|
+| `MatchCV.AI` | Integração com provedores de IA |
+| `MatchCV.Api` | Exposição dos endpoints HTTP |
+| `MatchCV.Application` | Casos de uso, contratos e DTOs |
+| `MatchCV.Docs` | Documentação técnica, funcional e arquitetural |
+| `MatchCV.Db` | Scripts e migrações do banco |
+| `MatchCV.Frontend` | Interface do candidato |
+| `MatchCV.Domain` | Entidades, regras e conceitos centrais |
+| `MatchCV.Infrastructure` | Banco de dados, repositórios e serviços externos |
+| `MatchCV.Parser` | Validação e extração de documentos |
+| `MatchCV.Worker` | Processamento assíncrono, quando implementado |
+| `MatchCV.Tests` | Testes unitários e de integração |
 
 ### MatchCV.AI
 
@@ -328,8 +392,17 @@ A documentação deve permanecer separada do código de implementação.
 
 ## Princípio de organização
 
-Cada módulo deve possuir uma responsabilidade clara.
+1. Separação de responsabilidades.
+2. Baixo acoplamento entre módulos.
+3. Dependências direcionadas às abstrações.
+4. Regras de negócio independentes de infraestrutura.
+5. Tratamento de documentos sem armazenamento permanente do currículo original.
+6. Documentação atualizada conforme a implementação.
+7. Compatibilidade de desenvolvimento com Windows e Linux.
 
-O crescimento da estrutura não é um problema quando a separação representa responsabilidades reais do sistema.
+## Estado do projeto
 
-O objetivo é evitar tanto um projeto monolítico desorganizado quanto a criação de abstrações sem responsabilidade prática.
+O MatchCV encontra-se em desenvolvimento.
+
+A presença de um módulo ou documento nesta estrutura não significa que toda a funcionalidade correspondente esteja implementada ou validada.
+
