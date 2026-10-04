@@ -17,3 +17,7 @@ class ParsedResumeResult:
     file_size_bytes: int
     page_count: int
     extracted_text: str
+    is_text_extractable: bool
+    is_single_column: bool
+    has_images: bool
+    is_password_protected: bool

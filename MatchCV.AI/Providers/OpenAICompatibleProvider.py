@@ -14,7 +14,7 @@ from MatchCV.AI.Services.IAIProvider import IAIProvider
 
 
 class OpenAICompatibleProvider(IAIProvider):
-    """Provider para APIs compatíveis com chat/completions."""
+    """Provedor compatível com a API de Chat Completions da OpenAI."""
 
     def __init__(
         self,
@@ -68,13 +68,15 @@ class OpenAICompatibleProvider(IAIProvider):
             TypeError,
         ) as exception:
             raise AIProviderException(
-                "A resposta do provedor não possui o formato esperado.",
+                "A resposta do provedor OpenAI não possui "
+                "o formato esperado.",
                 retryable=False,
             ) from exception
 
         if not isinstance(content, str):
             raise AIProviderException(
-                "O conteúdo retornado pelo provedor é inválido.",
+                "O conteúdo retornado pelo provedor OpenAI "
+                "é inválido.",
                 retryable=False,
             )
 

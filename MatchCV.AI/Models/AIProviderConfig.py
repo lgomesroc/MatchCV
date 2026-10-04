@@ -8,3 +8,5 @@ class AIProviderConfig:
     name: str
     api_key: str
     model: str
+    base_url: str
+    timeout_seconds: int

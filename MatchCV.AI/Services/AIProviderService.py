@@ -33,11 +33,34 @@ class AIProviderService:
                 resume_text=resume_text,
                 job_description=job_description,
             )
-        except AIProviderException as exception:
-            if not exception.retryable:
+
+        except AIProviderException as primary_exception:
+            print(
+                "\n========== ERRO DO PROVEDOR PRINCIPAL =========="
+            )
+            print(str(primary_exception))
+            print(
+                f"retryable={primary_exception.retryable}"
+            )
+            print(
+                "================================================\n"
+            )
+
+            if not primary_exception.retryable:
                 raise
 
-        return self._fallback_provider.analyze(
-            resume_text=resume_text,
-            job_description=job_description,
-        )
+            try:
+                return self._fallback_provider.analyze(
+                    resume_text=resume_text,
+                    job_description=job_description,
+                )
+
+            except AIProviderException as fallback_exception:
+                raise AIProviderException(
+                    "O provedor principal falhou e o provedor "
+                    "de fallback também falhou. "
+                    f"Erro do provedor principal: "
+                    f"{primary_exception}. "
+                    f"Erro do fallback: {fallback_exception}.",
+                    retryable=False,
+                ) from fallback_exception

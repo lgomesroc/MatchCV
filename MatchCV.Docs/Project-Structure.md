@@ -8,6 +8,10 @@ A estrutura foi planejada para separar domínio, aplicação, infraestrutura, pr
 
 ```text
 MatchCV/
+├── Docs/
+│   └──test-job-description.txt
+├── MatchCV/
+│   └── __init__.py
 ├── MatchCV.AI/
 │   ├── Exceptions/
 │   │   ├── __init__.py
@@ -18,16 +22,29 @@ MatchCV/
 │   │   └── AIProviderConfig.py
 │   ├── Providers/
 │   │   ├──  __init__.py
-│   │   └──SecondaryAIProvider.py
+│   │   ├── DevelopmentAIProvider.py
+│   │   ├── OpenAICompatibleProvider.py
+│   │   └── SecondaryAIProvider.py
 │   ├── Services/
 │   │   ├── __init__.py
 │   │   ├── AIProviderService.py
 │   │   ├── AIResponseParser.py
 │   │   ├── AnalysisPromptBuilder.py
 │   │   └── IAIProvider.py
-│   │   └── OpenAICompatibleProvider.py
 │   └── __init__.py
 ├── MatchCV.Api/
+│   ├── Dependencies/
+│   │   ├── __init__.py
+│   │   └── AnalysisDependencies.py
+│   ├── Routers/
+│   │   ├── __init__.py
+│   │   └── AnalysisRouter.py
+│   ├── Schemas/
+│   │   ├── __init__.py
+│   │   ├── AnalysisResponse.py
+│   │   └── ErrorResponse.py
+│   ├── __init__.py
+│   └── main.py
 ├── MatchCV.Application/
 │   ├── DTOs/
 │   │   ├── AnalysisResult.py
@@ -67,6 +84,7 @@ MatchCV/
 │   ├── Development-Guide.md
 │   ├── Environments.md
 │   ├── Frontend.md
+│   ├── Getting-Started.md
 │   ├── Infrastructure.md
 │   ├── Privacy.md
 │   ├── Project-Structure.md
@@ -145,18 +163,28 @@ MatchCV/
 │   │   ├── Data/
 │   │   │   └── __init__.py
 │   │   ├── ResumeFileValidator.py
-│   │   ├── ResumeStructureValidator.py
+│   │   └── ResumeStructureValidator.py
 │   └── __init__.py
 ├── MatchCV.Tests/
 │   ├── Integration/
+│   │   └── __init__.py
 │   │   ├── Api/
+│   │   │   └── __init__.py
 │   │   ├── Database/
+│   │   │   └── __init__.py
 │   │   ├── Parser/
+│   │   │   └── __init__.py
 │   │   └── Repositories/
+│   │   │   └── __init__.py
 │   └── Unit/
+│   │   └── __init__.py
 │   │   ├── Application/
+│   │   │   └── __init__.py
 │   │   ├── Domain/
+│   │   │   └── __init__.py
 │   │   └── Parser/
+│   │   │   └── __init__.py
+│   └── __init__.py
 ├── MatchCV.Worker/
 ├── .env.example
 ├── .gitignore
