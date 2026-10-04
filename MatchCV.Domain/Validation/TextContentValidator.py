@@ -7,6 +7,13 @@ class TextContentValidator:
     """Valida regras estruturais comuns para conteúdos textuais."""
 
     @staticmethod
+    def normalize_whitespace(
+        value: str,
+    ) -> str:
+        """Normaliza sequências de whitespace para um único espaço."""
+        return re.sub(r"\s+", " ", value)
+
+    @staticmethod
     def validate_required(
         value: str | None,
         field_name: str,
@@ -26,18 +33,18 @@ class TextContentValidator:
                 f"{field_name} não pode conter somente espaços."
             )
 
-        if value != value.strip():
+        normalized_value = (
+            TextContentValidator.normalize_whitespace(
+                value
+            ).strip()
+        )
+
+        if not normalized_value:
             raise DomainException(
-                f"{field_name} não pode possuir espaços "
-                "no início ou no final."
+                f"{field_name} não pode conter somente espaços."
             )
 
-        if re.search(r"\s{2,}", value):
-            raise DomainException(
-                f"{field_name} não pode possuir espaços consecutivos."
-            )
-
-        return value
+        return normalized_value
 
     @staticmethod
     def validate_not_only_numbers(

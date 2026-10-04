@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from datetime import datetime, timezone
 from enum import Enum
 from typing import List
 from uuid import UUID, uuid4
@@ -34,6 +35,7 @@ class Analysis:
     suggestions: List[str] = field(
         default_factory=list
     )
+    completed_at: datetime | None = None
 
     @classmethod
     def create(
@@ -84,6 +86,7 @@ class Analysis:
         self.resume_issues = resume_issues
         self.suggestions = suggestions
         self.status = AnalysisStatus.COMPLETED
+        self.completed_at = datetime.now(timezone.utc)
 
     def fail(self) -> None:
         if self.status != AnalysisStatus.PROCESSING:
@@ -92,3 +95,4 @@ class Analysis:
             )
 
         self.status = AnalysisStatus.FAILED
+        self.completed_at = datetime.now(timezone.utc)

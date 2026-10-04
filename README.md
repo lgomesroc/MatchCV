@@ -19,6 +19,20 @@ O MatchCV analisa:
 
 O sistema não deve criar experiências, tecnologias, cargos, empresas, certificações, resultados ou qualquer outra informação que não esteja evidenciada no conteúdo fornecido.
 
+## Como executar
+
+O MatchCV utiliza Python, FastAPI e SQL Server, com execução local e banco de dados disponibilizado por Docker Compose.
+
+Para instalar as dependências, configurar as variáveis de ambiente, iniciar o banco de dados e executar a API, consulte o guia:
+
+**[Guia de instalação e execução](MatchCV.Docs/Getting-Started.md)**
+
+Após iniciar a API, a documentação interativa estará disponível em:
+
+http://127.0.0.1:8000/docs
+
+Consulte também a [documentação técnica](MatchCV.Docs/README.md).
+
 ## Fluxo principal
 
 ```text

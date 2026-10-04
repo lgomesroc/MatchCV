@@ -1,0 +1,64 @@
+ANALISTA DE DADOS SR Curitiba - PR
+
+DESCRIÇÃO DA VAGA
+
+Somos uma empresa em constante evolução, movida por pessoas, inovação e propósito. Há mais de 30 anos no mercado, construímos uma trajetória sólida, marcada pelo crescimento sustentável, pela proximidade com nossos clientes e pelo compromisso de transformar sonhos em conquistas reais.
+
+Nossa cultura valoriza o protagonismo, a colaboração e o desenvolvimento contínuo. Acreditamos que grandes resultados são construídos por pessoas engajadas, que encontram espaço para crescer, inovar e gerar impacto todos os dias.
+
+Com presença nacional e expansão acelerada, seguimos evoluindo de forma estratégica, investindo em tecnologia, desenvolvimento humano e fortalecimento da nossa marca empregadora.
+
+Aqui, buscamos profissionais que queiram ir além do óbvio, enfrentar desafios, construir soluções e fazer parte de um ambiente dinâmico, acolhedor e orientado a resultados.
+
+Mais do que uma empresa, somos um ecossistema de oportunidades, conexões e crescimento. Um lugar onde talentos são reconhecidos, ideias ganham espaço e carreiras podem alcançar novos patamares.
+
+RESPONSABILIDADES
+
+Transformar dados de Marketing, Growth, vendas e comportamento do cliente em análises claras e acionáveis, apoiando a tomada de decisão e ajudando as áreas a entender não apenas o que aconteceu, mas principalmente por que aconteceu, qual o impacto para o negócio e o que devemos fazer a partir disso.
+
+REQUISITOS DA VAGA
+
+SQL avançado;
+ferramentas de BI e visualização de dados;
+estatística aplicada;
+análise de funil, conversão, cohorts e segmentações;
+métricas de Marketing e Growth;
+GA4 e mensuração digital;
+definição e acompanhamento de KPIs;
+construção de dashboards;
+análise e cruzamento de diferentes fontes de dados;
+análise exploratória;
+data storytelling e visualização de dados;
+capacidade de transformar dados em hipóteses, insights e recomendações de negócio.
+
+DIFERENCIAL
+
+Python como diferencial;
+conhecimento de Data Warehouses como diferencial;
+experiência com CRM, preferencialmente HubSpot;
+testes A/B e experimentação;
+modelos de atribuição e incrementalidade;
+conhecimento de Marketing Mix Modeling (MMM) como diferencial.
+
+BENEFÍCIOS DA VAGA
+
+Assistência médica;
+Assistência odontológica;
+Campanhas de incentivo;
+Cesta de Natal;
+Cobertura Eco Salva;
+Confraternização de fim de ano;
+Convênio com instituições de ensino;
+Day-off no seu aniversário;
+Desconto em produtos e serviços da empresa;
+Espaço para alimentação;
+Programa de participação de resultados;
+Seguro de vida coletivo;
+Universidade corporativa;
+Vale alimentação;
+Vale refeição;
+Vale transporte ou auxílio combustível.
+
+INFORMAÇÕES ADICIONAIS
+
+Contrato: CLT
