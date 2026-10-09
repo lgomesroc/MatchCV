@@ -23,16 +23,48 @@ class JobDescription:
         cls,
         content: str,
     ) -> "JobDescription":
-        normalized_content = (
-            TextContentValidator.validate_job_description(
-                content
+        if content is None:
+            raise DomainException(
+                "A descrição da vaga é obrigatória."
             )
+
+        if not content:
+            raise DomainException(
+                "A descrição da vaga não pode ser vazia."
+            )
+
+        if not content.strip():
+            raise DomainException(
+                "A descrição da vaga não pode conter somente espaços."
+            )
+
+        preserved_content = content.strip()
+
+        TextContentValidator.validate_not_only_numbers(
+            preserved_content,
+            "A descrição da vaga",
+        )
+
+        TextContentValidator.validate_not_only_special_characters(
+            preserved_content,
+            "A descrição da vaga",
+        )
+
+        TextContentValidator.validate_first_character(
+            preserved_content,
+            "A descrição da vaga",
+            allow_dot=True,
+        )
+
+        TextContentValidator.validate_no_emoji_or_emoticon(
+            preserved_content,
+            "A descrição da vaga",
         )
 
         useful_characters = len(
             "".join(
                 character
-                for character in normalized_content
+                for character in preserved_content
                 if character.isalnum()
             )
         )
@@ -43,18 +75,18 @@ class JobDescription:
                 "30 caracteres úteis."
             )
 
-        if len(normalized_content) > cls.MAX_CHARACTERS:
+        if len(preserved_content) > cls.MAX_CHARACTERS:
             raise DomainException(
                 "A descrição da vaga não pode ultrapassar "
                 "3000 caracteres."
             )
 
         ProfanityValidator.validate(
-            normalized_content,
+            preserved_content,
             "A descrição da vaga",
         )
 
         return cls(
             id=uuid4(),
-            content=normalized_content,
+            content=preserved_content,
         )

@@ -1,0 +1,43 @@
+
+<section class="failed-card" aria-labelledby="failed-title">
+  <div class="failed-illustration" aria-hidden="true">
+    <svg
+      class="failed-icon"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.8"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <circle cx="12" cy="12" r="9"></circle>
+      <path d="m15 9-6 6"></path>
+      <path d="m9 9 6 6"></path>
+    </svg>
+  </div>
+
+  <p class="eyebrow">MATCHCV</p>
+
+  <h1 id="failed-title">Não foi possível concluir a análise</h1>
+
+  <p class="failed-description">
+    Ocorreu um problema durante o processamento do currículo.
+  </p>
+
+  @if (errorMessage) {
+    <div class="error-message" role="alert">
+      <span class="error-label">Detalhes do erro</span>
+      <p>{{ errorMessage }}</p>
+    </div>
+  }
+
+  <p class="help-text">
+    Confira os dados enviados. Se o problema continuar, tente novamente mais
+    tarde.
+  </p>
+
+  <button class="back-button" type="button" (click)="onBack()">
+    Voltar ao formulário
+  </button>
+</section>

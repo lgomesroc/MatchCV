@@ -1,0 +1,113 @@
+
+<main class="analysis-page">
+  <section class="analysis-card">
+    <header class="analysis-header">
+      <p class="eyebrow">MATCHCV</p>
+      <h1>Analise seu currículo</h1>
+      <p class="subtitle">
+        Compare seu currículo com uma vaga e identifique os requisitos
+        demonstrados, os pontos que precisam de atenção e possíveis melhorias.
+      </p>
+    </header>
+
+    <form class="analysis-form" (ngSubmit)="onAnalyze()">
+      <div class="form-field">
+        <label for="jobDescription">Descrição da vaga</label>
+
+        <textarea
+          id="jobDescription"
+          name="jobDescription"
+          rows="9"
+          [ngModel]="jobDescription"
+          (ngModelChange)="onJobDescriptionChange($event)"
+          [maxlength]="maxJobDescriptionCharacters"
+          placeholder="Cole aqui a descrição da vaga..."
+          required
+        ></textarea>
+
+        <div class="field-footer">
+          <span>Informe pelo menos 30 caracteres.</span>
+          <span class="character-count">
+            {{ jobDescription.length }}/{{ maxJobDescriptionCharacters }}
+          </span>
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label for="resumeText">Seu currículo</label>
+
+        <textarea
+          id="resumeText"
+          name="resumeText"
+          rows="9"
+          [ngModel]="resumeText"
+          (ngModelChange)="onResumeTextChange($event)"
+          placeholder="Cole aqui o seu currículo ou escolha um arquivo abaixo..."
+          [disabled]="selectedFile !== null"
+        ></textarea>
+
+        <p class="field-hint">
+          Você pode colar o texto ou enviar um arquivo. A escolha de um método
+          substitui o outro.
+        </p>
+      </div>
+
+      <div class="file-section">
+        <label for="resumeFileInput">Ou escolha um arquivo</label>
+
+        <input
+          #resumeFileInput
+          id="resumeFileInput"
+          name="resumeFile"
+          class="file-input"
+          type="file"
+          accept=".pdf,.doc,.docx"
+          (change)="onFileSelected($event)"
+        />
+
+        <p class="field-hint">
+          Formatos aceitos: PDF, DOC e DOCX. Tamanho máximo: 1 MB.
+        </p>
+
+        @if (selectedFile) {
+          <div class="selected-file">
+            <div class="selected-file-info">
+              <span class="file-name">{{ selectedFile.name }}</span>
+              <span class="file-size">
+                {{ (selectedFile.size / 1024).toFixed(0) }} KB
+              </span>
+            </div>
+
+            <button
+              type="button"
+              class="remove-file-button"
+              (click)="onClearFile()"
+              aria-label="Remover arquivo selecionado"
+            >
+              Remover
+            </button>
+          </div>
+        }
+      </div>
+
+      @if (errorMessage) {
+        <div class="error-message" role="alert">
+          {{ errorMessage }}
+        </div>
+      }
+
+      <button
+        class="analyze-button"
+        type="submit"
+        [disabled]="!canAnalyze"
+      >
+        Analisar currículo
+      </button>
+
+      <p class="privacy-note">
+        Revise as informações antes de enviar. A análise depende do conteúdo
+        fornecido e não deve inventar experiências ou qualificações.
+      </p>
+    </form>
+  </section>
+</main>

@@ -161,6 +161,7 @@ class SqlServerAnalysisRepository(IAnalysisRepository):
             gaps=record.gaps,
             resume_issues=record.resume_issues,
             suggestions=record.suggestions,
+            completed_at=record.completed_at,
         )
 
     def update(

@@ -1,9 +1,10 @@
+
 from dataclasses import dataclass
 from datetime import datetime
 from typing import List, Optional
 from uuid import UUID
 
-from MatchCV.Domain.Entities.Analysis import AnalysisStatus
+from MatchCV.Domain.Enums.AnalysisStatus import AnalysisStatus
 
 
 @dataclass

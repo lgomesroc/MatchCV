@@ -6,7 +6,11 @@ from typing import BinaryIO
 class AnalyzeResumeRequest:
     """Dados necessários para solicitar uma análise."""
 
-    file_stream: BinaryIO
-    file_name: str
-    file_size_bytes: int
     job_description: str
+
+    file_stream: BinaryIO | None = None
+    file_name: str | None = None
+    file_size_bytes: int | None = None
+
+    resume_text: str | None = None
+    

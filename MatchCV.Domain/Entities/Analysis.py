@@ -1,17 +1,10 @@
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from enum import Enum
 from typing import List
 from uuid import UUID, uuid4
 
+from MatchCV.Domain.Enums.AnalysisStatus import AnalysisStatus
 from MatchCV.Domain.Exceptions.DomainException import DomainException
-
-
-class AnalysisStatus(str, Enum):
-    PENDING = "PENDING"
-    PROCESSING = "PROCESSING"
-    COMPLETED = "COMPLETED"
-    FAILED = "FAILED"
 
 
 @dataclass

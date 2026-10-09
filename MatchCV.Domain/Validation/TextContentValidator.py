@@ -133,6 +133,63 @@ class TextContentValidator:
                 )
 
     @staticmethod
+    def validate_no_emoji_or_emoticon(
+        value: str,
+        field_name: str,
+    ) -> None:
+        if TextContentValidator._contains_emoji(value):
+            raise DomainException(
+                f"{field_name} não pode conter emojis ou emoticons."
+            )
+
+        if TextContentValidator._contains_emoticon(value):
+            raise DomainException(
+                f"{field_name} não pode conter emojis ou emoticons."
+            )
+
+    @staticmethod
+    def _contains_emoji(
+        value: str,
+    ) -> bool:
+        return any(
+            (
+                "\U0001F000" <= character <= "\U0001FAFF"
+                or "\u2600" <= character <= "\u27BF"
+                or character == "\uFE0F"
+            )
+            for character in value
+        )
+
+    @staticmethod
+    def _contains_emoticon(
+        value: str,
+    ) -> bool:
+        emoticon_patterns = (
+            r":\)+",
+            r":-+\)+",
+            r":\(+",
+            r":-+\(+",
+            r";\)+",
+            r";-+\)+",
+            r";\(+",
+            r";-+\(+",
+            r":D+",
+            r":-+D+",
+            r"[xX][dD]+",
+            r"<3",
+            r":'\(",
+            r":'-+\(",
+        )
+
+        return any(
+            re.search(
+                pattern,
+                value,
+            )
+            for pattern in emoticon_patterns
+        )
+
+    @staticmethod
     def validate_name(
         value: str | None,
     ) -> str:
@@ -197,4 +254,10 @@ class TextContentValidator:
             allow_dot=True,
         )
 
+        TextContentValidator.validate_no_emoji_or_emoticon(
+            normalized_value,
+            field_name,
+        )
+
         return normalized_value
+    
