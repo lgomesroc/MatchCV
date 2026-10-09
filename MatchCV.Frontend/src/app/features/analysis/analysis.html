@@ -1,0 +1,34 @@
+
+@if (currentView === 'input') {
+  <app-analysis-input
+    [jobDescription]="jobDescription"
+    [resumeText]="resumeText"
+    [selectedFile]="selectedFile"
+    [errorMessage]="errorMessage"
+    [canAnalyze]="canAnalyze()"
+    (jobDescriptionChange)="onJobDescriptionChange($event)"
+    (resumeTextChange)="onResumeTextChange($event)"
+    (fileSelected)="onFileSelected($event)"
+    (clearFile)="clearSelectedFile()"
+    (clearText)="clearResumeText()"
+    (analyze)="analyze()"
+  ></app-analysis-input>
+} @else if (currentView === 'processing') {
+  <main class="analysis-page">
+    <app-analysis-processing></app-analysis-processing>
+  </main>
+} @else if (currentView === 'result' && result) {
+  <main class="analysis-page">
+    <app-analysis-result
+      [result]="result"
+      (back)="backToInput()"
+    ></app-analysis-result>
+  </main>
+} @else if (currentView === 'failed') {
+  <main class="analysis-page">
+    <app-analysis-failed
+      [errorMessage]="errorMessage"
+      (back)="backToInput()"
+    ></app-analysis-failed>
+  </main>
+}

@@ -2,6 +2,8 @@ from pydantic import BaseModel, Field
 
 
 class AnalysisResponse(BaseModel):
+    status: str = "completed"
+
     evidenced_requirements: list[str] = Field(
         default_factory=list,
     )

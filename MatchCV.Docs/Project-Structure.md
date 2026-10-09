@@ -72,7 +72,7 @@ MatchCV/
 │   ├── BusinessRules/
 │   │   └── business-rules.md
 │   ├── Decisions/
-    │   └── Architecture-Decisions.md
+│   │   └── Architecture-Decisions.md
 │   ├── AI-Integration.md
 │   ├── API.md
 │   ├── API-Integration.md
@@ -117,6 +117,49 @@ MatchCV/
 │   │   └── __init__.py
 │   └── __init__.py
 ├── MatchCV.Frontend/
+│   ├── src/
+│   │   ├── app/
+│   │   │   ├── core/
+│   │   │   │   ├── models/
+│   │   │   │   │   └── analysis-response.ts
+│   │   │   │   └── services/
+│   │   │   │   │   └── analysis.service.ts
+│   │   │   ├── features/
+│   │   │   │   └── analysis/
+│   │   │   │   │   ├── analysis.html
+│   │   │   │   │   ├── analysis.scss
+│   │   │   │   │   ├── analysis.ts
+│   │   │   │   │   └── components/
+│   │   │   │   │   │   ├── analysis-failed/
+│   │   │   │   │   │   │   ├── analysis-failed.html
+│   │   │   │   │   │   │   ├── analysis-failed.scss
+│   │   │   │   │   │   │   └── analysis-failed.ts
+│   │   │   │   │   │   ├── analysis-input/
+│   │   │   │   │   │   │   ├── analysis-input.html
+│   │   │   │   │   │   │   ├── analysis-input.scss
+│   │   │   │   │   │   │   └── analysis-input.ts
+│   │   │   │   │   │   ├── analysis-processing/
+│   │   │   │   │   │   │   ├── analysis-processing.html
+│   │   │   │   │   │   │   ├── analysis-processing.scss
+│   │   │   │   │   │   │   └── analysis-processing.ts
+│   │   │   │   │   │   └── analysis-result/
+│   │   │   │   │   │   │   ├── analysis-result.html
+│   │   │   │   │   │   │   ├── analysis-result.scss
+│   │   │   │   │   │   │   └── analysis-result.ts
+│   │   │   ├── app.html
+│   │   │   ├── app.scss
+│   │   │   ├── app.ts 
+│   │   │   ├── app.config.ts
+│   │   │   ├── app.routes.ts
+│   │   │   └── app.spec.ts
+│   │   ├── index.html
+│   │   ├── main.ts
+│   │   └── styles.scss
+│   ├── .gitignore
+│   ├── angular.json
+│   ├── package.json
+│   ├── README.md
+│   └── tsconfig.json
 ├── MatchCV.Infrastructure/
 │   ├── Config/ 
 │   │   ├── __init__.py
@@ -167,23 +210,50 @@ MatchCV/
 │   └── __init__.py
 ├── MatchCV.Tests/
 │   ├── Integration/
-│   │   └── __init__.py
 │   │   ├── Api/
-│   │   │   └── __init__.py
+│   │   │   ├── __init__.py
+│   │   │   ├── test_health_endpoint.py
+│   │   │   ├── test_analysis_router.py
+│   │   │   └── test_api_contract.py
 │   │   ├── Database/
-│   │   │   └── __init__.py
+│   │   │   ├── __init__.py
+│   │   │   ├── test_database_connection.py
+│   │   │   └── test_database_schema.py
 │   │   ├── Parser/
-│   │   │   └── __init__.py
-│   │   └── Repositories/
-│   │   │   └── __init__.py
-│   └── Unit/
+│   │   │   ├── __init__.py
+│   │   │   └── test_resume_parsing_pipeline.py
+│   │   ├── Repositories/
+│   │   │   ├── __init__.py
+│   │   │   ├── test_sql_server_analysis_repository.py
+│   │   │   ├── test_sql_server_job_description_repository.py
+│   │   │   └── test_sql_server_user_repository.py
+│   │   ├── conftest.py
 │   │   └── __init__.py
+│   └── Unit/
 │   │   ├── Application/
-│   │   │   └── __init__.py
+│   │   │   ├── __init__.py
+│   │   │   ├── test_analyze_resume_use_case.py
+│   │   │   ├── test_analysis_result.py
+│   │   │   ├── test_analyze_resume_request.py
+│   │   │   ├── test_parsed_resume_result.py
+│   │   │   └── test_interfaces.py
 │   │   ├── Domain/
-│   │   │   └── __init__.py
+│   │   │   ├── __init__.py
+│   │   │   ├── test_text_content_validator.py
+│   │   │   ├── test_profanity_validator.py
+│   │   │   ├── test_job_description.py
+│   │   │   ├── test_resume.py
+│   │   │   └── test_analysis.py
 │   │   └── Parser/
-│   │   │   └── __init__.py
+│   │   │   ├── __init__.py
+│   │   │   ├── test_resume_structure_validator.py
+│   │   │   ├── test_resume_parser_service.py
+│   │   │   ├── test_parsed_resume.py
+│   │   │   ├── test_resume_file_validator.py
+│   │   │   ├── test_pdf_resume_parser.py
+│   │   │   ├── test_doc_resume_parser.py
+│   │   │   └── test_docx_resume_parser.py
+│   │   └── __init__.py
 │   └── __init__.py
 ├── MatchCV.Worker/
 ├── .env.example

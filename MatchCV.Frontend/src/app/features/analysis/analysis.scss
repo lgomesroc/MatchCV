@@ -1,0 +1,61 @@
+
+:host {
+  display: block;
+  width: 100%;
+  min-width: 0;
+}
+
+.analysis-page {
+  box-sizing: border-box;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+
+  width: 100%;
+  min-width: 0;
+  min-height: 100vh;
+
+  padding: 40px 24px;
+}
+
+app-analysis-input,
+app-analysis-processing,
+app-analysis-result,
+app-analysis-failed {
+  display: block;
+  width: 100%;
+  min-width: 0;
+}
+
+/* Tablets */
+@media (max-width: 768px) {
+  .analysis-page {
+    min-height: 100vh;
+    padding: 28px 18px;
+  }
+}
+
+/* Celulares */
+@media (max-width: 480px) {
+  .analysis-page {
+    padding: 20px 12px;
+  }
+}
+
+/* Telas com pouca altura */
+@media (max-height: 500px) and (min-width: 769px) {
+  .analysis-page {
+    min-height: auto;
+    padding-top: 24px;
+    padding-bottom: 24px;
+  }
+}
+
+/* Respeita a preferência por movimento reduzido */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+  }
+}

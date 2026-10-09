@@ -1,0 +1,103 @@
+
+<section class="result-container" aria-labelledby="result-title">
+  <header class="result-header">
+    <p class="eyebrow">MATCHCV</p>
+    <h1 id="result-title">Resultado da análise</h1>
+    <p class="result-intro">
+      Confira o que foi identificado na comparação entre seu currículo e a
+      descrição da vaga. Os resultados dependem das informações fornecidas.
+    </p>
+  </header>
+
+  <div class="result-summary" aria-label="Resumo da análise">
+    <div class="summary-item summary-evidenced">
+      <span class="summary-count">
+        {{ result.evidenced_requirements?.length ?? 0 }}
+      </span>
+      <span class="summary-label">Requisitos evidenciados</span>
+    </div>
+
+    <div class="summary-item summary-unevidenced">
+      <span class="summary-count">
+        {{ result.unevidenced_requirements?.length ?? 0 }}
+      </span>
+      <span class="summary-label">Não evidenciados</span>
+    </div>
+
+    <div class="summary-item summary-gaps">
+      <span class="summary-count">
+        {{ result.gaps?.length ?? 0 }}
+      </span>
+      <span class="summary-label">Lacunas identificadas</span>
+    </div>
+
+    <div class="summary-item summary-issues">
+      <span class="summary-count">
+        {{ result.resume_issues?.length ?? 0 }}
+      </span>
+      <span class="summary-label">Pontos de atenção</span>
+    </div>
+
+    <div class="summary-item summary-suggestions">
+      <span class="summary-count">
+        {{ result.suggestions?.length ?? 0 }}
+      </span>
+      <span class="summary-label">Sugestões</span>
+    </div>
+  </div>
+
+  <p class="interpretation-note">
+    Um requisito não evidenciado não significa necessariamente que você não
+    tenha essa competência. Significa que ela não ficou demonstrada no conteúdo
+    analisado.
+  </p>
+
+  <div class="result-sections">
+    @for (section of sections; track section.id) {
+      <section
+        class="result-section"
+        [class.section-evidenced]="section.id === 'evidenced'"
+        [class.section-unevidenced]="section.id === 'unevidenced'"
+        [class.section-gaps]="section.id === 'gaps'"
+        [class.section-issues]="section.id === 'issues'"
+        [class.section-suggestions]="section.id === 'suggestions'"
+        [attr.aria-labelledby]="'section-title-' + section.id"
+      >
+        <header class="section-header">
+          <div class="section-heading">
+            <h2 [id]="'section-title-' + section.id">
+              {{ section.title }}
+            </h2>
+            <p>{{ section.description }}</p>
+          </div>
+
+          <span class="section-count">
+            {{ section.items.length }}
+          </span>
+        </header>
+
+        @if (section.items.length > 0) {
+          <ul class="result-list">
+            @for (item of section.items; track $index) {
+              <li>{{ item }}</li>
+            }
+          </ul>
+        } @else {
+          <p class="empty-message">{{ section.emptyMessage }}</p>
+        }
+      </section>
+    }
+  </div>
+
+  <footer class="result-footer">
+    <p class="result-disclaimer">
+      Use esta análise como apoio para revisar seu currículo. Confira cada
+      apontamento e mantenha apenas informações que correspondam à sua
+      experiência real.
+    </p>
+
+    <button class="back-button" type="button" (click)="onBack()">
+      Voltar ao formulário
+    </button>
+  </footer>
+</section>
