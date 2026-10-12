@@ -94,6 +94,8 @@ class ProfanityValidator:
             return
 
         normalized_value = cls._normalize(value)
+        obfuscated_value = cls._normalize_obfuscated(value)
+
         configured_terms = (
             cls.DEFAULT_TERMS
             if terms is None
@@ -103,9 +105,15 @@ class ProfanityValidator:
         for term in configured_terms:
             normalized_term = cls._normalize(term)
 
-            if cls._contains_term(
-                normalized_value,
-                normalized_term,
+            if (
+                cls._contains_term(
+                    normalized_value,
+                    normalized_term,
+                )
+                or cls._contains_term(
+                    obfuscated_value,
+                    normalized_term,
+                )
             ):
                 raise DomainException(
                     f"{field_name} contém conteúdo inadequado."
@@ -132,6 +140,43 @@ class ProfanityValidator:
             " ",
             normalized,
         )
+        normalized = cls.NON_ALPHANUMERIC_PATTERN.sub(
+            " ",
+            normalized,
+        )
+        normalized = cls.WHITESPACE_PATTERN.sub(
+            " ",
+            normalized,
+        )
+
+        return normalized.strip()
+
+    @classmethod
+    def _normalize_obfuscated(cls, value: str) -> str:
+        """Remove separadores somente entre letras ou números."""
+        normalized = unicodedata.normalize(
+            "NFKD",
+            value,
+        )
+
+        normalized = "".join(
+            character
+            for character in normalized
+            if not unicodedata.combining(character)
+        )
+
+        normalized = normalized.lower()
+        normalized = normalized.translate(
+            cls.LEET_TRANSLATION
+        )
+
+        # Junta caracteres separados por pontuação.
+        normalized = re.sub(
+            r"(?<=[a-z0-9])[*_.\-/\\|]+(?=[a-z0-9])",
+            "",
+            normalized,
+        )
+
         normalized = cls.NON_ALPHANUMERIC_PATTERN.sub(
             " ",
             normalized,

@@ -1,4 +1,6 @@
 from pathlib import Path
+import sys
+import types
 
 
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -11,14 +13,12 @@ _MODULE_DIRECTORIES = {
     "Db": "MatchCV.Db",
     "Domain": "MatchCV.Domain",
     "Infrastructure": "MatchCV.Infrastructure",
+    "Login": "MatchCV.Login",
     "Parser": "MatchCV.Parser",
 }
 
 
 def _register_module_paths() -> None:
-    import sys
-    import types
-
     for module_name, directory_name in _MODULE_DIRECTORIES.items():
         full_module_name = f"MatchCV.{module_name}"
 
@@ -31,7 +31,6 @@ def _register_module_paths() -> None:
             continue
 
         module = types.ModuleType(full_module_name)
-
         module.__file__ = str(directory / "__init__.py")
         module.__path__ = [str(directory)]
         module.__package__ = full_module_name

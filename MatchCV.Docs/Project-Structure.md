@@ -66,7 +66,9 @@ MatchCV/
 ├── MatchCV.Db/
 │   ├── Migrations/
 │   │   ├── __init__.py
-│   │   └── 001_initial_schema.sql
+│   │   ├── 001_initial_schema.sql
+│   │   ├── 002_user_analysis_usage.sql
+│   │   └── 003_unique_admin.sql
 │   └── __init__.py
 ├── MatchCV.Docs/
 │   ├── BusinessRules/
@@ -120,15 +122,18 @@ MatchCV/
 │   ├── src/
 │   │   ├── app/
 │   │   │   ├── core/
+│   │   │   │   ├── guards/
+│   │   │   │   │   └── auth.guard.ts
+│   │   │   │   ├── interceptors/
+│   │   │   │   │   └── auth.interceptor.ts
 │   │   │   │   ├── models/
-│   │   │   │   │   └── analysis-response.ts
+│   │   │   │   │   ├── analysis-response.ts
+│   │   │   │   │   └── auth.ts
 │   │   │   │   └── services/
-│   │   │   │   │   └── analysis.service.ts
+│   │   │   │   │   ├── analysis.service.ts
+│   │   │   │   │   └── auth.service.ts
 │   │   │   ├── features/
-│   │   │   │   └── analysis/
-│   │   │   │   │   ├── analysis.html
-│   │   │   │   │   ├── analysis.scss
-│   │   │   │   │   ├── analysis.ts
+│   │   │   │   ├── analysis/
 │   │   │   │   │   └── components/
 │   │   │   │   │   │   ├── analysis-failed/
 │   │   │   │   │   │   │   ├── analysis-failed.html
@@ -146,6 +151,21 @@ MatchCV/
 │   │   │   │   │   │   │   ├── analysis-result.html
 │   │   │   │   │   │   │   ├── analysis-result.scss
 │   │   │   │   │   │   │   └── analysis-result.ts
+│   │   │   │   │   ├── analysis.html
+│   │   │   │   │   ├── analysis.scss
+│   │   │   │   │   └── analysis.ts
+│   │   │   │   ├── forgot-password/
+│   │   │   │   │   ├── forgot-password.html
+│   │   │   │   │   ├── forgot-password.scss
+│   │   │   │   │   └── forgot-password.ts
+│   │   │   │   ├── login/
+│   │   │   │   │   ├── login.html
+│   │   │   │   │   ├── login.scss
+│   │   │   │   │   └── login.ts
+│   │   │   │   └── register/
+│   │   │   │   │   ├── register.html
+│   │   │   │   │   ├── register,scss
+│   │   │   │   │   └── register.ts
 │   │   │   ├── app.html
 │   │   │   ├── app.scss
 │   │   │   ├── app.ts 
@@ -182,6 +202,19 @@ MatchCV/
 │   │   ├── __init__.py
 │   │   ├── AIAnalysisProvider.py
 │   │   └── ResumeParserAdapter.py
+│   └── __init__.py
+├── MatchCV.Login/
+│   ├── Authentication/
+│   │   ├── AuthenticationService.py
+│   │   ├── PasswordHasher.py
+│   │   └── PasswordRecoveryPolicy.py 
+│   ├── Authorization/
+│   │   ├── CurrentUser.py
+│   │   └── RoleChecker.py
+│   ├── Tokens/
+│   │   └── TokenService.py
+│   ├── Dependencies/
+│   │   └── AuthDependencies.py
 │   └── __init__.py
 ├── MatchCV.Parser/
 │   ├── Exceptions/
@@ -244,15 +277,20 @@ MatchCV/
 │   │   │   ├── test_job_description.py
 │   │   │   ├── test_resume.py
 │   │   │   └── test_analysis.py
+│   │   ├── Login/
+│   │   │   ├── test_password_hasher.py
+│   │   │   ├── test_password_policy.py
+│   │   │   ├── test_password_recovery_policy.py
+│   │   │   └── test_token_service.py
 │   │   └── Parser/
 │   │   │   ├── __init__.py
-│   │   │   ├── test_resume_structure_validator.py
-│   │   │   ├── test_resume_parser_service.py
-│   │   │   ├── test_parsed_resume.py
-│   │   │   ├── test_resume_file_validator.py
-│   │   │   ├── test_pdf_resume_parser.py
 │   │   │   ├── test_doc_resume_parser.py
-│   │   │   └── test_docx_resume_parser.py
+│   │   │   ├── test_docx_resume_parser.py
+│   │   │   ├── test_parsed_resume.py
+│   │   │   ├── test_pdf_resume_parser.py
+│   │   │   ├── test_resume_file_validator.py
+│   │   │   ├── test_resume_parser_service.py
+│   │   │   └── test_resume_structure_validator.py
 │   │   └── __init__.py
 │   └── __init__.py
 ├── MatchCV.Worker/

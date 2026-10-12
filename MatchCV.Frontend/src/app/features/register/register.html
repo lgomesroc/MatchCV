@@ -1,0 +1,128 @@
+<main class="auth-page">
+  <section class="auth-card" aria-labelledby="register-title">
+    <a
+      class="brand"
+      routerLink="/login"
+      aria-label="MatchCV - voltar ao login"
+    >
+      <span class="brand-mark" aria-hidden="true">M</span>
+      <span>MatchCV</span>
+    </a>
+
+    <header class="auth-heading">
+      <p class="eyebrow">CRIE SUA CONTA</p>
+      <h1 id="register-title">Comece a usar o MatchCV</h1>
+      <p class="subtitle">
+        Crie sua conta para analisar currículos e comparar experiências
+        com os requisitos de uma vaga.
+      </p>
+    </header>
+
+    <form (ngSubmit)="submit()" #registerForm="ngForm" novalidate>
+      <div class="form-field">
+        <label for="name">Nome</label>
+        <input
+          id="name"
+          name="name"
+          type="text"
+          [(ngModel)]="name"
+          autocomplete="name"
+          placeholder="Seu nome"
+          required
+          minlength="2"
+          maxlength="150"
+          [disabled]="isSubmitting"
+        />
+      </div>
+
+      <div class="form-field">
+        <label for="email">E-mail</label>
+        <input
+          id="email"
+          name="email"
+          type="email"
+          [(ngModel)]="email"
+          autocomplete="email"
+          placeholder="voce@exemplo.com"
+          required
+          maxlength="255"
+          [disabled]="isSubmitting"
+        />
+      </div>
+
+      <div class="form-field">
+        <label for="password">Senha</label>
+        <input
+          id="password"
+          name="password"
+          type="password"
+          [(ngModel)]="password"
+          autocomplete="new-password"
+          placeholder="Crie uma senha"
+          required
+          maxlength="128"
+          [disabled]="isSubmitting"
+          aria-describedby="password-requirements"
+        />
+      </div>
+
+      <ul
+        id="password-requirements"
+        class="password-rules"
+        aria-label="Requisitos da senha"
+      >
+        @for (rule of passwordRules; track rule.label) {
+          <li [class.valid]="rule.valid">
+            <span class="rule-icon" aria-hidden="true">
+              {{ rule.valid ? '✓' : '○' }}
+            </span>
+            <span>{{ rule.label }}</span>
+          </li>
+        }
+      </ul>
+
+      <div class="form-field">
+        <label for="confirmPassword">Repita a senha</label>
+        <input
+          id="confirmPassword"
+          name="confirmPassword"
+          type="password"
+          [(ngModel)]="confirmPassword"
+          autocomplete="new-password"
+          placeholder="Digite a senha novamente"
+          required
+          maxlength="128"
+          [disabled]="isSubmitting"
+          [attr.aria-invalid]="
+            confirmPassword.length > 0 && !passwordsMatch
+          "
+        />
+
+        @if (confirmPassword && !passwordsMatch) {
+          <p class="field-error" role="alert">
+            As senhas não coincidem.
+          </p>
+        }
+      </div>
+
+      @if (errorMessage) {
+        <p class="error-message" role="alert">
+          {{ errorMessage }}
+        </p>
+      }
+
+      <button
+        class="submit-button"
+        type="submit"
+        [disabled]="!formIsValid || registerForm.invalid || isSubmitting"
+      >
+        {{ isSubmitting ? 'Criando conta...' : 'Criar conta' }}
+      </button>
+    </form>
+
+    <p class="auth-footer">
+      Já tem uma conta?
+      <a routerLink="/login">Entrar</a>
+    </p>
+  </section>
+</main>

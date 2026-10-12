@@ -1,0 +1,90 @@
+<main class="login-page">
+  <section class="login-card" aria-labelledby="login-title">
+    <a
+      class="brand"
+      routerLink="/login"
+      aria-label="MatchCV - página de login"
+    >
+      <span class="brand-mark" aria-hidden="true">M</span>
+      <span>MatchCV</span>
+    </a>
+
+    <header class="login-heading">
+      <p class="eyebrow">ANÁLISE DE CURRÍCULOS</p>
+      <h1 id="login-title">Entre na sua conta</h1>
+      <p class="subtitle">
+        Acesse sua conta para analisar currículos e comparar
+        experiências com os requisitos de uma vaga.
+      </p>
+    </header>
+
+    @if (registeredMessage) {
+      <p class="success-message" role="status">
+        Cadastro realizado! Entre com seu e-mail e sua senha.
+      </p>
+    }
+
+    <form (ngSubmit)="submit()" #loginForm="ngForm" novalidate>
+      <div class="form-field">
+        <label for="email">E-mail</label>
+        <input
+          id="email"
+          name="email"
+          type="email"
+          [(ngModel)]="email"
+          autocomplete="username"
+          placeholder="voce@exemplo.com"
+          required
+          maxlength="255"
+          [disabled]="isSubmitting"
+        />
+      </div>
+
+      <div class="form-field">
+        <div class="password-label-row">
+          <label for="password">Senha</label>
+          <a class="forgot-link" routerLink="/forgot-password">
+            Esqueci minha senha
+          </a>
+        </div>
+
+        <input
+          id="password"
+          name="password"
+          type="password"
+          [(ngModel)]="password"
+          autocomplete="current-password"
+          placeholder="Digite sua senha"
+          required
+          maxlength="128"
+          [disabled]="isSubmitting"
+        />
+      </div>
+
+      @if (errorMessage) {
+        <p class="error-message" role="alert">
+          {{ errorMessage }}
+        </p>
+      }
+
+      <button
+        class="submit-button"
+        type="submit"
+        [disabled]="isSubmitting || loginForm.invalid"
+      >
+        {{ isSubmitting ? 'Entrando...' : 'Entrar' }}
+      </button>
+    </form>
+
+    <div class="register-prompt">
+      <span>Ainda não tem uma conta?</span>
+      <a class="register-button" routerLink="/register">
+        Criar conta
+      </a>
+    </div>
+
+    <p class="security-note">
+      Acesso protegido por autenticação.
+    </p>
+  </section>
+</main>

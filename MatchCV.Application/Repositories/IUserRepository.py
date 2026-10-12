@@ -20,6 +20,10 @@ class IUserRepository(ABC):
         raise NotImplementedError
 
     @abstractmethod
+    def update_password_hash(self, user_id: UUID, password_hash: str) -> bool:
+        """Atualiza o hash da senha; implementado pelo repositório concreto."""
+        raise NotImplementedError
+
     def get_by_email(
         self,
         email: str,
