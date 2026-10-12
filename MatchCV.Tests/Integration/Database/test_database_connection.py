@@ -1,4 +1,3 @@
-
 import os
 from dataclasses import replace
 
@@ -48,10 +47,10 @@ class TestDatabaseConnectionConfiguration:
     @pytest.mark.parametrize(
         ("field_name", "expected_message"),
         [
-            ("database_host", "database_host"),
-            ("database_name", "database_name"),
-            ("database_user", "database_user"),
-            ("database_password", "database_password"),
+            ("database_host", "DATABASE_HOST"),
+            ("database_name", "DATABASE_NAME"),
+            ("database_user", "DATABASE_USER"),
+            ("database_password", "DATABASE_PASSWORD"),
         ],
     )
     def test_rejects_missing_required_settings(

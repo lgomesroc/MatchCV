@@ -1,1 +1,16 @@
-<app-analysis></app-analysis>
+
+@if (authService.isAuthenticated()) {
+    <header class="app-header">
+      <a class="app-brand" routerLink="/analysis" aria-label="MatchCV início">
+        <span class="app-brand-mark">M</span>
+        <span>MatchCV</span>
+      </a>
+  
+      <button class="logout-button" type="button" (click)="logout()">
+        Sair
+      </button>
+    </header>
+  }
+  
+  <router-outlet></router-outlet>
+  

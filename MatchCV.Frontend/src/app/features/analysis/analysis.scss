@@ -59,3 +59,28 @@ app-analysis-failed {
     scroll-behavior: auto !important;
   }
 }
+
+
+.account-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0.75rem clamp(1rem, 4vw, 2rem);
+}
+
+.account-actions a {
+  color: #234b7a;
+  font-weight: 600;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+.account-actions a:focus-visible {
+  outline: 3px solid #93c5fd;
+  outline-offset: 3px;
+}
+
+@media (max-width: 600px) {
+  .account-actions {
+    padding: 0.75rem 1rem;
+  }
+}
