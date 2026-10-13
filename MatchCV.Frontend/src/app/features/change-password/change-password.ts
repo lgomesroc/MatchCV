@@ -52,43 +52,45 @@ export class ChangePasswordComponent {
 
     this.isSubmitting = true;
 
-    this.authService.changePassword(
-      this.currentPassword,
-      this.newPassword,
-      this.confirmPassword,
-    ).subscribe({
-      next: () => {
-        this.authService.logout();
-        this.successMessage =
-          'Senha alterada. Entre novamente usando a nova senha.';
-        this.currentPassword = '';
-        this.newPassword = '';
-        this.confirmPassword = '';
-        this.isSubmitting = false;
-      },
-      error: (error: unknown) => {
-        this.isSubmitting = false;
+    this.authService
+      .changePassword(
+        this.currentPassword,
+        this.newPassword,
+        this.confirmPassword,
+      )
+      .subscribe({
+        next: () => {
+          this.successMessage = 'Senha alterada com sucesso.';
+          this.currentPassword = '';
+          this.newPassword = '';
+          this.confirmPassword = '';
+          this.isSubmitting = false;
+        },
+        error: (error: unknown) => {
+          this.isSubmitting = false;
 
-        if (error instanceof HttpErrorResponse) {
-          const detail = error.error?.detail;
-          if (typeof detail === 'string' && detail.trim()) {
-            this.errorMessage = detail;
-            return;
-          }
-          if (error.status === 401) {
-            this.errorMessage =
-              'Sua sessão expirou. Entre novamente para continuar.';
-            return;
-          }
-        }
+          if (error instanceof HttpErrorResponse) {
+            const detail = error.error?.detail;
 
-        this.errorMessage =
-          'Não foi possível alterar a senha. Tente novamente.';
-      },
-    });
+            if (typeof detail === 'string' && detail.trim()) {
+              this.errorMessage = detail;
+              return;
+            }
+
+            if (error.status === 401) {
+              this.errorMessage =
+                'Sua sessão expirou. Entre novamente para continuar.';
+              return;
+            }
+          }
+
+          this.errorMessage =
+            'Não foi possível alterar a senha. Tente novamente.';
+        },
+      });
   }
 
-  goToLogin(): void {
-    void this.router.navigate(['/login']);
+  goToAnalysis(): void {
+    void this.router.navigate(['/analysis']);
   }
 }

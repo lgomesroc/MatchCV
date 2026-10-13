@@ -8,8 +8,12 @@ A estrutura foi planejada para separar domínio, aplicação, infraestrutura, pr
 
 ```text
 MatchCV/
-├── Docs/
-│   └──test-job-description.txt
+├── .github/
+│   └──workflows/
+│   │   ├── cd.yml
+│   │   └── ci.yml
+├── Doc/s/
+│   └── test-job-description.txt
 ├── MatchCV/
 │   └── __init__.py
 ├── MatchCV.AI/
@@ -119,19 +123,27 @@ MatchCV/
 │   │   └── __init__.py
 │   └── __init__.py
 ├── MatchCV.Frontend/
+│   ├── e2e/
+│   │   │   ├── analysis.spec.ts
+│   │   │   ├── login.spec.ts
+│   │   │   └── registration.spec.ts
 │   ├── src/
 │   │   ├── app/
 │   │   │   ├── core/
 │   │   │   │   ├── guards/
-│   │   │   │   │   └── auth.guard.ts
+│   │   │   │   │   ├── auth.guard.ts
+│   │   │   │   │   └── auth.guard.spec.ts
 │   │   │   │   ├── interceptors/
-│   │   │   │   │   └── auth.interceptor.ts
+│   │   │   │   │   ├── auth.interceptor.ts
+│   │   │   │   │   └── auth.interceptor.spec.ts
 │   │   │   │   ├── models/
 │   │   │   │   │   ├── analysis-response.ts
 │   │   │   │   │   └── auth.ts
 │   │   │   │   └── services/
+│   │   │   │   │   ├── analysis.service.spec.ts
 │   │   │   │   │   ├── analysis.service.ts
-│   │   │   │   │   └── auth.service.ts
+│   │   │   │   │   ├── auth.service.ts
+│   │   │   │   │   └── auth.service.spec.ts
 │   │   │   ├── features/
 │   │   │   │   ├── analysis/
 │   │   │   │   │   └── components/
@@ -153,14 +165,22 @@ MatchCV/
 │   │   │   │   │   │   │   └── analysis-result.ts
 │   │   │   │   │   ├── analysis.html
 │   │   │   │   │   ├── analysis.scss
+│   │   │   │   │   ├──analysis.spec.ts
 │   │   │   │   │   └── analysis.ts
+│   │   │   │   ├── change-password/
+│   │   │   │   │   ├── change-password.html
+│   │   │   │   │   ├── change-password.scss
+│   │   │   │   │   ├── change-password.spec.ts
+│   │   │   │   │   └── change-password.ts
 │   │   │   │   ├── forgot-password/
 │   │   │   │   │   ├── forgot-password.html
 │   │   │   │   │   ├── forgot-password.scss
+│   │   │   │   │   ├── forgot-password.spec.ts
 │   │   │   │   │   └── forgot-password.ts
 │   │   │   │   ├── login/
 │   │   │   │   │   ├── login.html
 │   │   │   │   │   ├── login.scss
+│   │   │   │   │   ├── login.spec.ts
 │   │   │   │   │   └── login.ts
 │   │   │   │   └── register/
 │   │   │   │   │   ├── register.html
@@ -168,6 +188,7 @@ MatchCV/
 │   │   │   │   │   └── register.ts
 │   │   │   ├── app.html
 │   │   │   ├── app.scss
+│   │   │   ├──app.spec.ts
 │   │   │   ├── app.ts 
 │   │   │   ├── app.config.ts
 │   │   │   ├── app.routes.ts
@@ -178,6 +199,7 @@ MatchCV/
 │   ├── .gitignore
 │   ├── angular.json
 │   ├── package.json
+│   ├── playwright.config.ts
 │   ├── README.md
 │   └── tsconfig.json
 ├── MatchCV.Infrastructure/
@@ -245,9 +267,10 @@ MatchCV/
 │   ├── Integration/
 │   │   ├── Api/
 │   │   │   ├── __init__.py
-│   │   │   ├── test_health_endpoint.py
 │   │   │   ├── test_analysis_router.py
-│   │   │   └── test_api_contract.py
+│   │   │   ├── test_api_contract.py
+│   │   │   ├── test_auth_router.py
+│   │   │   └── test_health_endpoint.py
 │   │   ├── Database/
 │   │   │   ├── __init__.py
 │   │   │   ├── test_database_connection.py
@@ -278,9 +301,12 @@ MatchCV/
 │   │   │   ├── test_resume.py
 │   │   │   └── test_analysis.py
 │   │   ├── Login/
+│   │   │   ├── test_authentication_service.py
+│   │   │   ├── test_current_user_authorization.py
 │   │   │   ├── test_password_hasher.py
 │   │   │   ├── test_password_policy.py
 │   │   │   ├── test_password_recovery_policy.py
+│   │   │   ├── test_role_checker.py
 │   │   │   └── test_token_service.py
 │   │   └── Parser/
 │   │   │   ├── __init__.py
