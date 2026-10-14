@@ -58,6 +58,11 @@ MatchCV/
 │   │   ├── __init__.py
 │   │   ├── IAnalysisProvider.py
 │   │   └── IResumeParserService.py
+│   ├── Queue
+│   │   ├── __init__.py
+│   │   ├── AnalysisQueueItem.py
+│   │   ├── AnalysisQueuePayload.py
+│   │   └── IAnalysisQueueRepository.py
 │   ├── Repositories/
 │   │   ├── __init__.py
 │   │   ├── IAnalysisRepository.py
@@ -72,7 +77,9 @@ MatchCV/
 │   │   ├── __init__.py
 │   │   ├── 001_initial_schema.sql
 │   │   ├── 002_user_analysis_usage.sql
-│   │   └── 003_unique_admin.sql
+│   │   ├── 003_unique_admin.sql
+│   │   ├── 004_analysis_history.sql
+│   │   └── 005_analysis_worker_queue.sql
 │   └── __init__.py
 ├── MatchCV.Docs/
 │   ├── BusinessRules/
@@ -143,7 +150,8 @@ MatchCV/
 │   │   │   │   │   ├── analysis.service.spec.ts
 │   │   │   │   │   ├── analysis.service.ts
 │   │   │   │   │   ├── auth.service.ts
-│   │   │   │   │   └── auth.service.spec.ts
+│   │   │   │   │   ├── auth.service.spec.ts
+│   │   │   │   │   └── memory-cache.service.ts
 │   │   │   ├── features/
 │   │   │   │   ├── analysis/
 │   │   │   │   │   └── components/
@@ -217,9 +225,13 @@ MatchCV/
 │   │   └── UserRecord.py
 │   ├── Repositories/
 │   │   ├── __init__.py
+│   │   ├── SqlServerAnalysisQueueRepository.py
 │   │   ├── SqlServerAnalysisRepository.py
 │   │   ├── SqlServerJobDescriptionRepository.py
 │   │   └── SqlServerUserRepository.py
+│   ├── Security
+│   │   ├── __init__.py
+│   │   ├── AnalysisPayloadEncryption.py
 │   ├── Services/
 │   │   ├── __init__.py
 │   │   ├── AIAnalysisProvider.py
@@ -320,6 +332,8 @@ MatchCV/
 │   │   └── __init__.py
 │   └── __init__.py
 ├── MatchCV.Worker/
+│   ├── __init__.py
+│   └── AnalysisWorker.py
 ├── .env.example
 ├── .gitignore
 ├── docker-compose.yml

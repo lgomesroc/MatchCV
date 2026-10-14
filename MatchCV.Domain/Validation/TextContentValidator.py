@@ -7,10 +7,7 @@ class TextContentValidator:
     """Valida regras estruturais comuns para conteúdos textuais."""
 
     @staticmethod
-    def normalize_whitespace(
-        value: str,
-    ) -> str:
-        """Normaliza sequências de whitespace para um único espaço."""
+    def normalize_whitespace(value: str) -> str:
         return re.sub(r"\s+", " ", value)
 
     @staticmethod
@@ -19,14 +16,10 @@ class TextContentValidator:
         field_name: str,
     ) -> str:
         if value is None:
-            raise DomainException(
-                f"{field_name} é obrigatório."
-            )
+            raise DomainException(f"{field_name} é obrigatório.")
 
         if not value:
-            raise DomainException(
-                f"{field_name} não pode ser vazio."
-            )
+            raise DomainException(f"{field_name} não pode ser vazio.")
 
         if not value.strip():
             raise DomainException(
@@ -34,9 +27,7 @@ class TextContentValidator:
             )
 
         normalized_value = (
-            TextContentValidator.normalize_whitespace(
-                value
-            ).strip()
+            TextContentValidator.normalize_whitespace(value).strip()
         )
 
         if not normalized_value:
@@ -52,15 +43,10 @@ class TextContentValidator:
         field_name: str,
     ) -> None:
         characters = [
-            character
-            for character in value
-            if not character.isspace()
+            character for character in value if not character.isspace()
         ]
 
-        if characters and all(
-            character.isdigit()
-            for character in characters
-        ):
+        if characters and all(character.isdigit() for character in characters):
             raise DomainException(
                 f"{field_name} não pode conter somente números."
             )
@@ -71,14 +57,11 @@ class TextContentValidator:
         field_name: str,
     ) -> None:
         characters = [
-            character
-            for character in value
-            if not character.isspace()
+            character for character in value if not character.isspace()
         ]
 
         if characters and all(
-            not character.isalnum()
-            for character in characters
+            not character.isalnum() for character in characters
         ):
             raise DomainException(
                 f"{field_name} não pode conter somente "
@@ -103,8 +86,7 @@ class TextContentValidator:
             return
 
         raise DomainException(
-            f"{field_name} não pode começar com "
-            "caractere especial."
+            f"{field_name} não pode começar com caractere especial."
         )
 
     @staticmethod
@@ -112,18 +94,12 @@ class TextContentValidator:
         value: str,
         field_name: str,
     ) -> None:
-        for current, following in zip(
-            value,
-            value[1:],
-        ):
+        for current, following in zip(value, value[1:]):
             current_is_special = (
-                not current.isalnum()
-                and not current.isspace()
+                not current.isalnum() and not current.isspace()
             )
-
             following_is_special = (
-                not following.isalnum()
-                and not following.isspace()
+                not following.isalnum() and not following.isspace()
             )
 
             if current_is_special and following_is_special:
@@ -137,20 +113,16 @@ class TextContentValidator:
         value: str,
         field_name: str,
     ) -> None:
-        if TextContentValidator._contains_emoji(value):
-            raise DomainException(
-                f"{field_name} não pode conter emojis ou emoticons."
-            )
-
-        if TextContentValidator._contains_emoticon(value):
+        if (
+            TextContentValidator._contains_emoji(value)
+            or TextContentValidator._contains_emoticon(value)
+        ):
             raise DomainException(
                 f"{field_name} não pode conter emojis ou emoticons."
             )
 
     @staticmethod
-    def _contains_emoji(
-        value: str,
-    ) -> bool:
+    def _contains_emoji(value: str) -> bool:
         return any(
             (
                 "\U0001F000" <= character <= "\U0001FAFF"
@@ -161,9 +133,7 @@ class TextContentValidator:
         )
 
     @staticmethod
-    def _contains_emoticon(
-        value: str,
-    ) -> bool:
+    def _contains_emoticon(value: str) -> bool:
         emoticon_patterns = (
             r":\)+",
             r":-+\)+",
@@ -173,91 +143,59 @@ class TextContentValidator:
             r";-+\)+",
             r";\(+",
             r";-+\(+",
-            r":D+",
-            r":-+D+",
-            r"[xX][dD]+",
+            r"(?<![\w:]):D+(?!\w)",
+            r"(?<![\w:]):-+D+(?!\w)",
+            r"(?<!\w)[xX][dD]+(?!\w)",
             r"<3",
             r":'\(",
             r":'-+\(",
         )
 
         return any(
-            re.search(
-                pattern,
-                value,
-            )
+            re.search(pattern, value)
             for pattern in emoticon_patterns
         )
 
     @staticmethod
-    def validate_name(
-        value: str | None,
-    ) -> str:
+    def validate_name(value: str | None) -> str:
         field_name = "O nome"
 
-        normalized_value = (
-            TextContentValidator.validate_required(
-                value,
-                field_name,
-            )
+        normalized_value = TextContentValidator.validate_required(
+            value, field_name
         )
-
         TextContentValidator.validate_not_only_numbers(
-            normalized_value,
-            field_name,
+            normalized_value, field_name
         )
-
         TextContentValidator.validate_not_only_special_characters(
-            normalized_value,
-            field_name,
+            normalized_value, field_name
         )
-
         TextContentValidator.validate_first_character(
-            normalized_value,
-            field_name,
-            allow_dot=False,
+            normalized_value, field_name
         )
-
         TextContentValidator.validate_no_consecutive_special_characters(
-            normalized_value,
-            field_name,
+            normalized_value, field_name
         )
 
         return normalized_value
 
     @staticmethod
-    def validate_job_description(
-        value: str | None,
-    ) -> str:
+    def validate_job_description(value: str | None) -> str:
         field_name = "A descrição da vaga"
 
-        normalized_value = (
-            TextContentValidator.validate_required(
-                value,
-                field_name,
-            )
+        normalized_value = TextContentValidator.validate_required(
+            value, field_name
         )
-
         TextContentValidator.validate_not_only_numbers(
-            normalized_value,
-            field_name,
+            normalized_value, field_name
         )
-
         TextContentValidator.validate_not_only_special_characters(
-            normalized_value,
-            field_name,
+            normalized_value, field_name
         )
-
         TextContentValidator.validate_first_character(
-            normalized_value,
-            field_name,
-            allow_dot=True,
+            normalized_value, field_name, allow_dot=True
         )
-
         TextContentValidator.validate_no_emoji_or_emoticon(
-            normalized_value,
-            field_name,
+            normalized_value, field_name
         )
 
         return normalized_value
-    

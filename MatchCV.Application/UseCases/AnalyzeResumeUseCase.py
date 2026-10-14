@@ -1,4 +1,4 @@
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 from MatchCV.Application.DTOs.AnalysisResult import AnalysisResult
 from MatchCV.Application.DTOs.AnalyzeResumeRequest import (
@@ -32,10 +32,6 @@ class AnalyzeResumeUseCase:
     """
     Caso de uso responsável por processar um currículo e realizar
     a análise em relação a uma descrição de vaga.
-
-    A Application depende apenas de abstrações próprias.
-    Implementações concretas de Parser, IA e persistência ficam
-    fora desta camada.
     """
 
     MIN_USEFUL_CHARACTERS = 30
@@ -55,18 +51,19 @@ class AnalyzeResumeUseCase:
     def execute(
         self,
         request: AnalyzeResumeRequest,
+        user_id: UUID,
     ) -> AnalysisResult:
         """
-        Executa a análise do currículo.
+        Executa a análise completa.
 
-        O currículo pode ser informado por arquivo ou por texto colado.
-
-        Para arquivos, o parser existente é utilizado.
-        Para texto colado, o conteúdo já está extraído e segue
-        diretamente para as validações e para a análise.
-
-        O fluxo posterior é o mesmo para ambas as entradas.
+        Este método ainda representa o processamento síncrono atual.
+        A próxima etapa moverá a chamada da IA para o worker.
         """
+
+        if not user_id:
+            raise DomainException(
+                "O usuário é obrigatório para realizar a análise."
+            )
 
         job_description = JobDescription.create(
             request.job_description,
@@ -114,6 +111,7 @@ class AnalyzeResumeUseCase:
         )
 
         analysis = Analysis.create(
+            user_id=user_id,
             resume_id=resume_id,
             job_description_id=job_description.id,
         )

@@ -13,6 +13,7 @@ from MatchCV.Domain.Validation.ProfanityValidator import (
         "Este texto contém shit.",
         "Este texto contém caralho.",
         "Este texto contém porra.",
+        "Este texto contém cocô.",
     ],
 )
 def test_validate_rejects_default_inappropriate_terms(value):
@@ -34,10 +35,7 @@ def test_validate_detects_obfuscated_terms(value):
 
 def test_validate_is_case_insensitive():
     with pytest.raises(DomainException):
-        ProfanityValidator.validate(
-            "Este texto contém FUCK.",
-            "O campo",
-        )
+        ProfanityValidator.validate("Este texto contém FUCK.", "O campo")
 
 
 def test_validate_ignores_term_inside_a_larger_word():
@@ -53,6 +51,22 @@ def test_validate_accepts_normal_professional_text():
         "APIs REST, SQL e testes automatizados.",
         "O campo",
     )
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        "Coco Bambu",
+        "Pau Brasil Ltda",
+        "Pica-pau Tech",
+        "Sexo: Masculino",
+        "Desenvolvedor com experiência em Docker",
+        "Auxdev Ltda",
+        "Maxdata",
+    ],
+)
+def test_validate_accepts_legitimate_words_and_names(value):
+    ProfanityValidator.validate(value, "O campo")
 
 
 def test_validate_accepts_none():
@@ -78,17 +92,13 @@ def test_validate_custom_terms_replace_default_terms():
 
 def test_normalize_removes_accents_and_normalizes_separators():
     result = ProfanityValidator._normalize("CAFÉ---Teste")
-
     assert result == "cafe teste"
 
 
 def test_contains_term_requires_word_boundaries():
     assert ProfanityValidator._contains_term(
-        "assistente técnico",
-        "ass",
+        "assistente técnico", "ass"
     ) is False
-
     assert ProfanityValidator._contains_term(
-        "palavra proibida aqui",
-        "proibida",
+        "palavra proibida aqui", "proibida"
     ) is True

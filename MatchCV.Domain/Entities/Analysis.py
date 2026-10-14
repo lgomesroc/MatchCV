@@ -10,6 +10,7 @@ from MatchCV.Domain.Exceptions.DomainException import DomainException
 @dataclass
 class Analysis:
     id: UUID
+    user_id: UUID
     resume_id: UUID
     job_description_id: UUID
     status: AnalysisStatus = AnalysisStatus.PENDING
@@ -33,9 +34,15 @@ class Analysis:
     @classmethod
     def create(
         cls,
+        user_id: UUID,
         resume_id: UUID,
         job_description_id: UUID,
     ) -> "Analysis":
+        if not user_id:
+            raise DomainException(
+                "O usuário é obrigatório para criar uma análise."
+            )
+
         if not resume_id:
             raise DomainException(
                 "O currículo é obrigatório para criar uma análise."
@@ -48,6 +55,7 @@ class Analysis:
 
         return cls(
             id=uuid4(),
+            user_id=user_id,
             resume_id=resume_id,
             job_description_id=job_description_id,
         )
@@ -82,9 +90,13 @@ class Analysis:
         self.completed_at = datetime.now(timezone.utc)
 
     def fail(self) -> None:
-        if self.status != AnalysisStatus.PROCESSING:
+        if self.status not in (
+            AnalysisStatus.PENDING,
+            AnalysisStatus.PROCESSING,
+        ):
             raise DomainException(
-                "Somente análises em processamento podem falhar."
+                "Somente análises pendentes ou em processamento "
+                "podem falhar."
             )
 
         self.status = AnalysisStatus.FAILED

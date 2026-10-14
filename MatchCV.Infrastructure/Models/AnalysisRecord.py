@@ -1,4 +1,3 @@
-
 from dataclasses import dataclass
 from datetime import datetime
 from typing import List, Optional
@@ -12,6 +11,7 @@ class AnalysisRecord:
     """Representação de uma análise persistida."""
 
     id: UUID
+    user_id: UUID
     resume_id: UUID
     job_description_id: UUID
     status: AnalysisStatus

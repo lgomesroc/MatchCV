@@ -1,15 +1,19 @@
-
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import {
+  HttpClient,
+  HttpErrorResponse,
+} from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 
 import { AnalysisResponse } from '../models/analysis-response';
+import { MemoryCacheService } from './memory-cache.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AnalysisService {
   private readonly http = inject(HttpClient);
+  private readonly memoryCache = inject(MemoryCacheService);
 
   private readonly apiUrl =
     'http://localhost:8000/api/v1/analysis/resume';
@@ -32,7 +36,16 @@ export class AnalysisService {
     return this.http.post<AnalysisResponse>(
       this.apiUrl,
       formData,
+    ).pipe(
+      tap(() => {
+        this.invalidateAnalysisCache();
+      }),
     );
+  }
+
+  invalidateAnalysisCache(): void {
+    this.memoryCache.invalidatePrefix('analysis:');
+    this.memoryCache.invalidatePrefix('history:');
   }
 
   getErrorMessage(error: unknown): string {
