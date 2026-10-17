@@ -100,7 +100,7 @@ class TestAnalysisRouter:
         }
 
         use_case.execute.assert_called_once()
-        assert use_case.execute.call_args.args[1] == (
+        assert use_case.execute.call_args.kwargs["user_id"] == (
             use_case.authenticated_user_id
         )
 
@@ -142,6 +142,9 @@ class TestAnalysisRouter:
         assert response.json()["status"] == "completed"
 
         use_case.execute.assert_called_once()
+        assert use_case.execute.call_args.kwargs["user_id"] == (
+            use_case.authenticated_user_id
+        )
 
         request = use_case.execute.call_args.args[0]
 
