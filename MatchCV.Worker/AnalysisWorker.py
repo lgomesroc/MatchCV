@@ -12,7 +12,7 @@ from MatchCV.Infrastructure.Config.AppSettings import AppSettings
 from MatchCV.Infrastructure.Database.DatabaseConnection import (
     DatabaseConnection,
 )
-from MatchCV.Infrastructure.Encryption.AnalysisPayloadEncryption import (
+from MatchCV.Infrastructure.Security.AnalysisPayloadEncryption import (
     AnalysisPayloadEncryption,
 )
 from MatchCV.Infrastructure.Repositories.SqlServerAnalysisQueueRepository import (
@@ -21,13 +21,13 @@ from MatchCV.Infrastructure.Repositories.SqlServerAnalysisQueueRepository import
 from MatchCV.Infrastructure.Repositories.SqlServerAnalysisRepository import (
     SqlServerAnalysisRepository,
 )
-from MatchCV.Infrastructure.Services.AIProviderService import (
+from MatchCV.AI.Services.AIProviderService import (
     AIProviderService,
 )
-from MatchCV.Infrastructure.Providers.OpenAICompatibleProvider import (
+from MatchCV.AI.Providers.OpenAICompatibleProvider import (
     OpenAICompatibleProvider,
 )
-from MatchCV.Infrastructure.Providers.SecondaryAIProvider import (
+from MatchCV.AI.Providers.SecondaryAIProvider import (
     SecondaryAIProvider,
 )
 
@@ -254,6 +254,14 @@ class AnalysisWorker:
                 "A análise já estava marcada como falha.",
             )
             return
+
+        if analysis.status == AnalysisStatus.PENDING:
+            analysis.start_processing()
+            self._analysis_repository.update(analysis)
+        elif analysis.status != AnalysisStatus.PROCESSING:
+            raise RuntimeError(
+                "A análise está em um estado inválido para processamento."
+            )
 
         decrypted_payload = self._encryption.decrypt(
             queue_item.payload_ciphertext
