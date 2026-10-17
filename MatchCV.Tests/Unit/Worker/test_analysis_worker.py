@@ -49,6 +49,12 @@ def test_worker_moves_pending_analysis_to_processing_before_completion():
     worker = AnalysisWorker.__new__(AnalysisWorker)
     worker._analysis_repository = MagicMock()
     worker._analysis_repository.get_by_id.return_value = analysis
+    persisted_states = []
+    worker._analysis_repository.update.side_effect = (
+        lambda saved_analysis: persisted_states.append(
+            saved_analysis.status
+        )
+    )
     worker._queue_repository = MagicMock()
     worker._encryption = MagicMock()
     worker._encryption.decrypt.return_value = payload.to_json()
@@ -60,14 +66,10 @@ def test_worker_moves_pending_analysis_to_processing_before_completion():
     assert analysis.status == AnalysisStatus.COMPLETED
     assert analysis.user_id == user_id
     assert worker._analysis_repository.update.call_count == 2
-    first_saved_state = (
-        worker._analysis_repository.update.call_args_list[0].args[0].status
-    )
-    second_saved_state = (
-        worker._analysis_repository.update.call_args_list[1].args[0].status
-    )
-    assert first_saved_state == AnalysisStatus.COMPLETED
-    assert second_saved_state == AnalysisStatus.COMPLETED
+    assert persisted_states == [
+        AnalysisStatus.PROCESSING,
+        AnalysisStatus.COMPLETED,
+    ]
     worker._queue_repository.mark_completed.assert_called_once_with(
         queue_item.id
     )
