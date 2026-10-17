@@ -12,7 +12,7 @@ MatchCV/
 │   └──workflows/
 │   │   ├── cd.yml
 │   │   └── ci.yml
-├── Doc/s/
+├── Docs/
 │   └── test-job-description.txt
 ├── MatchCV/
 │   └── __init__.py
@@ -31,6 +31,7 @@ MatchCV/
 │   │   └── SecondaryAIProvider.py
 │   ├── Services/
 │   │   ├── __init__.py
+│   │   ├── AIHttpClient.py
 │   │   ├── AIProviderService.py
 │   │   ├── AIResponseParser.py
 │   │   ├── AnalysisPromptBuilder.py
@@ -42,10 +43,12 @@ MatchCV/
 │   │   └── AnalysisDependencies.py
 │   ├── Routers/
 │   │   ├── __init__.py
-│   │   └── AnalysisRouter.py
+│   │   ├── AnalysisRouter.py
+│   │   └── AuthRouter.py
 │   ├── Schemas/
 │   │   ├── __init__.py
 │   │   ├── AnalysisResponse.py
+│   │   ├── AuthSchemas.py
 │   │   └── ErrorResponse.py
 │   ├── __init__.py
 │   └── main.py
@@ -87,8 +90,8 @@ MatchCV/
 │   ├── Decisions/
 │   │   └── Architecture-Decisions.md
 │   ├── AI-Integration.md
-│   ├── API.md
 │   ├── API-Integration.md
+│   ├── API.md
 │   ├── Architecture.md
 │   ├── Backend.md
 │   ├── CI-CD.md
@@ -173,7 +176,7 @@ MatchCV/
 │   │   │   │   │   │   │   └── analysis-result.ts
 │   │   │   │   │   ├── analysis.html
 │   │   │   │   │   ├── analysis.scss
-│   │   │   │   │   ├──analysis.spec.ts
+│   │   │   │   │   ├── analysis.spec.ts
 │   │   │   │   │   └── analysis.ts
 │   │   │   │   ├── change-password/
 │   │   │   │   │   ├── change-password.html
@@ -193,14 +196,14 @@ MatchCV/
 │   │   │   │   └── register/
 │   │   │   │   │   ├── register.html
 │   │   │   │   │   ├── register,scss
+│   │   │   │   │   ├── register.spec.ts
 │   │   │   │   │   └── register.ts
-│   │   │   ├── app.html
-│   │   │   ├── app.scss
-│   │   │   ├──app.spec.ts
-│   │   │   ├── app.ts 
 │   │   │   ├── app.config.ts
+│   │   │   ├── app.html
 │   │   │   ├── app.routes.ts
-│   │   │   └── app.spec.ts
+│   │   │   ├── app.scss  
+│   │   │   ├── app.spec.ts
+│   │   │   └── app.ts
 │   │   ├── index.html
 │   │   ├── main.ts
 │   │   └── styles.scss
@@ -227,6 +230,7 @@ MatchCV/
 │   │   ├── __init__.py
 │   │   ├── SqlServerAnalysisQueueRepository.py
 │   │   ├── SqlServerAnalysisRepository.py
+│   │   ├── SqlServerAnalysisUsageRepository.py
 │   │   ├── SqlServerJobDescriptionRepository.py
 │   │   └── SqlServerUserRepository.py
 │   ├── Security
@@ -241,14 +245,15 @@ MatchCV/
 │   ├── Authentication/
 │   │   ├── AuthenticationService.py
 │   │   ├── PasswordHasher.py
+│   │   ├── PasswordPolicy.py
 │   │   └── PasswordRecoveryPolicy.py 
 │   ├── Authorization/
 │   │   ├── CurrentUser.py
 │   │   └── RoleChecker.py
-│   ├── Tokens/
-│   │   └── TokenService.py
 │   ├── Dependencies/
 │   │   └── AuthDependencies.py
+│   ├── Tokens/
+│   │   └── TokenService.py
 │   └── __init__.py
 ├── MatchCV.Parser/
 │   ├── Exceptions/
@@ -272,6 +277,7 @@ MatchCV/
 │   │   ├── __init__.py
 │   │   ├── Data/
 │   │   │   └── __init__.py
+│   │   ├── __init__.py
 │   │   ├── ResumeFileValidator.py
 │   │   └── ResumeStructureValidator.py
 │   └── __init__.py
@@ -295,23 +301,23 @@ MatchCV/
 │   │   │   ├── test_sql_server_analysis_repository.py
 │   │   │   ├── test_sql_server_job_description_repository.py
 │   │   │   └── test_sql_server_user_repository.py
-│   │   ├── conftest.py
-│   │   └── __init__.py
+│   │   ├── __init__.py
+│   │   └── conftest.py
 │   └── Unit/
 │   │   ├── Application/
 │   │   │   ├── __init__.py
-│   │   │   ├── test_analyze_resume_use_case.py
 │   │   │   ├── test_analysis_result.py
 │   │   │   ├── test_analyze_resume_request.py
-│   │   │   ├── test_parsed_resume_result.py
-│   │   │   └── test_interfaces.py
+│   │   │   ├── test_analyze_resume_use_case.py
+│   │   │   ├── test_interfaces.py
+│   │   │   └── test_parsed_resume_result.py
 │   │   ├── Domain/
 │   │   │   ├── __init__.py
-│   │   │   ├── test_text_content_validator.py
-│   │   │   ├── test_profanity_validator.py
+│   │   │   ├── test_analysis.py
 │   │   │   ├── test_job_description.py
+│   │   │   ├── test_profanity_validator.py
 │   │   │   ├── test_resume.py
-│   │   │   └── test_analysis.py
+│   │   │   └── test_text_content_validator.py
 │   │   ├── Login/
 │   │   │   ├── test_authentication_service.py
 │   │   │   ├── test_current_user_authorization.py
@@ -320,7 +326,7 @@ MatchCV/
 │   │   │   ├── test_password_recovery_policy.py
 │   │   │   ├── test_role_checker.py
 │   │   │   └── test_token_service.py
-│   │   └── Parser/
+│   │   ├── Parser/
 │   │   │   ├── __init__.py
 │   │   │   ├── test_doc_resume_parser.py
 │   │   │   ├── test_docx_resume_parser.py
@@ -329,6 +335,8 @@ MatchCV/
 │   │   │   ├── test_resume_file_validator.py
 │   │   │   ├── test_resume_parser_service.py
 │   │   │   └── test_resume_structure_validator.py
+│   │   └── Worker/
+│   │   │   └── test_analysis_worker.py  
 │   │   └── __init__.py
 │   └── __init__.py
 ├── MatchCV.Worker/
@@ -337,7 +345,8 @@ MatchCV/
 ├── .env.example
 ├── .gitignore
 ├── docker-compose.yml
-└── README.md
+├── README.md
+└── requirements.txt
 ```
 
 ## Organização da documentação
