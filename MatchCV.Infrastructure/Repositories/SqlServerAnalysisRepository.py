@@ -110,6 +110,7 @@ class SqlServerAnalysisRepository(IAnalysisRepository):
                     """
                     SELECT
                         id,
+                        user_id,
                         resume_id,
                         job_description_id,
                         status,
@@ -149,6 +150,7 @@ class SqlServerAnalysisRepository(IAnalysisRepository):
                     """
                     SELECT
                         id,
+                        user_id,
                         resume_id,
                         job_description_id,
                         status,
@@ -197,6 +199,7 @@ class SqlServerAnalysisRepository(IAnalysisRepository):
                     """
                     SELECT
                         id,
+                        user_id,
                         resume_id,
                         job_description_id,
                         status,
@@ -266,6 +269,7 @@ class SqlServerAnalysisRepository(IAnalysisRepository):
                     SET status = ?
                     OUTPUT
                         inserted.id,
+                        inserted.user_id,
                         inserted.resume_id,
                         inserted.job_description_id,
                         inserted.status,
@@ -362,30 +366,32 @@ class SqlServerAnalysisRepository(IAnalysisRepository):
     def _map_row_to_analysis(row) -> Analysis:
         record = AnalysisRecord(
             id=UUID(str(row[0])),
-            resume_id=UUID(str(row[1])),
-            job_description_id=UUID(str(row[2])),
-            status=AnalysisStatus(row[3]),
+            user_id=UUID(str(row[1])),
+            resume_id=UUID(str(row[2])),
+            job_description_id=UUID(str(row[3])),
+            status=AnalysisStatus(row[4]),
             evidenced_requirements=json.loads(
-                row[4] or "[]"
-            ),
-            unevidenced_requirements=json.loads(
                 row[5] or "[]"
             ),
-            gaps=json.loads(
+            unevidenced_requirements=json.loads(
                 row[6] or "[]"
             ),
-            resume_issues=json.loads(
+            gaps=json.loads(
                 row[7] or "[]"
             ),
-            suggestions=json.loads(
+            resume_issues=json.loads(
                 row[8] or "[]"
             ),
-            created_at=row[9],
-            completed_at=row[10],
+            suggestions=json.loads(
+                row[9] or "[]"
+            ),
+            created_at=row[10],
+            completed_at=row[11],
         )
 
         return Analysis(
             id=record.id,
+            user_id=record.user_id,
             resume_id=record.resume_id,
             job_description_id=record.job_description_id,
             status=record.status,
