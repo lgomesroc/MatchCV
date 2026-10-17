@@ -29,7 +29,9 @@ describe('LoginComponent', () => {
     await TestBed.configureTestingModule({
       imports: [LoginComponent],
       providers: [
-        provideRouter([]),
+        provideRouter([
+          { path: 'analysis', component: LoginComponent },
+        ]),
         {
           provide: AuthService,
           useValue: authService,
@@ -102,7 +104,7 @@ describe('LoginComponent', () => {
 
   it('deve navegar para análise após login bem-sucedido', () => {
     const { component } = createComponent();
-    const navigateSpy = vi.spyOn(router, 'navigate');
+    const navigateSpy = vi.spyOn(router, 'navigate').mockResolvedValue(true);
 
     authService.login.mockReturnValue(of({}));
 

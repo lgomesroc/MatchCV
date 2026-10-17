@@ -1,6 +1,7 @@
 
 import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
 
 import { AnalysisComponent } from './analysis';
@@ -22,6 +23,7 @@ describe('AnalysisComponent', () => {
     await TestBed.configureTestingModule({
       imports: [AnalysisComponent],
       providers: [
+        provideRouter([]),
         {
           provide: AnalysisService,
           useValue: analysisService,

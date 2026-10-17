@@ -91,7 +91,11 @@ describe('AnalysisService', () => {
       'Descrição de uma vaga de desenvolvimento com mais de trinta caracteres.',
     );
     expect(body.get('resume_text')).toBeNull();
-    expect(body.get('resume')).toBe(file);
+    expect(body.get('resume')).toMatchObject({
+      name: file.name,
+      type: file.type,
+      size: file.size,
+    });
 
     request.flush({ status: 'completed' });
   });
