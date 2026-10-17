@@ -1,0 +1,62 @@
+name: MatchCV CD
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: matchcv-cd-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Prepare delivery artifacts
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Validate Python syntax
+        run: python -m compileall -q MatchCV.Api MatchCV.Login
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24.19.0"
+          cache: npm
+          cache-dependency-path: MatchCV.Frontend/package-lock.json
+
+      - name: Set up npm
+        run: npm install --global npm@11.19.0
+
+      - name: Install frontend dependencies
+        working-directory: MatchCV.Frontend
+        run: npm ci
+
+      - name: Build Angular frontend
+        working-directory: MatchCV.Frontend
+        run: npm run build
+
+      - name: Package repository source
+        run: git archive --format=zip --output=matchcv-source.zip HEAD
+
+      - name: Upload delivery artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: matchcv-delivery-${{ github.sha }}
+          path: |
+            MatchCV.Frontend/dist/
+            matchcv-source.zip
+          if-no-files-found: error
+          retention-days: 14

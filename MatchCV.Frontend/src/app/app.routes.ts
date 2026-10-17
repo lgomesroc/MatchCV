@@ -7,32 +7,16 @@ import { ForgotPasswordComponent } from './features/forgot-password/forgot-passw
 import { AnalysisComponent } from './features/analysis/analysis';
 
 export const routes: Routes = [
-  {
-    path: 'login',
-    component: LoginComponent,
-  },
-  {
-    path: 'register',
-    component: RegisterComponent,
-  },
-  {
-    path: 'forgot-password',
-    component: ForgotPasswordComponent,
-  },
+  { path: 'login', component: LoginComponent },
+  { path: 'register', component: RegisterComponent },
+  { path: 'forgot-password', component: ForgotPasswordComponent },
+
   {
     path: 'analysis',
     component: AnalysisComponent,
     canActivate: [authGuard],
   },
-  {
-    path: '',
-    pathMatch: 'full',
-    redirectTo: 'login',
-  },
-  {
-    path: '**',
-    redirectTo: 'login',
-  },
+
   {
     path: 'change-password',
     canActivate: [authGuard],
@@ -41,4 +25,7 @@ export const routes: Routes = [
         (module) => module.ChangePasswordComponent,
       ),
   },
+
+  { path: '', pathMatch: 'full', redirectTo: 'login' },
+  { path: '**', redirectTo: 'login' },
 ];

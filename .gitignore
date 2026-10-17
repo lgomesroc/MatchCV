@@ -42,3 +42,8 @@ htmlcov/
 *.pdf
 *.doc
 *.docx
+
+# Playwright
+MatchCV.Frontend/test-results/
+MatchCV.Frontend/playwright-report/
+MatchCV.Frontend/blob-report/

@@ -1,4 +1,3 @@
-
 import hmac
 import os
 from typing import Annotated
@@ -7,6 +6,7 @@ from fastapi import APIRouter, Depends, Header, HTTPException, status
 
 from MatchCV.Api.Schemas.AuthSchemas import (
     AdminBootstrapRequest,
+    ChangePasswordRequest,
     LoginRequest,
     RegisterRequest,
     TokenResponse,
@@ -30,10 +30,16 @@ from MatchCV.Login.Dependencies.AuthDependencies import (
 )
 
 
-from MatchCV.Api.Schemas.AuthSchemas import ChangePasswordRequest
-
-
 router = APIRouter(prefix="/auth", tags=["Authentication"])
+
+
+def to_user_response(user: User) -> UserResponse:
+    return UserResponse(
+        id=user.id,
+        name=user.name,
+        email=user.email,
+        role=user.role.value,
+    )
 
 
 @router.post(
@@ -60,12 +66,7 @@ def register(
             detail=str(exception),
         ) from exception
 
-    return UserResponse(
-        id=user.id,
-        name=user.name,
-        email=user.email,
-        role=user.role.value,
-    )
+    return to_user_response(user)
 
 
 @router.post("/login", response_model=TokenResponse)
@@ -91,12 +92,7 @@ def login(
 
     return TokenResponse(
         access_token=access_token,
-        user=UserResponse(
-            id=user.id,
-            name=user.name,
-            email=user.email,
-            role=user.role.value,
-        ),
+        user=to_user_response(user),
     )
 
 
@@ -175,7 +171,6 @@ def bootstrap_admin(
             detail=str(exception),
         ) from exception
     except Exception as exception:
-        # A restrição única do banco também protege contra concorrência.
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail=(
@@ -184,34 +179,25 @@ def bootstrap_admin(
             ),
         ) from exception
 
-    return UserResponse(
-        id=user.id,
-        name=user.name,
-        email=user.email,
-        role=user.role.value,
-    )
+    return to_user_response(user)
 
 
 @router.get("/me", response_model=UserResponse)
 def get_me(
     current_user: Annotated[User, Depends(get_current_user)],
 ) -> UserResponse:
-    return UserResponse(
-        id=current_user.id,
-        name=current_user.name,
-        email=current_user.email,
-        role=current_user.role.value,
-    )
+    return to_user_response(current_user)
 
 
-@router.post("/change-password", status_code=status.HTTP_204_NO_CONTENT)
+@router.post("/change-password", response_model=TokenResponse)
 def change_password(
     request: ChangePasswordRequest,
     current_user: Annotated[User, Depends(get_current_user)],
     auth_service: Annotated[
-        AuthenticationService, Depends(get_authentication_service)
+        AuthenticationService,
+        Depends(get_authentication_service),
     ],
-) -> None:
+) -> TokenResponse:
     if request.new_password != request.confirm_password:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -219,11 +205,12 @@ def change_password(
         )
 
     try:
-        auth_service.change_password(
+        updated_user = auth_service.change_password(
             user_id=current_user.id,
             current_password=request.current_password,
             new_password=request.new_password,
         )
+        access_token = auth_service.create_access_token(updated_user)
     except DomainException as exception:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
@@ -234,3 +221,8 @@ def change_password(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(exception),
         ) from exception
+
+    return TokenResponse(
+        access_token=access_token,
+        user=to_user_response(updated_user),
+    )

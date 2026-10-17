@@ -1,4 +1,3 @@
-
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, tap } from 'rxjs';
@@ -19,13 +18,7 @@ export class AuthService {
     return this.http
       .post<LoginResponse>(`${this.apiUrl}/login`, credentials)
       .pipe(
-        tap((response) => {
-          sessionStorage.setItem(this.tokenKey, response.access_token);
-          sessionStorage.setItem(
-            this.userKey,
-            JSON.stringify(response.user),
-          );
-        }),
+        tap((response) => this.saveSession(response)),
       );
   }
 
@@ -64,16 +57,25 @@ export class AuthService {
     currentPassword: string,
     newPassword: string,
     confirmPassword: string,
-  ): Observable<void> {
-    return this.http.post<void>(`${this.apiUrl}/change-password`, {
-      current_password: currentPassword,
-      new_password: newPassword,
-      confirm_password: confirmPassword,
-    });
+  ): Observable<LoginResponse> {
+    return this.http
+      .post<LoginResponse>(`${this.apiUrl}/change-password`, {
+        current_password: currentPassword,
+        new_password: newPassword,
+        confirm_password: confirmPassword,
+      })
+      .pipe(
+        tap((response) => this.saveSession(response)),
+      );
   }
 
   logout(): void {
     sessionStorage.removeItem(this.tokenKey);
     sessionStorage.removeItem(this.userKey);
+  }
+
+  private saveSession(response: LoginResponse): void {
+    sessionStorage.setItem(this.tokenKey, response.access_token);
+    sessionStorage.setItem(this.userKey, JSON.stringify(response.user));
   }
 }

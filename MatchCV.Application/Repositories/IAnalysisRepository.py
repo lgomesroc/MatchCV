@@ -12,6 +12,7 @@ class IAnalysisRepository(ABC):
     def add(
         self,
         analysis: Analysis,
+        user_id: UUID,
     ) -> Analysis:
         raise NotImplementedError
 
@@ -27,4 +28,34 @@ class IAnalysisRepository(ABC):
         self,
         analysis: Analysis,
     ) -> Analysis:
+        raise NotImplementedError
+
+    @abstractmethod
+    def list_by_user(
+        self,
+        user_id: UUID,
+        limit: int = 50,
+        offset: int = 0,
+    ) -> list[Analysis]:
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_by_id_and_user(
+        self,
+        analysis_id: UUID,
+        user_id: UUID,
+    ) -> Optional[Analysis]:
+        raise NotImplementedError
+
+    @abstractmethod
+    def claim_pending(
+        self,
+        limit: int = 10,
+    ) -> list[Analysis]:
+        """
+        Reserva análises pendentes para processamento pelo worker.
+
+        A implementação deve garantir que a mesma análise não
+        seja reservada simultaneamente por outro worker.
+        """
         raise NotImplementedError

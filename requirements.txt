@@ -6,3 +6,4 @@ pypdf
 python-docx
 python-dotenv
 httpx2
+cryptography

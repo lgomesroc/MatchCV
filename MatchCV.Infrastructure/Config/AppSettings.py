@@ -12,19 +12,24 @@ class AppSettings:
     """Configurações gerais da aplicação."""
 
     environment: str
+
     database_host: str
     database_port: int
     database_name: str
     database_user: str
     database_password: str
+
     ai_primary_api_key: str
     ai_primary_model: str
     ai_primary_base_url: str
     ai_primary_timeout_seconds: int
+
     ai_fallback_api_key: str
     ai_fallback_model: str
     ai_fallback_base_url: str
     ai_fallback_timeout_seconds: int
+
+    analysis_queue_encryption_key: str
 
     @classmethod
     def from_environment(cls) -> "AppSettings":
@@ -33,62 +38,80 @@ class AppSettings:
                 "APP_ENVIRONMENT",
                 "development",
             ),
+
             database_host=os.getenv(
                 "DATABASE_HOST",
                 "localhost",
             ),
+
             database_port=int(
                 os.getenv(
                     "DATABASE_PORT",
                     "1433",
                 )
             ),
+
             database_name=os.getenv(
                 "DATABASE_NAME",
                 "MatchCV",
             ),
+
             database_user=os.getenv(
                 "DATABASE_USER",
                 "sa",
             ),
+
             database_password=os.getenv(
                 "DATABASE_PASSWORD",
                 "",
             ),
+
             ai_primary_api_key=os.getenv(
                 "AI_PRIMARY_API_KEY",
                 "",
             ),
+
             ai_primary_model=os.getenv(
                 "AI_PRIMARY_MODEL",
                 "",
             ),
+
             ai_primary_base_url=os.getenv(
                 "AI_PRIMARY_BASE_URL",
                 "",
             ),
+
             ai_primary_timeout_seconds=int(
                 os.getenv(
                     "AI_PRIMARY_TIMEOUT_SECONDS",
                     "60",
                 )
             ),
+
             ai_fallback_api_key=os.getenv(
                 "AI_FALLBACK_API_KEY",
                 "",
             ),
+
             ai_fallback_model=os.getenv(
                 "AI_FALLBACK_MODEL",
                 "",
             ),
+
             ai_fallback_base_url=os.getenv(
                 "AI_FALLBACK_BASE_URL",
                 "",
             ),
+
             ai_fallback_timeout_seconds=int(
                 os.getenv(
                     "AI_FALLBACK_TIMEOUT_SECONDS",
                     "60",
                 )
+            ),
+
+            analysis_queue_encryption_key=os.getenv(
+                "ANALYSIS_QUEUE_ENCRYPTION_KEY",
+                "",
             ),
         )

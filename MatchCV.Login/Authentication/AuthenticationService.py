@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from MatchCV.Application.Repositories.IUserRepository import IUserRepository
 from MatchCV.Domain.Entities.User import User
 from MatchCV.Domain.Exceptions.DomainException import DomainException
@@ -38,7 +40,6 @@ class AuthenticationService:
 
         password_hash = PasswordHasher.hash_password(password)
 
-        # O cadastro público nunca recebe nem define a função ADMIN.
         user = User.create(
             name=name,
             email=normalized_email,
@@ -48,8 +49,6 @@ class AuthenticationService:
         try:
             return self._user_repository.add(user)
         except Exception as exception:
-            # Pode ocorrer uma colisão se duas requisições cadastrarem
-            # simultaneamente o mesmo e-mail.
             if self._user_repository.get_by_email(normalized_email) is not None:
                 raise DomainException(
                     "Já existe uma conta com esse e-mail."
@@ -60,7 +59,6 @@ class AuthenticationService:
         normalized_email = email.strip().lower()
         user = self._user_repository.get_by_email(normalized_email)
 
-        # A mesma mensagem evita revelar se o e-mail está cadastrado.
         if user is None or not PasswordHasher.verify_password(
             password,
             user.password_hash,
@@ -71,16 +69,18 @@ class AuthenticationService:
 
     def change_password(
         self,
-        user_id,
+        user_id: UUID,
         current_password: str,
         new_password: str,
-    ) -> None:
+    ) -> User:
         user = self._user_repository.get_by_id(user_id)
+
         if user is None:
             raise ValueError("Usuário não encontrado.")
 
         if not PasswordHasher.verify_password(
-            current_password, user.password_hash
+            current_password,
+            user.password_hash,
         ):
             raise ValueError("A senha atual está incorreta.")
 
@@ -89,12 +89,30 @@ class AuthenticationService:
         except ValueError as exception:
             raise DomainException(str(exception)) from exception
 
-        if PasswordHasher.verify_password(new_password, user.password_hash):
-            raise DomainException("A nova senha deve ser diferente da senha atual.")
+        if PasswordHasher.verify_password(
+            new_password,
+            user.password_hash,
+        ):
+            raise DomainException(
+                "A nova senha deve ser diferente da senha atual."
+            )
 
         new_hash = PasswordHasher.hash_password(new_password)
+
         if not self._user_repository.update_password_hash(user.id, new_hash):
             raise ValueError("Não foi possível atualizar a senha.")
 
+        updated_user = self._user_repository.get_by_id(user.id)
+
+        if updated_user is None:
+            raise ValueError(
+                "A senha foi atualizada, mas não foi possível carregar a conta."
+            )
+
+        return updated_user
+
     def create_access_token(self, user: User) -> str:
-        return self._token_service.create_access_token(str(user.id), user.password_hash)
+        return self._token_service.create_access_token(
+            str(user.id),
+            user.password_hash,
+        )

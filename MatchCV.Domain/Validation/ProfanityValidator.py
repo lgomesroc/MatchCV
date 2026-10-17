@@ -1,3 +1,4 @@
+
 import re
 import unicodedata
 
@@ -5,10 +6,9 @@ from MatchCV.Domain.Exceptions.DomainException import DomainException
 
 
 class ProfanityValidator:
-    """Detecta palavrões, termos chulos e conteúdo inadequado."""
+    """Detecta palavrões e termos inadequados sem bloquear palavras legítimas."""
 
     DEFAULT_TERMS = {
-        # Português: palavrões e termos chulos
         "caralho",
         "puta",
         "piru",
@@ -17,35 +17,16 @@ class ProfanityValidator:
         "buceta",
         "vagina",
         "penis",
-        "cueca",
-        "calcinha",
         "porra",
         "cuzinho",
         "cusinho",
         "cuzao",
         "cusao",
-        "pau",
         "foda",
         "foda se",
         "fodasse",
         "fuder",
         "fode",
-        "sexo",
-
-        # Português: termos fisiológicos inadequados
-        "fezes",
-        "urina",
-        "coco",
-        "xixi",
-        "mijar",
-        "defecar",
-
-        # Português: expressões inadequadas
-        "cucabeludo",
-        "cu cabeludo",
-
-        # Inglês
-        "sex",
         "fuck",
         "cock",
         "asshole",
@@ -96,95 +77,79 @@ class ProfanityValidator:
         normalized_value = cls._normalize(value)
         obfuscated_value = cls._normalize_obfuscated(value)
 
-        configured_terms = (
-            cls.DEFAULT_TERMS
-            if terms is None
-            else terms
+        configured_terms = cls.DEFAULT_TERMS if terms is None else terms
+
+        # "Pica-pau" é um composto legítimo. A exceção só se aplica
+        # à lista padrão, sem desativar termos personalizados.
+        legitimate_pica_pau = (
+            terms is None
+            and cls._contains_term(normalized_value, "pica pau")
         )
 
         for term in configured_terms:
             normalized_term = cls._normalize(term)
 
             if (
-                cls._contains_term(
-                    normalized_value,
-                    normalized_term,
-                )
-                or cls._contains_term(
-                    obfuscated_value,
-                    normalized_term,
-                )
+                legitimate_pica_pau
+                and normalized_term == "pica"
+            ):
+                continue
+
+            if (
+                cls._contains_term(normalized_value, normalized_term)
+                or cls._contains_term(obfuscated_value, normalized_term)
             ):
                 raise DomainException(
                     f"{field_name} contém conteúdo inadequado."
                 )
 
+        # "cocô" é proibido, mas "coco" sem acento pode aparecer
+        # em nomes próprios e empresas, como Coco Bambu.
+        if terms is None and re.search(
+            r"(?<!\w)cocô(?!\w)",
+            value,
+            flags=re.IGNORECASE,
+        ):
+            raise DomainException(
+                f"{field_name} contém conteúdo inadequado."
+            )
+
     @classmethod
     def _normalize(cls, value: str) -> str:
-        normalized = unicodedata.normalize(
-            "NFKD",
-            value,
-        )
-
+        """Remove acentos e normaliza separadores, caixa e espaços."""
+        normalized = unicodedata.normalize("NFKD", value)
         normalized = "".join(
             character
             for character in normalized
             if not unicodedata.combining(character)
         )
-
         normalized = normalized.lower()
-        normalized = normalized.translate(
-            cls.LEET_TRANSLATION
-        )
-        normalized = cls.SEPARATOR_PATTERN.sub(
-            " ",
-            normalized,
-        )
-        normalized = cls.NON_ALPHANUMERIC_PATTERN.sub(
-            " ",
-            normalized,
-        )
-        normalized = cls.WHITESPACE_PATTERN.sub(
-            " ",
-            normalized,
-        )
+        normalized = normalized.translate(cls.LEET_TRANSLATION)
+        normalized = cls.SEPARATOR_PATTERN.sub(" ", normalized)
+        normalized = cls.NON_ALPHANUMERIC_PATTERN.sub(" ", normalized)
+        normalized = cls.WHITESPACE_PATTERN.sub(" ", normalized)
 
         return normalized.strip()
 
     @classmethod
     def _normalize_obfuscated(cls, value: str) -> str:
-        """Remove separadores somente entre letras ou números."""
-        normalized = unicodedata.normalize(
-            "NFKD",
-            value,
-        )
-
+        """Detecta termos disfarçados com separadores entre letras."""
+        normalized = unicodedata.normalize("NFKD", value)
         normalized = "".join(
             character
             for character in normalized
             if not unicodedata.combining(character)
         )
-
         normalized = normalized.lower()
-        normalized = normalized.translate(
-            cls.LEET_TRANSLATION
-        )
+        normalized = normalized.translate(cls.LEET_TRANSLATION)
 
-        # Junta caracteres separados por pontuação.
         normalized = re.sub(
             r"(?<=[a-z0-9])[*_.\-/\\|]+(?=[a-z0-9])",
             "",
             normalized,
         )
-
-        normalized = cls.NON_ALPHANUMERIC_PATTERN.sub(
-            " ",
-            normalized,
-        )
-        normalized = cls.WHITESPACE_PATTERN.sub(
-            " ",
-            normalized,
-        )
+        normalized = cls.NON_ALPHANUMERIC_PATTERN.sub(" ", normalized)
+        normalized = cls.WHITESPACE_PATTERN.sub(" ", normalized)
 
         return normalized.strip()
 
@@ -193,6 +158,7 @@ class ProfanityValidator:
         normalized_text: str,
         normalized_term: str,
     ) -> bool:
+        """Verifica um termo isolado, respeitando os limites das palavras."""
         if not normalized_term:
             return False
 
@@ -202,7 +168,4 @@ class ProfanityValidator:
             rf"(?![a-z0-9])"
         )
 
-        return re.search(
-            pattern,
-            normalized_text,
-        ) is not None
+        return re.search(pattern, normalized_text) is not None
