@@ -24,6 +24,7 @@ def api_client():
     usage_repository = MagicMock()
     usage_repository.FREE_ANALYSIS_LIMIT = 3
     usage_repository.count_completed.return_value = 0
+    use_case.authenticated_user_id = None
 
     current_user = User(
         id=uuid4(),
@@ -39,6 +40,8 @@ def api_client():
     app.dependency_overrides[get_analysis_usage_repository] = (
         lambda: usage_repository
     )
+    use_case.authenticated_user_id = current_user.id
+
     app.dependency_overrides[get_current_user] = (
         lambda: current_user
     )
@@ -97,6 +100,9 @@ class TestAnalysisRouter:
         }
 
         use_case.execute.assert_called_once()
+        assert use_case.execute.call_args.args[1] == (
+            use_case.authenticated_user_id
+        )
 
         request = use_case.execute.call_args.args[0]
 
