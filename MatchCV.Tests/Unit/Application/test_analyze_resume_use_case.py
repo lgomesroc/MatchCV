@@ -1,6 +1,7 @@
 from importlib import import_module
 from io import BytesIO
 from unittest.mock import MagicMock
+from uuid import uuid4
 
 import pytest
 
@@ -121,7 +122,8 @@ class TestAnalyzeResumeUseCase:
             resume_text=VALID_RESUME_TEXT,
         )
 
-        result = use_case.execute(request)
+        user_id = uuid4()
+        result = use_case.execute(request, user_id=user_id)
 
         assert result is expected_result
 
@@ -133,7 +135,7 @@ class TestAnalyzeResumeUseCase:
         )
 
         job_repository.add.assert_called_once_with(job_description)
-        analysis_repository.add.assert_called_once_with(analysis)
+        analysis_repository.add.assert_called_once_with(analysis, user_id)
 
         assert analysis_repository.update.call_count == 2
 
@@ -189,7 +191,8 @@ class TestAnalyzeResumeUseCase:
             file_size_bytes=1024,
         )
 
-        result = use_case.execute(request)
+        user_id = uuid4()
+        result = use_case.execute(request, user_id=user_id)
 
         assert result is expected_result
 
@@ -213,7 +216,7 @@ class TestAnalyzeResumeUseCase:
         )
 
         job_repository.add.assert_called_once_with(job_description)
-        analysis_repository.add.assert_called_once_with(analysis)
+        analysis_repository.add.assert_called_once_with(analysis, user_id)
         assert analysis_repository.update.call_count == 2
 
         analysis.complete.assert_called_once()
@@ -242,7 +245,7 @@ class TestAnalyzeResumeUseCase:
             DomainException,
             match="dados do arquivo do currículo são obrigatórios",
         ):
-            use_case.execute(request)
+            use_case.execute(request, user_id=uuid4())
 
         parser_service.parse.assert_not_called()
         analysis_provider.analyze.assert_not_called()
@@ -317,7 +320,7 @@ class TestAnalyzeResumeUseCase:
         )
 
         with pytest.raises(DomainException):
-            use_case.execute(request)
+            use_case.execute(request, user_id=uuid4())
 
         parser_service.parse.assert_not_called()
         analysis_provider.analyze.assert_not_called()
@@ -351,7 +354,7 @@ class TestAnalyzeResumeUseCase:
             RuntimeError,
             match="Falha no provedor de IA",
         ):
-            use_case.execute(request)
+            use_case.execute(request, user_id=uuid4())
 
         analysis.start_processing.assert_called_once_with()
         analysis.fail.assert_called_once_with()
@@ -391,7 +394,7 @@ class TestAnalyzeResumeUseCase:
             RuntimeError,
             match="Falha ao processar currículo",
         ):
-            use_case.execute(request)
+            use_case.execute(request, user_id=uuid4())
 
         parser_service.parse.assert_called_once()
         analysis_provider.analyze.assert_not_called()
@@ -423,7 +426,7 @@ class TestAnalyzeResumeUseCase:
             DomainException,
             match="dados do arquivo do currículo são obrigatórios",
         ):
-            use_case.execute(request)
+            use_case.execute(request, user_id=uuid4())
 
         parser_service.parse.assert_not_called()
         analysis_provider.analyze.assert_not_called()

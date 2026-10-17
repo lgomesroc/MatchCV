@@ -1,3 +1,4 @@
+
 import re
 import unicodedata
 
@@ -76,12 +77,23 @@ class ProfanityValidator:
         normalized_value = cls._normalize(value)
         obfuscated_value = cls._normalize_obfuscated(value)
 
-        configured_terms = (
-            cls.DEFAULT_TERMS if terms is None else terms
+        configured_terms = cls.DEFAULT_TERMS if terms is None else terms
+
+        # "Pica-pau" é um composto legítimo. A exceção só se aplica
+        # à lista padrão, sem desativar termos personalizados.
+        legitimate_pica_pau = (
+            terms is None
+            and cls._contains_term(normalized_value, "pica pau")
         )
 
         for term in configured_terms:
             normalized_term = cls._normalize(term)
+
+            if (
+                legitimate_pica_pau
+                and normalized_term == "pica"
+            ):
+                continue
 
             if (
                 cls._contains_term(normalized_value, normalized_term)
@@ -91,8 +103,8 @@ class ProfanityValidator:
                     f"{field_name} contém conteúdo inadequado."
                 )
 
-        # "cocô" é um termo específico; "coco" sem acento pode
-        # aparecer em nomes próprios, empresas e outros contextos.
+        # "cocô" é proibido, mas "coco" sem acento pode aparecer
+        # em nomes próprios e empresas, como Coco Bambu.
         if terms is None and re.search(
             r"(?<!\w)cocô(?!\w)",
             value,
@@ -104,6 +116,7 @@ class ProfanityValidator:
 
     @classmethod
     def _normalize(cls, value: str) -> str:
+        """Remove acentos e normaliza separadores, caixa e espaços."""
         normalized = unicodedata.normalize("NFKD", value)
         normalized = "".join(
             character
@@ -120,6 +133,7 @@ class ProfanityValidator:
 
     @classmethod
     def _normalize_obfuscated(cls, value: str) -> str:
+        """Detecta termos disfarçados com separadores entre letras."""
         normalized = unicodedata.normalize("NFKD", value)
         normalized = "".join(
             character
@@ -144,6 +158,7 @@ class ProfanityValidator:
         normalized_text: str,
         normalized_term: str,
     ) -> bool:
+        """Verifica um termo isolado, respeitando os limites das palavras."""
         if not normalized_term:
             return False
 

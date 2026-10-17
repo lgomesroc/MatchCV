@@ -15,6 +15,7 @@ def create_test_settings(**overrides) -> AppSettings:
         "database_name": "MatchCV_Test",
         "database_user": "test_user",
         "database_password": "test_password",
+        "analysis_queue_encryption_key": "test-analysis-queue-key",
         "ai_primary_api_key": "",
         "ai_primary_model": "",
         "ai_primary_base_url": "",

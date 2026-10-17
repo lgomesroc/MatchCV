@@ -10,6 +10,7 @@ from MatchCV.Domain.Exceptions.DomainException import DomainException
 
 def create_valid_analysis():
     return Analysis.create(
+        user_id=uuid4(),
         resume_id=uuid4(),
         job_description_id=uuid4(),
     )
@@ -31,6 +32,7 @@ def test_create_starts_with_pending_status():
 def test_create_rejects_missing_resume_id():
     with pytest.raises(DomainException):
         Analysis.create(
+            user_id=uuid4(),
             resume_id=None,
             job_description_id=uuid4(),
         )
@@ -39,6 +41,7 @@ def test_create_rejects_missing_resume_id():
 def test_create_rejects_missing_job_description_id():
     with pytest.raises(DomainException):
         Analysis.create(
+            user_id=uuid4(),
             resume_id=uuid4(),
             job_description_id=None,
         )

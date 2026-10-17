@@ -1,3 +1,4 @@
+
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import List
@@ -90,13 +91,9 @@ class Analysis:
         self.completed_at = datetime.now(timezone.utc)
 
     def fail(self) -> None:
-        if self.status not in (
-            AnalysisStatus.PENDING,
-            AnalysisStatus.PROCESSING,
-        ):
+        if self.status != AnalysisStatus.PROCESSING:
             raise DomainException(
-                "Somente análises pendentes ou em processamento "
-                "podem falhar."
+                "Somente análises em processamento podem falhar."
             )
 
         self.status = AnalysisStatus.FAILED

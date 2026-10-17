@@ -118,6 +118,7 @@ class AnalyzeResumeUseCase:
 
         self._analysis_repository.add(
             analysis,
+            user_id,
         )
 
         analysis.start_processing()
