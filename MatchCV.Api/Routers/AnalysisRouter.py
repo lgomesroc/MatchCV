@@ -131,7 +131,10 @@ async def analyze_resume(
         )
 
     try:
-        result = use_case.execute(request)
+        result = use_case.execute(
+            request,
+            user_id=current_user.id,
+        )
 
         # Só contabiliza quando o caso de uso retorna com sucesso.
         if current_user.role != UserRole.ADMIN:
