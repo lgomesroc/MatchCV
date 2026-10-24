@@ -42,7 +42,8 @@ MatchCV/
 │   │   └── AnalysisDependencies.py
 │   ├── Routers/
 │   │   ├── __init__.py
-│   │   └── AnalysisRouter.py
+│   │   ├── AnalysisRouter.py
+│   │   └── PasswordResetRouter.py
 │   ├── Schemas/
 │   │   ├── __init__.py
 │   │   ├── AnalysisResponse.py
@@ -79,7 +80,8 @@ MatchCV/
 │   │   ├── 002_user_analysis_usage.sql
 │   │   ├── 003_unique_admin.sql
 │   │   ├── 004_analysis_history.sql
-│   │   └── 005_analysis_worker_queue.sql
+│   │   ├── 005_analysis_worker_queue.sql
+│   │   └── 006_password_reset_tokens.sql
 │   └── __init__.py
 ├── MatchCV.Docs/
 │   ├── BusinessRules/
@@ -228,6 +230,7 @@ MatchCV/
 │   │   ├── SqlServerAnalysisQueueRepository.py
 │   │   ├── SqlServerAnalysisRepository.py
 │   │   ├── SqlServerJobDescriptionRepository.py
+│   │   ├── SqlServerPasswordResetRepository.py
 │   │   └── SqlServerUserRepository.py
 │   ├── Security
 │   │   ├── __init__.py

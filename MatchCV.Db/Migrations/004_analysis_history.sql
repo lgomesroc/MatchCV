@@ -9,6 +9,7 @@ IF NOT EXISTS (
     SELECT 1
     FROM sys.foreign_keys
     WHERE name = 'FK_analyses_users'
+      AND parent_object_id = OBJECT_ID('dbo.analyses')
 )
 BEGIN
     ALTER TABLE dbo.analyses
