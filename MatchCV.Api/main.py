@@ -1,4 +1,3 @@
-
 import hmac
 import os
 from typing import Annotated
@@ -8,16 +7,12 @@ from fastapi.openapi.docs import get_redoc_html, get_swagger_ui_html
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 
-from MatchCV.Api.Routers.AnalysisRouter import (
-    router as analysis_router,
-)
-from MatchCV.Api.Routers.AuthRouter import (
-    router as auth_router,
-)
+from MatchCV.Api.Routers.AnalysisRouter import router as analysis_router
+from MatchCV.Api.Routers.AuthRouter import router as auth_router
+from MatchCV.Api.Routers.PasswordResetRouter import router as password_reset_router
 
 
 security = HTTPBasic(auto_error=False)
-
 
 app = FastAPI(
     title="MatchCV API",
@@ -31,27 +26,17 @@ app = FastAPI(
     openapi_url=None,
 )
 
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:4200",
-    ],
+    allow_origins=["http://localhost:4200"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-
-app.include_router(
-    auth_router,
-    prefix="/api/v1",
-)
-
-app.include_router(
-    analysis_router,
-    prefix="/api/v1",
-)
+app.include_router(auth_router, prefix="/api/v1")
+app.include_router(password_reset_router, prefix="/api/v1")
+app.include_router(analysis_router, prefix="/api/v1")
 
 
 def require_documentation_credentials(
@@ -63,8 +48,6 @@ def require_documentation_credentials(
     expected_username = os.getenv("SWAGGER_USERNAME", "")
     expected_password = os.getenv("SWAGGER_PASSWORD", "")
 
-    # Se as credenciais não estiverem configuradas,
-    # a documentação permanece indisponível.
     if not expected_username or not expected_password:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -128,12 +111,6 @@ def redoc_documentation():
     )
 
 
-@app.get(
-    "/health",
-    tags=["Health"],
-)
+@app.get("/health", tags=["Health"])
 def health() -> dict[str, str]:
-    return {
-        "status": "ok",
-        "service": "MatchCV API",
-    }
+    return {"status": "ok", "service": "MatchCV API"}
