@@ -3,7 +3,7 @@ import {
   HttpErrorResponse,
 } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable, catchError, concatMap, filter, map, of, switchMap, take, tap, throwError, timer } from 'rxjs';
+import { Observable, filter, switchMap, take, takeWhile, tap, throwError, timer } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
 import { AnalysisResponse } from '../models/analysis-response';
