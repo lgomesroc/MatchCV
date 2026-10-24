@@ -338,9 +338,11 @@ MatchCV/
 ├── MatchCV.Worker/
 │   ├── __init__.py
 │   └── AnalysisWorker.py
+├── .dockerignore
 ├── .env.example
 ├── .gitignore
 ├── docker-compose.yml
+├── Dockerfile
 └── README.md
 ```
 
