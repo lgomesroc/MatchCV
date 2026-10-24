@@ -1,4 +1,3 @@
-
 import {
   HttpClient,
   provideHttpClient,
@@ -10,12 +9,14 @@ import {
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 
+import { environment } from '../../../environments/environment';
 import { RegisterComponent } from './register';
 
 describe('RegisterComponent', () => {
   let http: HttpClient;
   let httpMock: HttpTestingController;
   let router: Router;
+  const registerUrl = `${environment.apiUrl}/auth/register`;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -152,9 +153,7 @@ describe('RegisterComponent', () => {
 
     component.submit();
 
-    httpMock.expectNone(
-      'http://localhost:8000/api/v1/auth/register',
-    );
+    httpMock.expectNone(registerUrl);
   });
 
   it('deve enviar dados normalizados e navegar para login após cadastro', () => {
@@ -167,9 +166,7 @@ describe('RegisterComponent', () => {
 
     component.submit();
 
-    const request = httpMock.expectOne(
-      'http://localhost:8000/api/v1/auth/register',
-    );
+    const request = httpMock.expectOne(registerUrl);
 
     expect(request.request.method).toBe('POST');
     expect(request.request.body).toEqual({
@@ -192,9 +189,7 @@ describe('RegisterComponent', () => {
     fillValidForm(component);
     component.submit();
 
-    const request = httpMock.expectOne(
-      'http://localhost:8000/api/v1/auth/register',
-    );
+    const request = httpMock.expectOne(registerUrl);
 
     request.flush(
       { detail: 'E-mail já cadastrado.' },
@@ -213,9 +208,7 @@ describe('RegisterComponent', () => {
     fillValidForm(component);
     component.submit();
 
-    const request = httpMock.expectOne(
-      'http://localhost:8000/api/v1/auth/register',
-    );
+    const request = httpMock.expectOne(registerUrl);
 
     request.flush(
       { detail: 'Falha de conexão.' },
@@ -234,8 +227,6 @@ describe('RegisterComponent', () => {
 
     component.submit();
 
-    httpMock.expectNone(
-      'http://localhost:8000/api/v1/auth/register',
-    );
+    httpMock.expectNone(registerUrl);
   });
 });
