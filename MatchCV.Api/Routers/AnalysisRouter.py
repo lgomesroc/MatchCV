@@ -12,7 +12,6 @@ from MatchCV.Api.Schemas.ErrorResponse import ErrorResponse
 from MatchCV.Application.DTOs.AnalyzeResumeRequest import AnalyzeResumeRequest
 from MatchCV.Application.UseCases.AnalyzeResumeUseCase import AnalyzeResumeUseCase
 from MatchCV.Domain.Entities.User import User
-from MatchCV.Domain.Enums.AnalysisStatus import AnalysisStatus
 from MatchCV.Domain.Enums.UserRole import UserRole
 from MatchCV.Domain.Exceptions.DomainException import DomainException
 from MatchCV.Infrastructure.Repositories.SqlServerAnalysisRepository import SqlServerAnalysisRepository
