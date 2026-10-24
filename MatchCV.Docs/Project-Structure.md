@@ -282,7 +282,8 @@ MatchCV/
 │   │   │   ├── test_analysis_router.py
 │   │   │   ├── test_api_contract.py
 │   │   │   ├── test_auth_router.py
-│   │   │   └── test_health_endpoint.py
+│   │   │   ├── test_health_endpoint.py
+│   │   │   └── test_swagger_security.py
 │   │   ├── Database/
 │   │   │   ├── __init__.py
 │   │   │   ├── test_database_connection.py
