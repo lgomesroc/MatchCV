@@ -1,3 +1,4 @@
+import os
 
 from fastapi.testclient import TestClient
 
@@ -5,10 +6,18 @@ from MatchCV.Api.main import app
 
 
 class TestApiContract:
-    def test_analysis_endpoint_is_documented_in_openapi(self):
-        client = TestClient(app)
+    def test_analysis_endpoint_is_documented_in_openapi(self, monkeypatch):
+        username = "contract-test"
+        password = "senha-de-teste-forte"
 
-        response = client.get("/openapi.json")
+        monkeypatch.setenv("SWAGGER_USERNAME", username)
+        monkeypatch.setenv("SWAGGER_PASSWORD", password)
+
+        client = TestClient(app)
+        response = client.get(
+            "/openapi.json",
+            auth=(username, password),
+        )
 
         assert response.status_code == 200
 
@@ -16,10 +25,18 @@ class TestApiContract:
         assert "/api/v1/analysis/resume" in schema["paths"]
         assert "post" in schema["paths"]["/api/v1/analysis/resume"]
 
-    def test_health_endpoint_is_documented_in_openapi(self):
-        client = TestClient(app)
+    def test_health_endpoint_is_documented_in_openapi(self, monkeypatch):
+        username = "contract-test"
+        password = "senha-de-teste-forte"
 
-        response = client.get("/openapi.json")
+        monkeypatch.setenv("SWAGGER_USERNAME", username)
+        monkeypatch.setenv("SWAGGER_PASSWORD", password)
+
+        client = TestClient(app)
+        response = client.get(
+            "/openapi.json",
+            auth=(username, password),
+        )
 
         assert response.status_code == 200
 
@@ -29,7 +46,6 @@ class TestApiContract:
 
     def test_cors_allows_angular_frontend_origin(self):
         client = TestClient(app)
-
         response = client.options(
             "/api/v1/analysis/resume",
             headers={
@@ -39,6 +55,7 @@ class TestApiContract:
         )
 
         assert response.status_code == 200
-        assert response.headers["access-control-allow-origin"] == (
-            "http://localhost:4200"
+        assert (
+            response.headers["access-control-allow-origin"]
+            == "http://localhost:4200"
         )

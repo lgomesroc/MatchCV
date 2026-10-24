@@ -12,7 +12,7 @@ MatchCV/
 │   └──workflows/
 │   │   ├── cd.yml
 │   │   └── ci.yml
-├── Doc/s/
+├── Docs/
 │   └── test-job-description.txt
 ├── MatchCV/
 │   └── __init__.py
@@ -42,7 +42,8 @@ MatchCV/
 │   │   └── AnalysisDependencies.py
 │   ├── Routers/
 │   │   ├── __init__.py
-│   │   └── AnalysisRouter.py
+│   │   ├── AnalysisRouter.py
+│   │   └── PasswordResetRouter.py
 │   ├── Schemas/
 │   │   ├── __init__.py
 │   │   ├── AnalysisResponse.py
@@ -79,7 +80,8 @@ MatchCV/
 │   │   ├── 002_user_analysis_usage.sql
 │   │   ├── 003_unique_admin.sql
 │   │   ├── 004_analysis_history.sql
-│   │   └── 005_analysis_worker_queue.sql
+│   │   ├── 005_analysis_worker_queue.sql
+│   │   └── 006_password_reset_tokens.sql
 │   └── __init__.py
 ├── MatchCV.Docs/
 │   ├── BusinessRules/
@@ -116,7 +118,7 @@ MatchCV/
 │   │   └── User.py
 │   ├── Enums/
 │   │   ├── __init__.py
-│   │   ├──AnalysisStatus.py
+│   │   ├── AnalysisStatus.py
 │   │   ├── FileType.py
 │   │   └── UserRole.py
 │   ├── Exceptions/
@@ -131,9 +133,9 @@ MatchCV/
 │   └── __init__.py
 ├── MatchCV.Frontend/
 │   ├── e2e/
-│   │   │   ├── analysis.spec.ts
-│   │   │   ├── login.spec.ts
-│   │   │   └── registration.spec.ts
+│   │   ├── analysis.spec.ts
+│   │   ├── login.spec.ts
+│   │   └── registration.spec.ts
 │   ├── src/
 │   │   ├── app/
 │   │   │   ├── core/
@@ -228,10 +230,11 @@ MatchCV/
 │   │   ├── SqlServerAnalysisQueueRepository.py
 │   │   ├── SqlServerAnalysisRepository.py
 │   │   ├── SqlServerJobDescriptionRepository.py
+│   │   ├── SqlServerPasswordResetRepository.py
 │   │   └── SqlServerUserRepository.py
 │   ├── Security
 │   │   ├── __init__.py
-│   │   ├── AnalysisPayloadEncryption.py
+│   │   └── AnalysisPayloadEncryption.py
 │   ├── Services/
 │   │   ├── __init__.py
 │   │   ├── AIAnalysisProvider.py
@@ -282,7 +285,8 @@ MatchCV/
 │   │   │   ├── test_analysis_router.py
 │   │   │   ├── test_api_contract.py
 │   │   │   ├── test_auth_router.py
-│   │   │   └── test_health_endpoint.py
+│   │   │   ├── test_health_endpoint.py
+│   │   │   └── test_swagger_security.py
 │   │   ├── Database/
 │   │   │   ├── __init__.py
 │   │   │   ├── test_database_connection.py
@@ -295,23 +299,23 @@ MatchCV/
 │   │   │   ├── test_sql_server_analysis_repository.py
 │   │   │   ├── test_sql_server_job_description_repository.py
 │   │   │   └── test_sql_server_user_repository.py
-│   │   ├── conftest.py
-│   │   └── __init__.py
+│   │   ├── __init__.py
+│   │   └── conftest.py
 │   └── Unit/
 │   │   ├── Application/
 │   │   │   ├── __init__.py
 │   │   │   ├── test_analyze_resume_use_case.py
 │   │   │   ├── test_analysis_result.py
 │   │   │   ├── test_analyze_resume_request.py
-│   │   │   ├── test_parsed_resume_result.py
-│   │   │   └── test_interfaces.py
+│   │   │   ├── test_interfaces.py
+│   │   │   └── test_parsed_resume_result.py
 │   │   ├── Domain/
 │   │   │   ├── __init__.py
-│   │   │   ├── test_text_content_validator.py
-│   │   │   ├── test_profanity_validator.py
+│   │   │   ├── test_analysis.py
 │   │   │   ├── test_job_description.py
+│   │   │   ├── test_profanity_validator.py
 │   │   │   ├── test_resume.py
-│   │   │   └── test_analysis.py
+│   │   │   └── test_text_content_validator.py
 │   │   ├── Login/
 │   │   │   ├── test_authentication_service.py
 │   │   │   ├── test_current_user_authorization.py

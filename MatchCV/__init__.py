@@ -15,6 +15,7 @@ _MODULE_DIRECTORIES = {
     "Infrastructure": "MatchCV.Infrastructure",
     "Login": "MatchCV.Login",
     "Parser": "MatchCV.Parser",
+    "Worker": "MatchCV.Worker",
 }
 
 

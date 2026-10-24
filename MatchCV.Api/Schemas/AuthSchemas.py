@@ -1,4 +1,3 @@
-
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -38,5 +37,20 @@ class TokenResponse(BaseModel):
 
 class ChangePasswordRequest(BaseModel):
     current_password: str = Field(min_length=1, max_length=128)
+    new_password: str = Field(min_length=8, max_length=128)
+    confirm_password: str = Field(min_length=8, max_length=128)
+
+
+class PasswordResetRequest(BaseModel):
+    email: str = Field(min_length=5, max_length=255)
+
+
+class PasswordResetRequestResponse(BaseModel):
+    message: str
+    reset_token: str | None = None
+
+
+class PasswordResetConfirmRequest(BaseModel):
+    token: str = Field(min_length=32, max_length=256)
     new_password: str = Field(min_length=8, max_length=128)
     confirm_password: str = Field(min_length=8, max_length=128)
