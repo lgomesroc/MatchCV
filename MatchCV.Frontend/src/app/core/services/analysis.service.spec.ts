@@ -67,9 +67,26 @@ describe('AnalysisService', () => {
     );
     expect(request.request.body.get('resume')).toBeNull();
 
-    request.flush({ status: 'completed' });
+    request.flush({ status: 'pending', analysis_id: 'analysis-123' });
 
-    expect(receivedResponse).toEqual({ status: 'completed' });
+    const statusRequest = httpMock.expectOne(
+      `${environment.apiUrl}/analysis/analysis-123`,
+    );
+    expect(statusRequest.request.method).toBe('GET');
+    statusRequest.flush({
+      status: 'completed',
+      analysis_id: 'analysis-123',
+      evidenced_requirements: [],
+      unevidenced_requirements: [],
+      gaps: [],
+      resume_issues: [],
+      suggestions: [],
+    });
+
+    expect(receivedResponse).toMatchObject({
+      status: 'completed',
+      analysis_id: 'analysis-123',
+    });
   });
 
   it('deve enviar o arquivo em vez do texto do currículo', () => {
@@ -98,7 +115,11 @@ describe('AnalysisService', () => {
       size: file.size,
     });
 
-    request.flush({ status: 'completed' });
+    request.flush({ status: 'pending', analysis_id: 'analysis-456' });
+    const statusRequest = httpMock.expectOne(
+      `${environment.apiUrl}/analysis/analysis-456`,
+    );
+    statusRequest.flush({ status: 'completed', analysis_id: 'analysis-456' });
   });
 
   it('deve retornar a mensagem padrão para erros que não sejam HTTP', () => {
