@@ -8,7 +8,7 @@ import {
   HttpTestingController,
   provideHttpClientTesting,
 } from '@angular/common/http/testing';
-import { TestBed } from '@angular/core/testing';
+import { TestBed, fakeAsync, tick } from '@angular/core/testing';
 
 import { AnalysisService } from './analysis.service';
 import { environment } from '../../../environments/environment';
@@ -40,7 +40,7 @@ describe('AnalysisService', () => {
     expect(service).toBeTruthy();
   });
 
-  it('deve enviar a descrição da vaga e o currículo em texto', () => {
+  it('deve enviar a descrição da vaga e o currículo em texto', fakeAsync(() => {
     let receivedResponse: unknown;
 
     service.analyze(
@@ -68,6 +68,7 @@ describe('AnalysisService', () => {
     expect(request.request.body.get('resume')).toBeNull();
 
     request.flush({ status: 'pending', analysis_id: 'analysis-123' });
+    tick(0);
 
     const statusRequest = httpMock.expectOne(
       `${environment.apiUrl}/analysis/analysis-123`,
@@ -87,9 +88,9 @@ describe('AnalysisService', () => {
       status: 'completed',
       analysis_id: 'analysis-123',
     });
-  });
+  }));
 
-  it('deve enviar o arquivo em vez do texto do currículo', () => {
+  it('deve enviar o arquivo em vez do texto do currículo', fakeAsync(() => {
     const file = new File(
       ['conteúdo de teste'],
       'curriculo.pdf',
@@ -116,11 +117,13 @@ describe('AnalysisService', () => {
     });
 
     request.flush({ status: 'pending', analysis_id: 'analysis-456' });
+    tick(0);
     const statusRequest = httpMock.expectOne(
       `${environment.apiUrl}/analysis/analysis-456`,
     );
     statusRequest.flush({ status: 'completed', analysis_id: 'analysis-456' });
-  });
+    tick(0);
+  }));
 
   it('deve retornar a mensagem padrão para erros que não sejam HTTP', () => {
     expect(service.getErrorMessage(new Error('Erro inesperado'))).toBe(
