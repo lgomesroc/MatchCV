@@ -108,7 +108,7 @@ def get_analysis_status(
         raise HTTPException(status_code=404, detail="Análise não encontrada.")
     return AnalysisResponse(
         analysis_id=analysis.id,
-        status=analysis.status.value,
+        status=analysis.status.value.lower(),
         evidenced_requirements=analysis.evidenced_requirements,
         unevidenced_requirements=analysis.unevidenced_requirements,
         gaps=analysis.gaps,
