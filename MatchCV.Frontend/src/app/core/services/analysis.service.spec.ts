@@ -11,12 +11,13 @@ import {
 import { TestBed } from '@angular/core/testing';
 
 import { AnalysisService } from './analysis.service';
+import { environment } from '../../../environments/environment';
 
 describe('AnalysisService', () => {
   let service: AnalysisService;
   let httpMock: HttpTestingController;
 
-  const apiUrl = 'http://localhost:8000/api/v1/analysis/resume';
+  const apiUrl = `${environment.apiUrl}/analysis/resume`;
 
   beforeEach(() => {
     TestBed.configureTestingModule({

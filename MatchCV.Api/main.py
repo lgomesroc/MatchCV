@@ -26,9 +26,14 @@ app = FastAPI(
     openapi_url=None,
 )
 
+frontend_origin = os.getenv(
+    "FRONTEND_ORIGIN",
+    "http://localhost:4200",
+).rstrip("/")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:4200"],
+    allow_origins=[frontend_origin],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

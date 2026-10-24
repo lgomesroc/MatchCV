@@ -5,6 +5,7 @@ import {
 import { Injectable, inject } from '@angular/core';
 import { Observable, tap } from 'rxjs';
 
+import { environment } from '../../../environments/environment';
 import { AnalysisResponse } from '../models/analysis-response';
 import { MemoryCacheService } from './memory-cache.service';
 
@@ -15,8 +16,7 @@ export class AnalysisService {
   private readonly http = inject(HttpClient);
   private readonly memoryCache = inject(MemoryCacheService);
 
-  private readonly apiUrl =
-    'http://localhost:8000/api/v1/analysis/resume';
+  private readonly apiUrl = `${environment.apiUrl}/analysis/resume`;
 
   analyze(
     jobDescription: string,

@@ -1,4 +1,3 @@
-
 import { provideHttpClient } from '@angular/common/http';
 import {
   HttpTestingController,
@@ -12,12 +11,13 @@ import {
   LoginRequest,
   LoginResponse,
 } from '../models/auth';
+import { environment } from '../../../environments/environment';
 
 describe('AuthService', () => {
   let service: AuthService;
   let httpMock: HttpTestingController;
 
-  const apiUrl = 'http://localhost:8000/api/v1/auth';
+  const apiUrl = `${environment.apiUrl}/auth`;
 
   const user: AuthUser = {
     id: 'user-123',
