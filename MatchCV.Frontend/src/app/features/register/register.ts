@@ -4,6 +4,8 @@ import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 
+import { environment } from '../../../environments/environment';
+
 @Component({
   selector: 'app-register',
   standalone: true,
@@ -69,7 +71,7 @@ export class RegisterComponent {
     this.isSubmitting = true;
 
     this.http.post(
-      'http://localhost:8000/api/v1/auth/register',
+      `${environment.apiUrl}/auth/register`,
       {
         name: this.name.trim(),
         email: this.email.trim(),
