@@ -161,5 +161,6 @@ def test_worker_does_not_persist_result_after_lease_is_lost():
     else:
         raise AssertionError("Era esperado impedir a persistência após perder o lease.")
 
-    worker._analysis_repository.update.assert_not_called()
+    worker._analysis_repository.update.assert_called_once_with(analysis)
+    assert analysis.status == AnalysisStatus.PROCESSING
     worker._queue_repository.mark_completed.assert_not_called()
