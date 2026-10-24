@@ -9,21 +9,22 @@ Documentar a comunicação entre a API, Application, Parser, AI, Infrastructure,
 ```text
 Frontend
    |
-   | HTTP / HTTPS
+   | POST /api/v1/analysis/resume
    v
 API
    |
+   | valida, extrai texto e cria análise pendente
    v
 Application
    |
-   +------> Parser
-   |
-   +------> AI
-   |
-   +------> Repositories
+   +------> SQL Server: analyses + analysis_queue
                  |
                  v
-             SQL Server
+          Worker em thread separada
+                 |
+                 +------> AI providers
+                 |
+                 +------> SQL Server: status + resultado
 ```
 
 ## 3. Integração Frontend → API
@@ -34,7 +35,7 @@ O frontend enviará:
 - Arquivo de currículo.
 - Credenciais ou token de autenticação, quando aplicável.
 
-A API retornará respostas estruturadas em JSON.
+A API responde `202 Accepted` com `analysis_id` e status `pending`. O frontend consulta `GET /api/v1/analysis/{analysis_id}` até o status ser `completed` ou `failed`.
 
 ## 4. Integração API → Application
 
@@ -83,6 +84,10 @@ Dados recebidos de currículos e descrições de vaga devem ser tratados como co
 
 O conteúdo não pode sobrescrever instruções de sistema ou regras de segurança do modelo de IA.
 
-## 11. Status
+## 11. Worker assíncrono
 
-O fluxo descreve a integração arquitetural prevista. A composição concreta das dependências será concluída na camada API.
+A API só inicia a thread do worker quando `RUN_ANALYSIS_WORKER=true`. O worker consulta a fila SQL Server, descriptografa o payload temporário e processa a análise. `ANALYSIS_QUEUE_ENCRYPTION_KEY` deve ser uma chave Fernet válida e igual na API e no worker. A migração `005_analysis_worker_queue.sql` precisa estar aplicada no banco antes de habilitar o processamento assíncrono.
+
+O frontend acompanha o processamento consultando o endpoint autenticado `GET /api/v1/analysis/{analysis_id}`. O endpoint restringe a consulta ao proprietário da análise.
+
+No Render, a execução junto à API é provisória. Reinicializações e suspensão do serviço gratuito interrompem a thread; a fila e a recuperação de leases permitem recuperar tarefas, mas não substituem um worker dedicado em produção.
