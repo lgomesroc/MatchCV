@@ -3,7 +3,7 @@ import {
   HttpErrorResponse,
 } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable, tap } from 'rxjs';
+import { Observable, catchError, concatMap, filter, map, of, switchMap, take, tap, throwError, timer } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
 import { AnalysisResponse } from '../models/analysis-response';
@@ -37,8 +37,20 @@ export class AnalysisService {
       this.apiUrl,
       formData,
     ).pipe(
-      tap(() => {
-        this.invalidateAnalysisCache();
+      switchMap((queued) => {
+        if (!queued.analysis_id) {
+          return throwError(() => new Error('A API não retornou o identificador da análise.'));
+        }
+
+        return timer(0, 2000).pipe(
+          switchMap(() => this.http.get<AnalysisResponse>(
+            `${environment.apiUrl}/analysis/${queued.analysis_id}`,
+          )),
+          takeWhile((response) => response.status === 'pending' || response.status === 'processing', true),
+          filter((response) => response.status === 'completed' || response.status === 'failed'),
+          take(1),
+          tap(() => this.invalidateAnalysisCache()),
+        );
       }),
     );
   }
