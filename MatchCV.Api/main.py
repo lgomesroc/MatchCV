@@ -26,14 +26,19 @@ app = FastAPI(
     openapi_url=None,
 )
 
-frontend_origin = os.getenv(
+frontend_origins = os.getenv(
     "FRONTEND_ORIGIN",
-    "http://localhost:4200",
-).rstrip("/")
+    "http://localhost:4200,https://matchcv-frontend-020d.onrender.com",
+)
+allowed_origins = [
+    origin.strip().rstrip("/")
+    for origin in frontend_origins.split(",")
+    if origin.strip()
+]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[frontend_origin],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
