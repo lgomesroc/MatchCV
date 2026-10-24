@@ -1,5 +1,6 @@
 import hmac
 import os
+import threading
 from typing import Annotated
 
 from fastapi import Depends, FastAPI, HTTPException, status
@@ -124,3 +125,24 @@ def redoc_documentation():
 @app.get("/health", tags=["Health"])
 def health() -> dict[str, str]:
     return {"status": "ok", "service": "MatchCV API"}
+
+
+
+def _start_analysis_worker() -> None:
+    """Executa o worker no mesmo processo da API quando explicitamente habilitado."""
+    if os.getenv("RUN_ANALYSIS_WORKER", "false").strip().lower() not in {"1", "true", "yes"}:
+        return
+
+    from MatchCV.Worker.AnalysisWorker import AnalysisWorker
+
+    worker_thread = threading.Thread(
+        target=AnalysisWorker().run,
+        name="matchcv-analysis-worker",
+        daemon=True,
+    )
+    worker_thread.start()
+
+
+@app.on_event("startup")
+def start_background_analysis_worker() -> None:
+    _start_analysis_worker()
