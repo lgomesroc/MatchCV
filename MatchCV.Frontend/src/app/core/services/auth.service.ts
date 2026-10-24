@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, tap } from 'rxjs';
 
+import { environment } from '../../../environments/environment';
 import { AuthUser, LoginRequest, LoginResponse } from '../models/auth';
 
 @Injectable({
@@ -9,7 +10,7 @@ import { AuthUser, LoginRequest, LoginResponse } from '../models/auth';
 })
 export class AuthService {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = 'http://localhost:8000/api/v1/auth';
+  private readonly apiUrl = `${environment.apiUrl}/auth`;
 
   private readonly tokenKey = 'matchcv.access_token';
   private readonly userKey = 'matchcv.user';
