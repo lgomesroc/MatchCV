@@ -1,12 +1,17 @@
-
 import os
+from pathlib import Path
 
 import pytest
+from dotenv import load_dotenv
 
 from MatchCV.Infrastructure.Config.AppSettings import AppSettings
 from MatchCV.Infrastructure.Database.DatabaseConnection import (
     DatabaseConnection,
 )
+
+
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+load_dotenv(PROJECT_ROOT / ".env.test", override=True)
 
 
 def _environment_value(
@@ -32,41 +37,30 @@ def _environment_value(
 def test_database_settings() -> AppSettings:
     database_name = _environment_value(
         "MATCHCV_TEST_DATABASE_NAME",
-        default="MatchCV_Test",
+        default="MatchCVTest",
     )
     database_host = _environment_value(
         "MATCHCV_TEST_DATABASE_HOST",
-        "DATABASE_HOST",
+        default="127.0.0.1",
     )
     database_port_value = _environment_value(
         "MATCHCV_TEST_DATABASE_PORT",
-        "DATABASE_PORT",
-        "1433",
+        default="1435",
     )
     database_user = _environment_value(
         "MATCHCV_TEST_DATABASE_USER",
-        "DATABASE_USER",
+        default="sa",
     )
     database_password = _environment_value(
         "MATCHCV_TEST_DATABASE_PASSWORD",
-        "DATABASE_PASSWORD",
+        "TEST_DATABASE_PASSWORD",
     )
 
     missing_variables = []
 
-    if not database_host:
-        missing_variables.append(
-            "MATCHCV_TEST_DATABASE_HOST ou DATABASE_HOST"
-        )
-
-    if not database_user:
-        missing_variables.append(
-            "MATCHCV_TEST_DATABASE_USER ou DATABASE_USER"
-        )
-
     if not database_password:
         missing_variables.append(
-            "MATCHCV_TEST_DATABASE_PASSWORD ou DATABASE_PASSWORD"
+            "MATCHCV_TEST_DATABASE_PASSWORD ou TEST_DATABASE_PASSWORD"
         )
 
     if missing_variables:
@@ -86,7 +80,7 @@ def test_database_settings() -> AppSettings:
         pytest.fail(
             "Por segurança, os testes de integração não podem "
             "utilizar o banco MatchCV de desenvolvimento. "
-            "Configure MATCHCV_TEST_DATABASE_NAME=MatchCV_Test."
+            "Configure MATCHCV_TEST_DATABASE_NAME=MatchCVTest."
         )
 
     try:
@@ -100,6 +94,26 @@ def test_database_settings() -> AppSettings:
         pytest.fail(
             "A porta do SQL Server de testes precisa estar "
             "entre 1 e 65535."
+        )
+
+    if database_host not in {"127.0.0.1", "localhost"}:
+        pytest.fail(
+            "Por segurança, os testes só podem acessar o SQL Server local."
+        )
+
+    if database_name != "MatchCVTest":
+        pytest.fail(
+            "O banco de testes deve ser MatchCVTest."
+        )
+
+    if database_port != 1435:
+        pytest.fail(
+            "A porta do banco de testes deve ser 1435."
+        )
+
+    if database_user != "sa":
+        pytest.fail(
+            "O usuário esperado para o banco de testes é sa."
         )
 
     return AppSettings(
