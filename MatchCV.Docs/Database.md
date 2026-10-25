@@ -31,11 +31,13 @@ O banco é executado localmente durante o desenvolvimento através de Docker.
 
 ## 4. Modelo de dados
 
-O modelo inicial contempla três tabelas principais:
+O schema inclui as tabelas principais e as tabelas de suporte às operações assíncronas:
 
 * `dbo.users`
 * `dbo.job_descriptions`
 * `dbo.analyses`
+* `dbo.analysis_queue`
+* `dbo.analysis_quota_reservations`
 
 ## 5. Banco
 
@@ -183,13 +185,27 @@ Cada migração deve:
 * Evitar perda acidental de dados.
 * Ser acompanhada de atualização deste documento.
 
-## 15. Backup e recuperação
+## 15. Reservas da cota mensal
+
+A migration `008_analysis_quota_reservations.sql` cria `dbo.analysis_quota_reservations`.
+
+- `RESERVED`: vaga temporariamente reservada para uma análise enviada ou em processamento.
+- `COMPLETED`: análise concluída; a vaga permanece consumida no mês de referência.
+- `RELEASED`: falha técnica ou reserva abandonada; a vaga volta a ficar disponível.
+
+A reserva é criada antes do enfileiramento, vinculada ao identificador da análise e contabilizada sob um bloqueio transacional por usuário. A cota gratuita é de três análises por mês-calendário UTC para `USER`; `ADMIN` não possui esse limite. A reconciliação periódica do worker corrige reservas vinculadas a análises já concluídas ou falhas e libera reservas sem análise após 30 minutos.
+
+## 16. Aplicação das migrações
+
+As migrações ficam em `MatchCV.Db/Migrations/`. Não há execução automática de migrações na inicialização da API ou no Docker Compose. Antes de publicar esta funcionalidade, aplique `008_analysis_quota_reservations.sql` no banco MatchCV usando uma ferramenta compatível com SQL Server, com permissões adequadas e backup conforme o ambiente. A migration é idempotente para os objetos que cria, mas deve ser revisada e aplicada na ordem numérica.
+
+## 17. Backup e recuperação
 
 Os ambientes de homologação e produção devem possuir estratégia de backup e recuperação compatível com a criticidade dos dados.
 
 O volume Docker local é destinado ao desenvolvimento e não substitui uma política de backup de produção.
 
-## 16. Segurança
+## 18. Segurança
 
 * Utilizar credenciais fora do repositório.
 * Não expor a porta do banco publicamente sem necessidade.
@@ -197,6 +213,6 @@ O volume Docker local é destinado ao desenvolvimento e não substitui uma polí
 * Restringir permissões do usuário de banco.
 * Não registrar senhas ou conteúdo sensível em logs.
 
-## 17. Situação
+## 19. Situação
 
 Este documento descreve o modelo inicial e as diretrizes de persistência. O schema efetivamente implementado deve permanecer sincronizado com as migrações SQL.
