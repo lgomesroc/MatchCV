@@ -102,6 +102,34 @@ class SqlServerAnalysisUsageRepository:
             finally:
                 cursor.close()
 
+    def complete_reservation_for_analysis(self, analysis_id: UUID) -> None:
+        self._update_reservation_for_analysis(analysis_id, "COMPLETED")
+
+    def release_reservation_for_analysis(self, analysis_id: UUID) -> None:
+        self._update_reservation_for_analysis(analysis_id, "RELEASED")
+
+    def _update_reservation_for_analysis(self, analysis_id: UUID, status: str) -> None:
+        if status not in {"COMPLETED", "RELEASED"}:
+            raise ValueError("Status de reserva inválido.")
+        with self._database_connection.connection() as connection:
+            cursor = connection.cursor()
+            try:
+                cursor.execute(
+                    """
+                    UPDATE dbo.analysis_quota_reservations
+                    SET status = ?, updated_at = SYSUTCDATETIME()
+                    WHERE analysis_id = ? AND status = N'RESERVED'
+                    """,
+                    status,
+                    str(analysis_id),
+                )
+                connection.commit()
+            except Exception:
+                connection.rollback()
+                raise
+            finally:
+                cursor.close()
+
     def complete_reservation(self, reservation_id: UUID) -> None:
         self._update_reservation(reservation_id, "COMPLETED")
 
