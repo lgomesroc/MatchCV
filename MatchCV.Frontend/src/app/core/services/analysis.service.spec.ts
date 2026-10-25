@@ -34,6 +34,7 @@ describe('AnalysisService', () => {
 
   afterEach(() => {
     httpMock.verify();
+    vi.useRealTimers();
   });
 
   it('deve ser criado', () => {
@@ -41,6 +42,7 @@ describe('AnalysisService', () => {
   });
 
   it('deve enviar a descrição da vaga e o currículo em texto', () => {
+    vi.useFakeTimers();
     let receivedResponse: unknown;
 
     service.analyze(
@@ -67,12 +69,31 @@ describe('AnalysisService', () => {
     );
     expect(request.request.body.get('resume')).toBeNull();
 
-    request.flush({ status: 'completed' });
+    request.flush({ status: 'pending', analysis_id: 'analysis-123' });
+    vi.advanceTimersByTime(0);
 
-    expect(receivedResponse).toEqual({ status: 'completed' });
+    const statusRequest = httpMock.expectOne(
+      `${environment.apiUrl}/analysis/analysis-123`,
+    );
+    expect(statusRequest.request.method).toBe('GET');
+    statusRequest.flush({
+      status: 'completed',
+      analysis_id: 'analysis-123',
+      evidenced_requirements: [],
+      unevidenced_requirements: [],
+      gaps: [],
+      resume_issues: [],
+      suggestions: [],
+    });
+
+    expect(receivedResponse).toMatchObject({
+      status: 'completed',
+      analysis_id: 'analysis-123',
+    });
   });
 
   it('deve enviar o arquivo em vez do texto do currículo', () => {
+    vi.useFakeTimers();
     const file = new File(
       ['conteúdo de teste'],
       'curriculo.pdf',
@@ -98,7 +119,13 @@ describe('AnalysisService', () => {
       size: file.size,
     });
 
-    request.flush({ status: 'completed' });
+    request.flush({ status: 'pending', analysis_id: 'analysis-456' });
+    vi.advanceTimersByTime(0);
+    const statusRequest = httpMock.expectOne(
+      `${environment.apiUrl}/analysis/analysis-456`,
+    );
+    statusRequest.flush({ status: 'completed', analysis_id: 'analysis-456' });
+    vi.advanceTimersByTime(0);
   });
 
   it('deve retornar a mensagem padrão para erros que não sejam HTTP', () => {

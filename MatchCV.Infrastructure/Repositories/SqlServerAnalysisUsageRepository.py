@@ -20,8 +20,9 @@ class SqlServerAnalysisUsageRepository:
                 cursor.execute(
                     """
                     SELECT COUNT(*)
-                    FROM dbo.user_analysis_usage
+                    FROM dbo.analyses
                     WHERE user_id = ?
+                      AND status = N'COMPLETED'
                     """,
                     str(user_id),
                 )

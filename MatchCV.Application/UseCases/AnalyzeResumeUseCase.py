@@ -16,6 +16,9 @@ from MatchCV.Application.Repositories.IAnalysisRepository import (
 from MatchCV.Application.Repositories.IJobDescriptionRepository import (
     IJobDescriptionRepository,
 )
+from MatchCV.Application.Queue.AnalysisQueuePayload import AnalysisQueuePayload
+from MatchCV.Application.Queue.IAnalysisQueueRepository import IAnalysisQueueRepository
+from MatchCV.Infrastructure.Security.AnalysisPayloadEncryption import AnalysisPayloadEncryption
 from MatchCV.Domain.Entities.Analysis import Analysis
 from MatchCV.Domain.Entities.JobDescription import JobDescription
 from MatchCV.Domain.Entities.Resume import Resume
@@ -42,11 +45,88 @@ class AnalyzeResumeUseCase:
         analysis_provider: IAnalysisProvider,
         job_description_repository: IJobDescriptionRepository,
         analysis_repository: IAnalysisRepository,
+        queue_repository: IAnalysisQueueRepository | None = None,
+        payload_encryption: AnalysisPayloadEncryption | None = None,
     ) -> None:
         self._resume_parser_service = resume_parser_service
         self._analysis_provider = analysis_provider
         self._job_description_repository = job_description_repository
         self._analysis_repository = analysis_repository
+        self._queue_repository = queue_repository
+        self._payload_encryption = payload_encryption
+
+    def enqueue(
+        self,
+        request: AnalyzeResumeRequest,
+        user_id: UUID,
+    ) -> Analysis:
+        """Valida e persiste uma análise pendente sem chamar o provedor de IA."""
+        if self._queue_repository is None or self._payload_encryption is None:
+            raise RuntimeError("A fila assíncrona não foi configurada.")
+
+        if not user_id:
+            raise DomainException(
+                "O usuário é obrigatório para realizar a análise."
+            )
+
+        job_description = JobDescription.create(request.job_description)
+
+        if request.resume_text is not None:
+            resume_text = self._validate_resume_text(request.resume_text)
+            resume_id = uuid4()
+        else:
+            if (
+                request.file_stream is None
+                or request.file_name is None
+                or request.file_size_bytes is None
+            ):
+                raise DomainException(
+                    "Os dados do arquivo do currículo são obrigatórios."
+                )
+
+            parsed_resume = self._resume_parser_service.parse(
+                file_stream=request.file_stream,
+                file_name=request.file_name,
+                file_size_bytes=request.file_size_bytes,
+            )
+            resume_text = self._validate_resume_text(
+                parsed_resume.extracted_text
+            )
+            resume = Resume.create(
+                file_name=parsed_resume.file_name,
+                file_type=parsed_resume.file_type,
+                file_size_bytes=parsed_resume.file_size_bytes,
+                page_count=parsed_resume.page_count,
+                extracted_text=resume_text,
+            )
+            resume_id = resume.id
+
+        self._job_description_repository.add(job_description)
+        analysis = Analysis.create(
+            user_id=user_id,
+            resume_id=resume_id,
+            job_description_id=job_description.id,
+        )
+        self._analysis_repository.add(analysis, user_id)
+
+        payload = AnalysisQueuePayload(
+            resume_text=resume_text,
+            job_description=job_description.content,
+        )
+        encrypted_payload = self._payload_encryption.encrypt(payload.to_json())
+        try:
+            self._queue_repository.enqueue(
+                analysis_id=analysis.id,
+                payload_ciphertext=encrypted_payload,
+            )
+        except Exception:
+            # A análise não deve ficar indefinidamente pendente sem tarefa.
+            analysis.start_processing()
+            analysis.fail()
+            self._analysis_repository.update(analysis)
+            raise
+
+        return analysis
 
     def execute(
         self,
