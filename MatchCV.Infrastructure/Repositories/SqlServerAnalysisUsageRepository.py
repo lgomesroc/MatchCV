@@ -43,6 +43,8 @@ class SqlServerAnalysisUsageRepository:
             try:
                 cursor.execute(
                     """
+                    BEGIN TRANSACTION;
+
                     DECLARE @lock_result INT;
                     EXEC @lock_result = sys.sp_getapplock
                         @Resource = ?,
@@ -55,14 +57,29 @@ class SqlServerAnalysisUsageRepository:
                     DECLARE @month_start DATETIME2 =
                         DATEFROMPARTS(YEAR(SYSUTCDATETIME()), MONTH(SYSUTCDATETIME()), 1);
 
-                    DECLARE @used INT;
-                    SELECT @used = COUNT(*)
+                    DECLARE @reserved_or_completed INT;
+                    DECLARE @legacy_completed INT;
+
+                    SELECT @reserved_or_completed = COUNT(*)
                     FROM dbo.analysis_quota_reservations WITH (UPDLOCK, HOLDLOCK)
                     WHERE user_id = ?
-                      AND month_start = @month_start
+                      AND month_start = CONVERT(DATE, @month_start)
                       AND status IN (N'RESERVED', N'COMPLETED');
 
-                    IF @used >= ?
+                    SELECT @legacy_completed = COUNT(*)
+                    FROM dbo.analyses AS a
+                    WHERE a.user_id = ?
+                      AND a.status = N'COMPLETED'
+                      AND a.created_at >= @month_start
+                      AND a.created_at < DATEADD(MONTH, 1, @month_start)
+                      AND NOT EXISTS
+                      (
+                          SELECT 1
+                          FROM dbo.analysis_quota_reservations AS r
+                          WHERE r.analysis_id = a.id
+                      );
+
+                    IF @reserved_or_completed + @legacy_completed >= ?
                         THROW 51002, 'Limite mensal de análises atingido.', 1;
 
                     INSERT INTO dbo.analysis_quota_reservations
@@ -70,6 +87,7 @@ class SqlServerAnalysisUsageRepository:
                     VALUES (?, ?, @month_start, N'RESERVED');
                     """,
                     f"MatchCV:MonthlyQuota:{user_id}",
+                    str(user_id),
                     str(user_id),
                     self.FREE_ANALYSIS_LIMIT,
                     str(reservation_id),
