@@ -75,6 +75,15 @@ MatchCV/
 │   └── __init__.py
 ├── MatchCV.Db/
 │   ├── Migrations/
+│   │   ├── Test/
+│   │   │   ├── 001_initial_schema.sql
+│   │   │   ├── 002_user_analysis_usage.sql
+│   │   │   ├── 003_unique_admin.sql
+│   │   │   ├── 004_analysis_history.sql
+│   │   │   ├── 005_analysis_worker_queue.sql
+│   │   │   ├── 006_password_reset_tokens.sql
+│   │   │   ├── 007_admin_password_policy.sql
+│   │   │   └── 008_analysis_quota_reservations.sql
 │   │   ├── __init__.py
 │   │   ├── 001_initial_schema.sql
 │   │   ├── 002_user_analysis_usage.sql
@@ -201,7 +210,7 @@ MatchCV/
 │   │   │   ├── app.html
 │   │   │   ├── app.scss
 │   │   │   ├──app.spec.ts
-│   │   │   ├── app.ts 
+│   │   │   ├── app.ts
 │   │   │   ├── app.config.ts
 │   │   │   ├── app.routes.ts
 │   │   │   └── app.spec.ts
@@ -215,7 +224,7 @@ MatchCV/
 │   ├── README.md
 │   └── tsconfig.json
 ├── MatchCV.Infrastructure/
-│   ├── Config/ 
+│   ├── Config/
 │   │   ├── __init__.py
 │   │   ├── AISettings.py
 │   │   └── AppSettings.py
@@ -246,7 +255,7 @@ MatchCV/
 │   ├── Authentication/
 │   │   ├── AuthenticationService.py
 │   │   ├── PasswordHasher.py
-│   │   └── PasswordRecoveryPolicy.py 
+│   │   └── PasswordRecoveryPolicy.py
 │   ├── Authorization/
 │   │   ├── CurrentUser.py
 │   │   └── RoleChecker.py
@@ -286,7 +295,7 @@ MatchCV/
 │   └── reset_admin_password.py
 ├── MatchCV.Tests/
 │   ├── Integration/
-│    │   ├── Api/
+│   │   ├── Api/
 │   │   │   ├── __init__.py
 │   │   │   ├── test_analysis_router.py
 │   │   │   ├── test_api_contract.py
@@ -302,9 +311,14 @@ MatchCV/
 │   │   │   └── test_resume_parsing_pipeline.py
 │   │   ├── Repositories/
 │   │   │   ├── __init__.py
+│   │   │   ├── repository_test_fixtures.py
 │   │   │   ├── test_sql_server_analysis_repository.py
 │   │   │   ├── test_sql_server_job_description_repository.py
 │   │   │   └── test_sql_server_user_repository.py
+│   │   └── TestDatabase/
+│   │   │   ├── test_connection.py
+│   │   │   ├── test_database_fixtures.py
+│   │   │   └── test_schema.py
 │   │   ├── __init__.py
 │   │   └── conftest.py
 │   └── Unit/
@@ -347,10 +361,13 @@ MatchCV/
 │   └── AnalysisWorker.py
 ├── .dockerignore
 ├── .env.example
+├── .env.test.example
 ├── .gitignore
+├── docker-compose.test.yml
 ├── docker-compose.yml
 ├── Dockerfile
-└── README.md
+├── README.md
+└── requirements.txt
 ```
 
 ## Organização da documentação
