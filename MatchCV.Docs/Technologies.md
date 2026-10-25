@@ -1,241 +1,57 @@
-# Tecnologias
+# Tecnologias — MatchCV
 
-Este documento registra as tecnologias utilizadas ou previstas no projeto MatchCV.
-
-As versões específicas serão definidas conforme a implementação e a configuração dos ambientes de desenvolvimento e execução.
-
-## Objetivo
-
-Registrar as tecnologias utilizadas ou previstas no desenvolvimento do MatchCV.
+Este documento distingue a stack existente das configurações que dependem do ambiente.
 
 ## Stack principal
 
-| Tecnologia | Finalidade | Situação |
+| Componente | Tecnologia | Uso |
 |---|---|---|
-| Python | Backend e serviços | Em utilização |
-| SQL Server 2022 | Banco de dados | Definido |
-| pyodbc | Driver de conexão | Definido |
-| Docker | Ambiente de desenvolvimento | Definido |
-| Git | Versionamento | Em utilização |
-| GitHub | Repositório remoto | Em utilização |
-| HTML | Estrutura frontend | Planejado |
-| CSS | Estilização frontend | Planejado |
-| JavaScript/TypeScript | Interface | A definir |
-| Framework frontend | Interface web | A definir |
-| Provedores de IA | Análise semântica | Em implementação |
+| Backend | Python | API, casos de uso, parser, worker e testes |
+| API HTTP | FastAPI | Endpoints e documentação OpenAPI |
+| Frontend | Angular e TypeScript | Interface web |
+| Banco relacional | Microsoft SQL Server | Contas, análises, fila e dados relacionados |
+| Driver SQL | pyodbc | Conexão Python com SQL Server |
+| Acesso ao banco | ODBC Driver para SQL Server | Conectividade do ambiente |
+| Processamento de documentos | Parsers PDF, DOC e DOCX | Validação e extração de texto |
+| IA | Provedores externos via abstração | Análise semântica |
+| Containers | Docker e Docker Compose | Infraestrutura local e banco de teste |
+| Testes backend | pytest | Testes unitários e de integração |
+| Versionamento | Git e GitHub | Histórico, branches e revisão |
+| CI | GitHub Actions | Testes unitários do backend e testes/build do frontend |
+| Hospedagem conhecida | Render | Frontend e API publicados |
 
-## Backend
+## Versões
 
-### Python
+O workflow `.github/workflows/ci.yml` configura Python 3.12 e Node.js 24.19.0; também instala npm 11.19.0. O Angular CLI registrado no README do frontend é 22.2.0. Para versões exatas de bibliotecas Python e JavaScript, use `requirements.txt`, `package.json` e `package-lock.json` como fontes de verdade.
 
-Linguagem principal do backend e dos componentes de processamento do MatchCV.
+A imagem do SQL Server é declarada nos arquivos Compose. Confira a configuração ativa antes de assumir que ambientes locais e publicados usam a mesma versão.
 
-Utilização prevista:
+## Organização técnica
 
-* domínio;
-* aplicação;
-* API;
-* Parser;
-* integração com IA;
-* Worker;
-* testes.
+- `MatchCV.Api`: aplicação HTTP.
+- `MatchCV.Application`: casos de uso e coordenação.
+- `MatchCV.Domain`: regras de negócio e entidades.
+- `MatchCV.Infrastructure`: repositórios e persistência.
+- `MatchCV.Parser`: extração e validação de currículos.
+- `MatchCV.AI`: integração com modelos e provedores externos.
+- `MatchCV.Worker`: processamento assíncrono.
+- `MatchCV.Login`: autenticação, hashing e autorização.
+- `MatchCV.Db`: migrations SQL.
+- `MatchCV.Tests`: testes.
+- `MatchCV.Frontend`: frontend Angular.
 
-## API
+## Provedores de IA
 
-### FastAPI
+Os nomes dos provedores, modelos, endpoints e timeouts dependem das variáveis de ambiente. Exemplos de configuração não garantem disponibilidade, quota ou acesso ao modelo. Não versionar chaves.
 
-Framework previsto para exposição da API HTTP.
+## Desenvolvimento e CI
 
-Responsabilidades:
+O frontend usa npm e scripts definidos no `package.json`. O backend usa dependências listadas em `requirements.txt`. O workflow de CI executa os testes unitários Python e os testes e build do frontend; não executa a suíte completa de integração com SQL Server.
 
-* endpoints;
-* upload de arquivos;
-* recebimento da descrição da vaga;
-* autenticação;
-* autorização;
-* comunicação com a camada Application.
+## Segurança e privacidade
 
-## Banco de dados
+Configurações sensíveis devem ficar fora do código-fonte. Currículos são dados pessoais: não devem ser versionados nem aparecer integralmente nos logs. Consulte [Security.md](Security.md) e [Privacy.md](Privacy.md).
 
-### Microsoft SQL Server
+## Manutenção deste documento
 
-Banco de dados relacional principal do projeto.
-
-O ambiente de desenvolvimento será executado através de Docker.
-
-## Containerização
-
-### Docker
-
-Utilizado para padronizar componentes de infraestrutura e ambientes de desenvolvimento.
-
-### Docker Compose
-
-Utilizado para orquestrar os serviços necessários ao ambiente local.
-
-## Processamento de documentos
-
-O MatchCV terá suporte a:
-
-* PDF;
-* DOC;
-* DOCX.
-
-As bibliotecas específicas de processamento serão definidas conforme a implementação de cada formato.
-
-O Parser será isolado da aplicação para evitar que as dependências específicas dos formatos contaminem as demais camadas.
-
-## Inteligência Artificial
-
-O MatchCV utilizará dois provedores de inteligência artificial.
-
-A arquitetura utilizará uma abstração comum para os provedores, permitindo:
-
-* troca de provedor;
-* fallback quando aplicável;
-* testes sem chamadas reais;
-* isolamento das dependências externas.
-
-Os provedores específicos serão registrados neste documento quando definidos.
-
-## Frontend
-
-A interface será desenvolvida em tecnologia web.
-
-O frontend ficará isolado em:
-
-`MatchCV.Frontend`
-
-A tecnologia e as versões definitivas serão registradas conforme a implementação do frontend.
-
-## Testes
-
-Serão utilizados testes:
-
-* unitários;
-* integração;
-* testes específicos do Parser;
-* testes de regras de negócio;
-* testes de integração da API;
-* testes de integração com banco.
-
-A integração real com provedores de IA não será requisito para os testes unitários.
-
-## Controle de versão
-
-### Git
-
-Utilizado para controle de versão.
-
-O fluxo planejado é:
-
-```text
-branch de desenvolvimento
-        ↓
-commit
-        ↓
-push
-        ↓
-Pull Request
-        ↓
-main protegida
-        ↓
-deploy
-```
-
-## CI/CD
-
-O projeto terá pipeline de CI/CD.
-
-A ordem planejada é:
-
-```text
-Git
- ↓
-Testes
- ↓
-CI
- ↓
-Build
- ↓
-Deploy
-```
-
-Observabilidade será adicionada posteriormente, depois que o fluxo principal de CI/CD estiver estabelecido.
-
-## Ambiente
-
-O projeto deverá funcionar em:
-
-* Windows;
-* Linux.
-
-A infraestrutura dependente do sistema operacional deverá ser isolada sempre que possível.
-
-## Segurança
-
-As configurações sensíveis não devem ser armazenadas no código-fonte.
-
-O projeto utilizará variáveis de ambiente e um arquivo:
-
-`.env.example`
-
-O arquivo `.env` real não deve ser versionado.
-
-## Privacidade
-
-O processamento de currículos deverá seguir:
-
-* minimização de dados;
-* retenção temporária;
-* ausência de armazenamento permanente do currículo original;
-* ausência de currículos reais no repositório;
-* ausência do conteúdo completo do currículo nos logs.
-
-## Documentação
-
-A documentação técnica será mantida em:
-
-`MatchCV.Docs`
-
-Documentos principais:
-
-* `BusinessRules/business-rules.md`
-* `Project-Structure.md`
-* `Technologies.md`
-
-## Processamento de documentos
-
-Bibliotecas previstas ou utilizadas:
-
-- pypdf para leitura de PDF.
-- python-docx para leitura de DOCX.
-- Estratégia específica para documentos DOC legados.
-
-## Inteligência artificial
-
-A arquitetura deverá permitir a utilização de dois provedores.
-
-A escolha dos provedores concretos depende da configuração e implementação das integrações.
-
-## Containerização
-
-Docker será utilizado para padronizar o ambiente local, especialmente o SQL Server.
-
-## Compatibilidade
-
-O projeto considera:
-
-- Windows 11.
-- Linux.
-- Docker Desktop.
-- Execução local.
-- Ambientes automatizados de CI.
-
-## Critério de atualização
-
-Toda inclusão ou substituição relevante de tecnologia deve ser registrada neste documento.
-
-## Status
-
-As tecnologias definidas devem ser distinguidas das tecnologias ainda em avaliação.
+Atualize este inventário quando a stack mudar. Para detalhes sobre versões instaladas, prefira os manifests e lockfiles versionados em vez de manter números redundantes aqui.
