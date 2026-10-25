@@ -21,6 +21,9 @@ from MatchCV.Infrastructure.Repositories.SqlServerAnalysisQueueRepository import
 from MatchCV.Infrastructure.Repositories.SqlServerAnalysisRepository import (
     SqlServerAnalysisRepository,
 )
+from MatchCV.Infrastructure.Repositories.SqlServerAnalysisUsageRepository import (
+    SqlServerAnalysisUsageRepository,
+)
 from MatchCV.AI.Services.AIProviderService import (
     AIProviderService,
 )
@@ -52,6 +55,10 @@ class AnalysisWorker:
         )
 
         self._analysis_repository = SqlServerAnalysisRepository(
+            database_connection
+        )
+
+        self._usage_repository = SqlServerAnalysisUsageRepository(
             database_connection
         )
 
@@ -249,6 +256,9 @@ class AnalysisWorker:
                 return
 
             self._queue_repository.mark_completed(queue_item.id)
+            self._usage_repository.complete_reservation_for_analysis(
+                queue_item.analysis_id
+            )
             return
 
         if analysis.status == AnalysisStatus.FAILED:
@@ -258,6 +268,9 @@ class AnalysisWorker:
             self._queue_repository.mark_failed(
                 queue_item.id,
                 "A análise já estava marcada como falha.",
+            )
+            self._usage_repository.release_reservation_for_analysis(
+                queue_item.analysis_id
             )
             return
 
@@ -310,6 +323,9 @@ class AnalysisWorker:
             return
 
         self._queue_repository.mark_completed(queue_item.id)
+        self._usage_repository.complete_reservation_for_analysis(
+            queue_item.analysis_id
+        )
 
         logger.info(
             "Análise concluída: %s",
@@ -347,6 +363,9 @@ class AnalysisWorker:
 
                 elif analysis.status == AnalysisStatus.COMPLETED:
                     self._queue_repository.mark_completed(queue_id)
+                    self._usage_repository.complete_reservation_for_analysis(
+                        analysis_id
+                    )
                     return
 
                 elif analysis.status == AnalysisStatus.FAILED:
@@ -354,11 +373,17 @@ class AnalysisWorker:
                         queue_id,
                         safe_error,
                     )
+                    self._usage_repository.release_reservation_for_analysis(
+                        analysis_id
+                    )
                     return
 
             self._queue_repository.mark_failed(
                 queue_id,
                 safe_error,
+            )
+            self._usage_repository.release_reservation_for_analysis(
+                analysis_id
             )
 
         except Exception as handling_error:
