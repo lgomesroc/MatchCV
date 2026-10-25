@@ -12,6 +12,10 @@ from MatchCV.Infrastructure.Database.DatabaseConnection import DatabaseConnectio
 from MatchCV.Infrastructure.Repositories.SqlServerAnalysisRepository import (
     SqlServerAnalysisRepository,
 )
+from MatchCV.Infrastructure.Repositories.SqlServerAnalysisQueueRepository import (
+    SqlServerAnalysisQueueRepository,
+)
+from MatchCV.Infrastructure.Security.AnalysisPayloadEncryption import AnalysisPayloadEncryption
 from MatchCV.Infrastructure.Repositories.SqlServerJobDescriptionRepository import (
     SqlServerJobDescriptionRepository,
 )
@@ -78,10 +82,18 @@ def get_analyze_resume_use_case() -> AnalyzeResumeUseCase:
     analysis_repository = SqlServerAnalysisRepository(
         database_connection=database_connection,
     )
+    queue_repository = SqlServerAnalysisQueueRepository(
+        database_connection=database_connection,
+    )
+    payload_encryption = AnalysisPayloadEncryption(
+        encryption_key=settings.analysis_queue_encryption_key,
+    )
 
     return AnalyzeResumeUseCase(
         resume_parser_service=resume_parser_adapter,
         analysis_provider=ai_analysis_provider,
         job_description_repository=job_description_repository,
         analysis_repository=analysis_repository,
+        queue_repository=queue_repository,
+        payload_encryption=payload_encryption,
     )

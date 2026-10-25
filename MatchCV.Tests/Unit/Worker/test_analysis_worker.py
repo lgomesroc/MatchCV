@@ -77,3 +77,90 @@ def test_worker_moves_pending_analysis_to_processing_before_completion():
         resume_text=payload.resume_text,
         job_description=payload.job_description,
     )
+
+
+
+def test_worker_does_not_call_ai_for_already_completed_analysis():
+    analysis = Analysis(
+        id=uuid4(),
+        user_id=uuid4(),
+        resume_id=uuid4(),
+        job_description_id=uuid4(),
+        status=AnalysisStatus.COMPLETED,
+    )
+    queue_item = AnalysisQueueItem(
+        id=uuid4(),
+        analysis_id=analysis.id,
+        payload_ciphertext=b"unused",
+        status="PROCESSING",
+        attempts=2,
+        created_at=datetime.now(timezone.utc),
+        started_at=datetime.now(timezone.utc),
+        finished_at=None,
+        last_error=None,
+    )
+    worker = AnalysisWorker.__new__(AnalysisWorker)
+    worker._analysis_repository = MagicMock()
+    worker._analysis_repository.get_by_id.return_value = analysis
+    worker._queue_repository = MagicMock()
+    worker._encryption = MagicMock()
+    worker._ai_provider = MagicMock()
+
+    worker._process_item(queue_item, threading.Event())
+
+    worker._ai_provider.analyze.assert_not_called()
+    worker._analysis_repository.update.assert_not_called()
+    worker._queue_repository.mark_completed.assert_called_once_with(queue_item.id)
+
+
+def test_worker_does_not_persist_result_after_lease_is_lost():
+    user_id = uuid4()
+    analysis = Analysis(
+        id=uuid4(),
+        user_id=user_id,
+        resume_id=uuid4(),
+        job_description_id=uuid4(),
+    )
+    queue_item = AnalysisQueueItem(
+        id=uuid4(),
+        analysis_id=analysis.id,
+        payload_ciphertext=b"encrypted",
+        status="PROCESSING",
+        attempts=1,
+        created_at=datetime.now(timezone.utc),
+        started_at=datetime.now(timezone.utc),
+        finished_at=None,
+        last_error=None,
+    )
+    payload = AnalysisQueuePayload(
+        resume_text="Experiência profissional em desenvolvimento de sistemas e APIs REST.",
+        job_description="Vaga para pessoa desenvolvedora com experiência em APIs e testes automatizados.",
+    )
+    result = MagicMock()
+    result.evidenced_requirements = []
+    result.unevidenced_requirements = []
+    result.gaps = []
+    result.resume_issues = []
+    result.suggestions = []
+
+    worker = AnalysisWorker.__new__(AnalysisWorker)
+    worker._analysis_repository = MagicMock()
+    worker._analysis_repository.get_by_id.return_value = analysis
+    worker._queue_repository = MagicMock()
+    worker._encryption = MagicMock()
+    worker._encryption.decrypt.return_value = payload.to_json()
+    worker._ai_provider = MagicMock()
+    worker._ai_provider.analyze.return_value = result
+    lease_lost = threading.Event()
+    lease_lost.set()
+
+    try:
+        worker._process_item(queue_item, lease_lost)
+    except RuntimeError as exc:
+        assert "Lease perdido" in str(exc)
+    else:
+        raise AssertionError("Era esperado impedir a persistência após perder o lease.")
+
+    worker._analysis_repository.update.assert_called_once_with(analysis)
+    assert analysis.status == AnalysisStatus.PROCESSING
+    worker._queue_repository.mark_completed.assert_not_called()

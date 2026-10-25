@@ -6,6 +6,7 @@ export type AnalysisStatus =
   | 'failed';
 
 export interface AnalysisResponse {
+  analysis_id?: string;
   status: AnalysisStatus;
   evidenced_requirements: string[];
   unevidenced_requirements: string[];

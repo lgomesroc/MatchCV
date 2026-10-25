@@ -307,6 +307,7 @@ MatchCV/
 │   │   │   ├── test_analyze_resume_use_case.py
 │   │   │   ├── test_analysis_result.py
 │   │   │   ├── test_analyze_resume_request.py
+│   │   │   ├── test_async_analysis_enqueue.py
 │   │   │   ├── test_interfaces.py
 │   │   │   └── test_parsed_resume_result.py
 │   │   ├── Domain/
