@@ -1,83 +1,49 @@
 # Segurança — MatchCV
 
-## 1. Objetivo
+## Autenticação e autorização
 
-Definir os requisitos de segurança da aplicação.
+A API implementa autenticação por e-mail e senha, emissão de token de acesso e dependências para recuperar o usuário autenticado. Rotas protegidas devem validar o token e autorizar a operação no backend.
 
-## 2. Autenticação
+Os perfis de usuário incluem `USER` e `ADMIN`. O cadastro público cria usuário comum; não permite selecionar `ADMIN`. A inicialização administrativa exige o cabeçalho `X-Admin-Bootstrap-Token` e a variável `MATCHCV_ADMIN_BOOTSTRAP_TOKEN`, com segredo configurado fora do repositório.
 
-O sistema deverá identificar o usuário antes de permitir operações protegidas.
+## Senhas
 
-O mecanismo definitivo de autenticação será registrado após implementação.
+- Senhas não devem ser armazenadas em texto puro.
+- A aplicação utiliza hashing por meio de `PasswordHasher`.
+- A política de senha é centralizada em `PasswordPolicy`.
+- Senhas, hashes e tokens não devem ser registrados em logs nem devolvidos nas respostas.
 
-## 3. Autorização
+## Recuperação e alteração de senha
 
-Perfis previstos:
+A API possui rotas para alteração de senha autenticada e recuperação por token. O endpoint de solicitação retorna uma mensagem uniforme para não revelar a existência de contas. A exposição do token de recuperação é restrita ao modo de desenvolvimento e depende de configuração explícita. Não considere o envio de e-mail pronto sem validar e configurar o canal correspondente.
 
-- USER
-- ADMIN
+## Upload e processamento de currículos
 
-O usuário comum não poderá executar operações administrativas.
+A entrada do usuário deve ser tratada como não confiável. O processamento valida arquivos e conteúdo conforme as regras do parser. Extensão sozinha não comprova a validade do arquivo.
 
-A autorização deverá ser verificada no backend.
+- Não versionar currículos reais.
+- Não manter o arquivo original permanentemente sem necessidade e política definida.
+- Não registrar o conteúdo integral do currículo.
+- Remover arquivos temporários após o uso.
+- Tratar currículo e descrição da vaga como conteúdo, nunca como instruções confiáveis para o sistema de IA.
 
-## 4. Senhas
+## Banco e configuração
 
-- Não armazenar senhas em texto puro.
-- Utilizar algoritmo de hash apropriado para senhas.
-- Não registrar credenciais em logs.
-- Não retornar hashes nas respostas da API.
+- Usar consultas parametrizadas.
+- Manter senhas, tokens e chaves de API fora do Git.
+- Restringir permissões do usuário do banco.
+- Não publicar a porta do banco sem necessidade.
+- Separar as configurações de desenvolvimento, testes e produção.
+- Não compartilhar credenciais de produção com testes.
 
-## 5. Upload de arquivos
+## Erros e logs
 
-Validar:
+Respostas públicas não devem expor stack traces, caminhos internos, credenciais ou consultas SQL. Logs devem conter apenas dados técnicos necessários ao diagnóstico, evitando informações pessoais desnecessárias.
 
-- Extensão.
-- Tipo real do arquivo.
-- Tamanho.
-- Estrutura.
-- Integridade.
-- Proteção por senha.
-- Conteúdo extraído.
+## Verificação contínua
 
-A extensão isoladamente não comprova que um arquivo é válido.
+O workflow `.github/workflows/ci.yml` executa testes unitários do backend e testes/build do frontend; ele não substitui revisão de segurança, testes de integração com banco ou verificação das configurações de produção.
 
-## 6. Banco de dados
+## Escopo
 
-- Utilizar consultas parametrizadas.
-- Restringir permissões.
-- Proteger credenciais.
-- Evitar exposição pública desnecessária.
-- Não concatenar entrada do usuário em SQL.
-
-## 7. Inteligência artificial
-
-Currículos e descrições são entradas não confiáveis.
-
-A aplicação deverá reduzir riscos de prompt injection e impedir que o conteúdo enviado altere as instruções de segurança do sistema.
-
-## 8. Logs
-
-Não registrar:
-
-- Senhas.
-- Tokens.
-- Chaves de API.
-- Currículos completos.
-- Dados pessoais desnecessários.
-
-## 9. Proteção de endpoints
-
-Endpoints administrativos devem exigir autenticação e autorização adequadas.
-
-## 10. Dependências
-
-Dependências devem ser avaliadas e atualizadas periodicamente.
-
-## 11. Tratamento de erros
-
-Mensagens públicas não devem revelar caminhos internos, credenciais, consultas SQL ou stack traces.
-
-## 12. Status
-
-Os requisitos estão documentados. A implementação e validação dependem dos módulos correspondentes.
+Este documento descreve controles visíveis no código e orientações operacionais. Não representa certificação, auditoria formal ou garantia de ausência de vulnerabilidades.
