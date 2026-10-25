@@ -13,6 +13,7 @@ from MatchCV.Domain.Enums.AnalysisStatus import AnalysisStatus
 from MatchCV.Domain.Enums.UserRole import UserRole
 from MatchCV.Domain.Exceptions.DomainException import DomainException
 from MatchCV.Login.Authorization.CurrentUser import get_current_user
+from MatchCV.Infrastructure.Repositories.SqlServerAnalysisUsageRepository import MonthlyQuotaExceeded
 
 
 @pytest.fixture
@@ -72,7 +73,10 @@ class TestAnalysisRouter:
         assert request.job_description == "Vaga para desenvolvedor Python."
         assert request.resume_text == "Experiência profissional com Python e APIs REST."
         assert use_case.enqueue.call_args.kwargs["user_id"] == current_user.id
-        usage_repository.record_success.assert_not_called()
+        usage_repository.link_analysis.assert_called_once_with(
+            usage_repository.reserve_monthly_slot.return_value,
+            use_case.enqueue.return_value.id,
+        )
 
     def test_enqueues_uploaded_file(self, api_client):
         client, use_case, _, _, _ = api_client
@@ -106,7 +110,9 @@ class TestAnalysisRouter:
 
     def test_enforces_free_analysis_limit(self, api_client):
         client, use_case, usage_repository, _, _ = api_client
-        usage_repository.count_completed.return_value = 3
+        usage_repository.reserve_monthly_slot.side_effect = MonthlyQuotaExceeded(
+            "Você atingiu o limite de três análises neste mês."
+        )
         response = client.post(
             "/api/v1/analysis/resume",
             data={"job_description": "Vaga para desenvolvedor Python.", "resume_text": "Currículo válido."},
