@@ -131,6 +131,12 @@ class AnalysisWorker:
         Retorna True quando uma tarefa foi reservada.
         """
 
+        # O bloqueio de sessão é mantido durante todo o processamento,
+        # incluindo a chamada de IA, e é compartilhado entre instâncias.
+        with self._queue_repository.exclusive_processing():
+            return self._process_next_under_lock()
+
+    def _process_next_under_lock(self) -> bool:
         queue_item = self._queue_repository.get_next_pending()
 
         if queue_item is None:
