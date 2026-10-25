@@ -123,12 +123,19 @@ class AnalysisWorker:
             return
 
         recovered = self._queue_repository.recover_processing()
+        reconciled = self._usage_repository.reconcile_reservations()
         self._last_recovery = now
 
         if recovered:
             logger.warning(
                 "Tarefas recuperadas após expiração do lease: %s",
                 recovered,
+            )
+
+        if reconciled:
+            logger.warning(
+                "Reservas de cota reconciliadas após falha anterior: %s",
+                reconciled,
             )
 
     def process_next(self) -> bool:
