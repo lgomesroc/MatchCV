@@ -43,8 +43,10 @@ A V1 não possui limite de consultas.
 
 A evolução de autenticação e planos poderá estabelecer:
 
-- USER: três consultas totais.
-- ADMIN: consultas ilimitadas.
+- USER: até três análises concluídas por mês-calendário.
+- ADMIN: análises ilimitadas.
+- Falhas técnicas não devem consumir uma vaga da cota.
+- O processamento da fila deve ser serializado globalmente entre instâncias do worker.
 
 O fallback entre provedores representa uma única consulta.
 
