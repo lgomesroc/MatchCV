@@ -56,6 +56,7 @@ def test_worker_moves_pending_analysis_to_processing_before_completion():
         )
     )
     worker._queue_repository = MagicMock()
+    worker._usage_repository = MagicMock()
     worker._encryption = MagicMock()
     worker._encryption.decrypt.return_value = payload.to_json()
     worker._ai_provider = MagicMock()
@@ -76,6 +77,9 @@ def test_worker_moves_pending_analysis_to_processing_before_completion():
     worker._ai_provider.analyze.assert_called_once_with(
         resume_text=payload.resume_text,
         job_description=payload.job_description,
+    )
+    worker._usage_repository.complete_reservation_for_analysis.assert_called_once_with(
+        analysis.id
     )
 
 
@@ -103,6 +107,7 @@ def test_worker_does_not_call_ai_for_already_completed_analysis():
     worker._analysis_repository = MagicMock()
     worker._analysis_repository.get_by_id.return_value = analysis
     worker._queue_repository = MagicMock()
+    worker._usage_repository = MagicMock()
     worker._encryption = MagicMock()
     worker._ai_provider = MagicMock()
 
@@ -111,6 +116,9 @@ def test_worker_does_not_call_ai_for_already_completed_analysis():
     worker._ai_provider.analyze.assert_not_called()
     worker._analysis_repository.update.assert_not_called()
     worker._queue_repository.mark_completed.assert_called_once_with(queue_item.id)
+    worker._usage_repository.complete_reservation_for_analysis.assert_called_once_with(
+        analysis.id
+    )
 
 
 def test_worker_does_not_persist_result_after_lease_is_lost():
