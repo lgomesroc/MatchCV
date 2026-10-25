@@ -43,8 +43,6 @@ class SqlServerAnalysisUsageRepository:
             try:
                 cursor.execute(
                     """
-                    BEGIN TRANSACTION;
-
                     DECLARE @lock_result INT;
                     EXEC @lock_result = sys.sp_getapplock
                         @Resource = ?,
@@ -114,6 +112,57 @@ class SqlServerAnalysisUsageRepository:
                 if cursor.rowcount != 1:
                     raise RuntimeError("A reserva da cota não foi encontrada.")
                 connection.commit()
+            except Exception:
+                connection.rollback()
+                raise
+            finally:
+                cursor.close()
+
+    def reconcile_reservations(self) -> int:
+        """
+        Corrige reservas deixadas para trás por encerramentos inesperados.
+
+        Análises pendentes/em processamento mantêm a reserva. Reservas sem
+        análise são liberadas somente após 30 minutos.
+        """
+        with self._database_connection.connection() as connection:
+            cursor = connection.cursor()
+            try:
+                cursor.execute(
+                    """
+                    UPDATE r
+                    SET
+                        status = CASE a.status
+                            WHEN N'COMPLETED' THEN N'COMPLETED'
+                            WHEN N'FAILED' THEN N'RELEASED'
+                        END,
+                        updated_at = SYSUTCDATETIME()
+                    FROM dbo.analysis_quota_reservations AS r
+                    INNER JOIN dbo.analyses AS a
+                        ON a.id = r.analysis_id
+                    WHERE r.status = N'RESERVED'
+                      AND a.status IN (N'COMPLETED', N'FAILED');
+
+                    DECLARE @reconciled_analysis_rows INT = @@ROWCOUNT;
+
+                    UPDATE dbo.analysis_quota_reservations
+                    SET
+                        status = N'RELEASED',
+                        updated_at = SYSUTCDATETIME()
+                    WHERE status = N'RESERVED'
+                      AND analysis_id IS NULL
+                      AND created_at < DATEADD(
+                          MINUTE,
+                          -30,
+                          SYSUTCDATETIME()
+                      );
+
+                    SELECT @reconciled_analysis_rows + @@ROWCOUNT;
+                    """
+                )
+                row = cursor.fetchone()
+                connection.commit()
+                return int(row[0]) if row else 0
             except Exception:
                 connection.rollback()
                 raise
