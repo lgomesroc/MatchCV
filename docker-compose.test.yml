@@ -1,0 +1,16 @@
+services:
+  sqlserver-test:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: matchcv-test-sqlserver
+    restart: "no"
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: ${TEST_DATABASE_PASSWORD}
+      MSSQL_PID: Developer
+    ports:
+      - "1435:1433"
+    volumes:
+      - matchcv_test_sqlserver_data:/var/opt/mssql
+
+volumes:
+  matchcv_test_sqlserver_data:

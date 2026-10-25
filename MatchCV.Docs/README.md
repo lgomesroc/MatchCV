@@ -1,20 +1,18 @@
 # Documentação do MatchCV
 
-Esta pasta centraliza a documentação funcional, técnica e arquitetural do MatchCV.
+Índice dos documentos funcionais, técnicos e operacionais do MatchCV. A presença de uma descrição não comprova, isoladamente, que um recurso esteja pronto em produção; confira o código, os testes e a configuração do ambiente.
 
-O objetivo é registrar a estrutura do sistema, suas decisões técnicas, requisitos, integrações e planejamento de desenvolvimento.
-
-## Índice
-
-### Arquitetura
+## Arquitetura
 
 - [Arquitetura do sistema](Architecture.md)
 - [Estrutura do projeto](Project-Structure.md)
 - [Tecnologias](Technologies.md)
 - [Decisões arquiteturais](Decisions/Architecture-Decisions.md)
 
-### Desenvolvimento
+## Desenvolvimento
 
+- [Guia de instalação e execução](Getting-Started.md)
+- [Guia de desenvolvimento](Development-Guide.md)
 - [Backend](Backend.md)
 - [Frontend](Frontend.md)
 - [API](API.md)
@@ -22,32 +20,23 @@ O objetivo é registrar a estrutura do sistema, suas decisões técnicas, requis
 - [Integração com IA](AI-Integration.md)
 - [Processamento de currículos](Resume-Processing.md)
 
-### Infraestrutura
+## Infraestrutura e operação
 
 - [Infraestrutura](Infrastructure.md)
 - [Ambientes](Environments.md)
 - [Banco de dados](Database.md)
 - [CI/CD](CI-CD.md)
 - [Implantação](Deployment.md)
+- [Testes](Testing.md)
 
-### Segurança e qualidade
+## Segurança e negócio
 
 - [Segurança](Security.md)
 - [Privacidade](Privacy.md)
-- [Testes](Testing.md)
-- [Guia de desenvolvimento](Development-Guide.md)
-
-### Requisitos e planejamento
-
 - [Regras de negócio](Business-Rules.md)
+- [Regras de negócio — referência detalhada](BusinessRules/business-rules.md)
 - [Roadmap](Roadmap.md)
 
-## Situação da documentação
+## README principal
 
-Os documentos representam requisitos, decisões e planejamento técnico.
-
-Uma funcionalidade descrita não deve ser considerada implementada sem confirmação no código e nos testes correspondentes.
-
-## Projeto principal
-
-Consulte o [README principal](../README.md).
+Volte ao [README do repositório](../README.md) para a apresentação geral, tecnologias e links da aplicação publicada.

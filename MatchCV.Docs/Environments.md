@@ -1,109 +1,54 @@
 # Ambientes — MatchCV
 
-## 1. Objetivo
+## Ambientes
 
-Definir os ambientes utilizados no desenvolvimento, testes, homologação e produção do MatchCV.
+| Ambiente | Uso |
+|---|---|
+| Desenvolvimento local | API, frontend e banco para desenvolvimento |
+| Testes | Testes unitários e de integração com dados descartáveis |
+| Produção | Serviços publicados e banco configurado no provedor |
 
-## 2. Ambientes previstos
+Homologação só deve ser considerada disponível quando houver infraestrutura configurada para esse propósito.
 
-| Ambiente    | Finalidade                        |
-| ----------- | --------------------------------- |
-| Development | Desenvolvimento local             |
-| Test        | Execução de testes automatizados  |
-| Staging     | Validação antes da publicação     |
-| Production  | Ambiente utilizado pelos usuários |
+## Desenvolvimento local
 
-## 3. Development
+- Python 3.12 ou compatível com as dependências.
+- Ambiente virtual Python.
+- Dependências de `requirements.txt`.
+- Docker Engine e Docker Compose para SQL Server local.
+- Driver ODBC compatível com SQL Server.
+- Node.js e npm compatíveis com a versão do frontend Angular.
 
-Ambiente utilizado pelos desenvolvedores.
+O `docker-compose.yml` define os serviços locais da aplicação. Use `docker compose ps` para conferir seu estado e `docker compose logs` para diagnosticar falhas.
 
-Componentes previstos:
+## Testes
 
-* Python.
-* Docker Desktop.
-* SQL Server 2022.
-* Driver ODBC 18.
-* Git.
-* Visual Studio Code ou IDE compatível.
+O arquivo `docker-compose.test.yml` define uma instância SQL Server separada, com porta local 1435 e banco de teste `MatchCVTest`. A configuração de teste usa a variável `TEST_DATABASE_PASSWORD`.
 
-O banco local poderá utilizar o container:
+O Compose não carrega `.env.test` automaticamente. Quando a variável não estiver exportada no shell, inicie o serviço explicitamente com:
 
-`matchcv-sqlserver`
-
-Porta padrão:
-
-`1433`
-
-## 4. Test
-
-Ambiente destinado à execução de testes unitários, de integração e de componentes.
-
-Os testes não devem depender de dados reais de usuários.
-
-Dados de teste devem ser artificiais e descartáveis.
-
-## 5. Staging
-
-Ambiente de homologação destinado à validação integrada da aplicação.
-
-Deve utilizar configurações separadas de desenvolvimento e produção.
-
-Não deve compartilhar credenciais ou banco de dados de produção.
-
-## 6. Production
-
-Ambiente de execução oficial.
-
-Requisitos:
-
-* Credenciais protegidas.
-* Configuração segura.
-* Logs sem dados pessoais desnecessários.
-* Monitoramento de falhas.
-* Política de backup.
-* Controle de acesso.
-* Estratégia de atualização e recuperação.
-
-## 7. Variáveis de ambiente
-
-Exemplo:
-
-```env
-APP_ENV=development
-
-DATABASE_HOST=localhost
-DATABASE_PORT=1433
-DATABASE_NAME=MatchCV
-DATABASE_USER=sa
-DATABASE_PASSWORD=CHANGE_ME
-
-AI_PRIMARY_PROVIDER=
-AI_FALLBACK_PROVIDER=
+```bash
+docker compose --env-file .env.test -f docker-compose.test.yml up -d
 ```
 
-Os nomes definitivos das variáveis devem acompanhar a implementação de `AppSettings.py` e `AISettings.py`.
+O arquivo `.env.test` é local e não deve ser versionado. Não reutilize credenciais de produção nos testes. Consulte [Testing.md](Testing.md).
 
-## 8. Arquivos de configuração
+## Produção
 
-* `.env.example`: modelo de configuração.
-* `.env`: configuração local, não versionada.
-* `docker-compose.yml`: serviços locais.
-* `requirements.txt`: dependências Python.
+Os serviços frontend e API estão publicados no Render nos endereços registrados no [README principal](../README.md). Confirme a configuração atual diretamente no painel do provedor.
 
-## 9. Segurança das configurações
+A configuração de produção deve fornecer, de forma segura, os valores necessários para conexão ao SQL Server, autenticação, provedores de IA e processamento assíncrono. Não presuma que um valor de desenvolvimento seja adequado para produção.
 
-* Não armazenar segredos no Git.
-* Não reutilizar senhas entre ambientes.
-* Não incluir tokens em mensagens de erro.
-* Não imprimir variáveis sensíveis em logs.
-* Utilizar mecanismos de gerenciamento de segredos em produção.
+## Arquivos de configuração
 
-## 10. Compatibilidade
+- `.env.example`: modelo de variáveis.
+- `.env`: configuração local, não versionada.
+- `.env.test`: configuração local para testes, não versionada.
+- `docker-compose.yml`: serviços de desenvolvimento.
+- `docker-compose.test.yml`: SQL Server isolado para testes.
+- `requirements.txt`: dependências Python.
+- `MatchCV.Frontend/package.json` e `package-lock.json`: dependências do frontend.
 
-O projeto deve considerar desenvolvimento em Windows e Linux.
+## Segurança
 
-Comandos específicos de ambiente devem ser documentados separadamente quando não forem compatíveis entre sistemas operacionais.
-
-## 11. Situação
-
-Os ambientes de desenvolvimento e testes estão previstos na arquitetura. Homologação e produção dependem da definição da infraestrutura de implantação.
+Nunca registre ou publique senhas, tokens, chaves de API, strings de conexão completas ou dados reais de currículos. Separe os dados de desenvolvimento, testes e produção.

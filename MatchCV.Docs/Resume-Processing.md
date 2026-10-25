@@ -1,93 +1,52 @@
 # Processamento de Currículos — MatchCV
 
-## 1. Objetivo
+## Objetivo
 
-Documentar o fluxo de recebimento, validação, extração e processamento de currículos.
+Descrever o caminho do currículo desde o envio até a disponibilização do texto para análise.
 
-## 2. Formatos previstos
+## Formatos e limites
 
-- PDF.
-- DOC.
-- DOCX.
+Os formatos previstos são PDF, DOC e DOCX. As regras de negócio documentam limite de 1 MB, até duas páginas e mínimo de 30 caracteres úteis. A capacidade efetiva de cada formato depende do parser concreto e deve ser confirmada por testes; não trate extensão permitida como garantia de suporte completo.
 
-## 3. Limites
-
-| Regra | Limite |
-|---|---|
-| Tamanho máximo | 1 MB |
-| Quantidade máxima | 2 páginas |
-| Conteúdo mínimo | 30 caracteres úteis |
-
-## 4. Fluxo
+## Fluxo
 
 ```text
 Upload
-   |
-   v
-Validação inicial
-   |
-   v
-Identificação do formato
-   |
-   v
-Parser específico
-   |
-   v
-Extração de texto
-   |
-   v
-Validação estrutural
-   |
-   v
-Resultado para Application
+  -> validação da entrada e tamanho
+  -> identificação/validação do formato real
+  -> parser correspondente
+  -> extração de texto
+  -> validações estruturais
+  -> caso de uso de análise
+  -> enfileiramento para processamento assíncrono
 ```
 
-## 5. Validação inicial
+## Validação
 
-Verificar:
+O conteúdo recebido é não confiável. A validação deve considerar extensão, estrutura real, integridade, proteção por senha e disponibilidade de texto extraível. PDFs somente com imagem não são processados por OCR no escopo documentado da V1.
 
-- Nome do arquivo.
-- Extensão permitida.
-- Tamanho.
-- Integridade.
-- Formato real.
-- Arquivo vazio.
+A descrição da vaga é obrigatória, com limite documentado de 3.000 caracteres e mínimo de 30 caracteres úteis.
 
-## 6. PDF
+## PDF, DOCX e DOC
 
-A extração deverá identificar documentos inválidos, protegidos e sem texto extraível.
+- **PDF:** validar arquivo e texto extraível; documento protegido ou sem texto útil deve falhar de forma controlada.
+- **DOCX:** a extração textual pode não reproduzir a paginação visual; contar páginas com precisão pode exigir renderização/conversão.
+- **DOC:** formato legado exige implementação ou conversão compatível; aceitar a extensão não prova que o parser esteja operacional para todos os arquivos.
 
-## 7. DOCX
+## Saída e análise semântica
 
-A extração deverá considerar parágrafos e tabelas.
+O parser responde o que está presente no documento. A camada de IA interpreta o conteúdo em relação à vaga. A IA não substitui a validação estrutural nem pode inventar fatos profissionais.
 
-A contagem física de páginas exige mecanismo adicional de renderização ou conversão, pois a leitura textual isolada não garante paginação real.
+O resultado deve distinguir requisitos evidenciados, requisitos sem evidência suficiente, lacunas, problemas do currículo e sugestões.
 
-## 8. DOC
+## Privacidade
 
-O formato DOC legado exige estratégia específica de conversão ou processamento.
+O arquivo original deve ser temporário e removido após o processamento. Não salvar currículos reais no Git nem registrar conteúdo integral em logs.
 
-A aceitação da extensão não significa que o processamento esteja disponível.
+## Falhas
 
-## 9. Estrutura
+Retornar erros controlados para formato inválido, arquivo corrompido/protegido, texto insuficiente e falhas de extração. Não expor stack traces, caminhos internos ou conteúdo pessoal nas respostas públicas.
 
-A V1 prioriza currículos:
+## Estado
 
-- Com texto extraível.
-- Sem dependência de OCR.
-- Sem imagens essenciais para interpretação.
-- Com estrutura de coluna única.
-
-A detecção de layout por heurística deve evitar rejeições indevidas.
-
-## 10. Privacidade
-
-O documento original deverá ser tratado temporariamente e removido após o processamento.
-
-## 11. Erros
-
-Erros de parser devem ser convertidos em mensagens compreensíveis, sem expor detalhes internos.
-
-## 12. Status
-
-O serviço de seleção de parser e os parsers iniciais estão em desenvolvimento. Suporte rigoroso a DOC e paginação física de DOCX permanece pendente.
+As regras documentadas não comprovam suporte completo de cada formato. Confirme o código de seleção de parser e os testes de PDF, DOC e DOCX antes de afirmar compatibilidade integral.

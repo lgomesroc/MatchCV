@@ -2,742 +2,304 @@
 
 ## 1. Objetivo
 
-O MatchCV analisa um currículo em relação a uma descrição de vaga utilizando processamento de documentos e inteligência artificial.
+Este documento registra regras funcionais e identificadores para rastreabilidade. Regras documentadas precisam ser confirmadas no código e nos testes antes de serem tratadas como garantias operacionais.
 
-O sistema não deve se limitar a produzir um percentual de aderência.
+O MatchCV compara currículo e descrição de vaga. O resultado deve identificar requisitos evidenciados, requisitos sem evidência suficiente, lacunas, problemas do currículo e sugestões. A IA não pode inventar fatos profissionais.
 
-A análise deve identificar:
+## 2. Currículos
 
-- requisitos claramente evidenciados no currículo;
-- requisitos não evidenciados;
-- possíveis lacunas;
-- problemas de qualidade do currículo;
-- sugestões de melhoria.
-
-A inteligência artificial não pode inventar informações que não estejam presentes no currículo ou que não tenham sido fornecidas separadamente pelo candidato.
-
----
-
-## 2. Regras do currículo
-
-### BR-001 — Formatos aceitos
-
-O sistema deve aceitar:
-
-- PDF;
-- DOC;
-- DOCX.
+### BR-001 — Formatos
+Os formatos previstos são PDF, DOC e DOCX. A compatibilidade efetiva depende do parser instalado e dos testes de cada formato.
 
 ### BR-002 — Tamanho máximo
+O limite documentado é 1 MB.
 
-O currículo não pode ultrapassar 1 MB.
+### BR-003 — Páginas
+O limite documentado é duas páginas. A contagem física exata pode exigir renderização ou conversão para alguns formatos.
 
-### BR-003 — Quantidade máxima de páginas
-
-O currículo não pode possuir mais de 2 páginas.
-
-### BR-004 — Quantidade mínima de caracteres úteis
-
-O currículo deve possuir pelo menos 30 caracteres úteis.
-
-Caracteres úteis são caracteres alfanuméricos após a extração do conteúdo.
+### BR-004 — Texto mínimo
+O documento deve fornecer pelo menos 30 caracteres úteis extraídos.
 
 ### BR-005 — Texto extraível
-
-O currículo deve possuir texto que possa ser extraído pelo parser.
+O parser deve conseguir extrair texto suficiente para análise.
 
 ### BR-006 — PDF somente imagem
-
-PDFs compostos exclusivamente por imagens ou digitalizações não serão processados na V1.
-
-OCR não faz parte da V1.
+PDFs sem texto extraível não são processados por OCR no escopo documentado da V1.
 
 ### BR-007 — Imagens
+A análise não deve depender de imagens para compreender informações profissionais essenciais.
 
-Imagens não podem ser necessárias para compreender informações essenciais do currículo na V1.
-
-### BR-008 — Estrutura em múltiplas colunas
-
-Na V1, currículos que dependam de estrutura de múltiplas colunas devem ser rejeitados.
-
-O formato aceito é uma estrutura linear de coluna única.
+### BR-008 — Colunas
+A regra de negócio prioriza documentos lineares de coluna única. A detecção automática de múltiplas colunas deve ser confirmada nos testes antes de se afirmar que todos esses arquivos são rejeitados corretamente.
 
 ### BR-009 — Arquivo inválido
-
-Arquivos corrompidos, inválidos ou impossíveis de interpretar devem ser rejeitados.
+Arquivos corrompidos ou impossíveis de interpretar devem falhar de forma controlada.
 
 ### BR-010 — Arquivo protegido
+Arquivos protegidos por senha que impeçam a extração devem ser rejeitados.
 
-Arquivos protegidos por senha ou criptografados de forma que impeça a extração devem ser rejeitados.
+### BR-011 — Validação do formato
+A extensão isolada não comprova o formato real. A validação deve considerar a estrutura do arquivo e os mecanismos disponíveis.
 
-### BR-011 — Validação real do arquivo
+### BR-012 — Retenção
+O arquivo original deve ser temporário e não armazenado permanentemente.
 
-A extensão do arquivo não deve ser considerada suficiente para determinar seu formato.
+### BR-013 — Texto extraído
+A retenção do texto extraído deve limitar-se ao necessário para executar a análise e disponibilizar o resultado, conforme a política de retenção definida para o ambiente.
 
-O sistema deve validar:
+## 3. Descrição da vaga
 
-- extensão;
-- MIME type quando disponível;
-- estrutura real do arquivo.
-
-### BR-012 — Retenção do currículo
-
-O arquivo original não deve ser armazenado permanentemente.
-
-O arquivo poderá existir temporariamente durante o processamento e deverá ser removido após o período necessário.
-
-### BR-013 — Dados extraídos
-
-O texto e os dados extraídos devem possuir retenção limitada ao tempo necessário para o processamento.
-
----
-
-## 3. Regras da descrição da vaga
-
-### BR-014 — Descrição obrigatória
-
+### BR-014 — Obrigatória
 A descrição da vaga é obrigatória.
 
-### BR-015 — Conteúdo mínimo
+### BR-015 — Mínimo
+O limite documentado é 30 caracteres úteis.
 
-A descrição da vaga deve possuir pelo menos 30 caracteres úteis.
-
-### BR-016 — Conteúdo máximo
-
-A descrição da vaga não pode ultrapassar 3000 caracteres.
+### BR-016 — Máximo
+A descrição não pode ultrapassar 3.000 caracteres.
 
 ### BR-017 — Conteúdo textual
+A descrição deve conter conteúdo textual válido. Números e caracteres especiais são permitidos quando semanticamente válidos, como `.NET 10`, `C++` e `Java 21`.
 
-A descrição da vaga não pode ser composta exclusivamente por números ou caracteres especiais.
+## 4. Validação textual
 
-Números e caracteres especiais são permitidos quando fizerem parte de conteúdo semanticamente válido.
+### BR-018 — Obrigatoriedade
+Campos obrigatórios não podem ser nulos, vazios ou conter apenas espaços.
 
-Exemplos válidos:
-
-- .NET 10;
-- Java 21;
-- SQL Server 2022;
-- 3 anos de experiência;
-- C#;
-- C++.
-
----
-
-## 4. Regras de entrada textual
-
-As regras desta seção devem ser implementadas por componentes reutilizáveis.
-
-API, Application, Domain e Frontend não devem possuir versões diferentes da mesma regra.
-
-### BR-018 — Valor obrigatório
-
-Campos textuais obrigatórios não podem receber:
-
-- null;
-- string vazia;
-- string contendo somente espaços.
-
-### BR-019 — Espaços nas extremidades
-
-Não são permitidos espaços no início ou no final do conteúdo enviado.
+### BR-019 — Espaços externos
+A entrada deve ser normalizada/validada quanto a espaços no início e no final.
 
 ### BR-020 — Espaços consecutivos
-
-Não são permitidos dois ou mais espaços consecutivos.
-
-Exemplo inválido:
-
-`João  Silva`
-
-Exemplo válido:
-
-`João Silva`
+Campos sujeitos a essa regra não devem aceitar espaços consecutivos sem necessidade semântica.
 
 ### BR-021 — Primeiro caractere
+A regra depende do campo. Conteúdo técnico pode começar por ponto, como `.NET`; nomes de pessoas têm validação própria.
 
-O primeiro caractere de um campo textual não pode ser um caractere especial quando isso não fizer sentido semântico para o campo.
+### BR-022 — Especiais consecutivos
+Campos estruturados devem rejeitar sequências de caracteres especiais que não sejam semanticamente válidas.
 
-O caractere `.` pode ser aceito como primeiro caractere em conteúdos técnicos nos quais isso seja semanticamente válido.
+### BR-023 — Especiais válidos
+Caracteres como hífen, ponto e sinais de linguagem são permitidos quando necessários, por exemplo em `C#`, `C++`, `Node.js` e `ASP.NET`.
 
-Exemplo válido:
-
-`.NET`
-
-Para nome de pessoa, o ponto inicial não é permitido.
-
-### BR-022 — Caracteres especiais consecutivos
-
-Campos que representam valores estruturados, como nome de pessoa, não podem possuir dois caracteres especiais consecutivos.
-
-Exemplos inválidos:
-
-`João--Silva`
-
-`João@@Silva`
-
-`João@#Silva`
-
-`João-@Silva`
-
-`João..Silva`
-
-### BR-023 — Caracteres especiais semanticamente válidos
-
-Caracteres especiais isolados podem ser permitidos quando fizerem sentido para o conteúdo.
-
-Exemplos:
-
-`João-Pedro`
-
-`C# Developer`
-
-`ASP.NET Core`
-
-`Node.js`
-
-### BR-024 — Caracteres acentuados
-
-Caracteres acentuados são permitidos.
-
-Exemplos:
-
-`João`
-
-`Análise`
-
-`Desenvolvimento`
-
-`Programação`
+### BR-024 — Acentos
+Caracteres acentuados devem ser aceitos quando válidos para o campo.
 
 ### BR-025 — Números
+Números podem aparecer em currículo e descrição de vaga quando fizerem sentido semântico.
 
-Números são permitidos em currículo e descrição de vaga quando fizerem sentido semântico.
+### BR-026 — Somente números
+Currículo e descrição de vaga não devem consistir exclusivamente em números.
 
-Exemplos:
+### BR-027 — Somente especiais
+Currículo e descrição de vaga não devem consistir exclusivamente em caracteres especiais.
 
-`Java 21`
+## 5. Nome da pessoa
 
-`.NET 10`
+### BR-028 — Obrigatório
+O nome é obrigatório quando exigido pelo fluxo de cadastro.
 
-`SQL Server 2022`
+### BR-029 — Não vazio
+O nome não pode ser nulo, vazio ou composto apenas por espaços.
 
-`3 anos de experiência`
+### BR-030 — Somente números
+O nome não pode consistir exclusivamente em números.
 
-Números não são permitidos como conteúdo exclusivo de um nome de pessoa.
+### BR-031 — Início
+O nome não deve começar com número ou caractere especial sem significado válido.
 
-### BR-026 — Conteúdo somente numérico
+### BR-032 — Espaços
+Espaços simples entre partes do nome são permitidos.
 
-Currículo e descrição de vaga não podem ser compostos exclusivamente por números.
+### BR-033 — Espaços consecutivos
+Espaços consecutivos devem ser rejeitados ou normalizados de acordo com o validador utilizado.
 
-Exemplo inválido:
+### BR-034 — Hífen
+Hífens podem ser usados em nomes quando apropriados.
 
-`12345678901234567890`
+### BR-035 — Acentos
+Nomes com caracteres acentuados devem ser aceitos.
 
-### BR-027 — Conteúdo somente especial
+### BR-036 — Conteúdo inadequado
+O nome está sujeito à validação de conteúdo inadequado implementada pelo projeto.
 
-Currículo e descrição de vaga não podem ser compostos exclusivamente por caracteres especiais.
+## 6. Conteúdo inadequado
 
-Exemplo inválido:
+### BR-037 — Validação
+Os campos aplicáveis devem ser validados contra conteúdo inadequado segundo a política do projeto.
 
-`@@@###---...`
+### BR-038 — Normalização
+A detecção pode normalizar caixa, acentos, separadores, repetição de caracteres e substituições comuns por números, conforme a implementação.
 
----
+### BR-039 — Lista de termos
+A lista concreta de termos e padrões deve ser mantida no componente de validação de conteúdo. Este documento não deve ser considerado a fonte operacional dessa lista.
 
-## 5. Regras para nome de pessoa
-
-### BR-028 — Nome obrigatório
-
-O nome da pessoa é obrigatório.
-
-### BR-029 — Nome não vazio
-
-O nome não pode ser:
-
-- null;
-- vazio;
-- composto somente por espaços.
-
-### BR-030 — Nome somente numérico
-
-O nome não pode ser composto exclusivamente por números.
-
-### BR-031 — Início do nome
-
-O nome não pode começar com:
-
-- número;
-- caractere especial.
-
-### BR-032 — Espaços no nome
-
-Espaços entre nomes são permitidos.
-
-Exemplo:
-
-`João Pedro Silva`
-
-### BR-033 — Espaços consecutivos no nome
-
-Não são permitidos espaços consecutivos.
-
-### BR-034 — Hífen em nomes
-
-O hífen pode ser utilizado quando fizer sentido no nome.
-
-Exemplo:
-
-`João-Pedro`
-
-### BR-035 — Acentuação no nome
-
-Caracteres acentuados são permitidos.
-
-### BR-036 — Palavras inadequadas
-
-O nome deve passar pela validação de conteúdo inadequado.
-
----
-
-## 6. Regras de conteúdo inadequado, palavras chulas e palavrões
-
-### BR-037 — Validação de conteúdo inadequado
-
-Currículo, descrição da vaga e nome da pessoa devem passar por uma validação de conteúdo inadequado.
-
-A validação deve considerar:
-
-* palavrões;
-* palavras chulas;
-* termos sexuais inadequados ao contexto do sistema;
-* termos fisiológicos inadequados ao contexto profissional;
-* expressões vulgares ou de caráter ofensivo;
-* formas comuns de ofuscação;
-* termos em português;
-* termos em inglês.
-
-### BR-038 — Normalização antes da detecção
-
-Antes da identificação de conteúdo inadequado, o sistema deve normalizar o texto considerando, quando aplicável:
-
-* diferença entre maiúsculas e minúsculas;
-* acentuação;
-* caracteres especiais;
-* asteriscos;
-* separadores;
-* repetição de caracteres;
-* substituição de letras por números;
-* formas simples de ofuscação.
-
-Exemplos que devem ser considerados equivalentes quando a normalização permitir:
-
-`caralho`
-
-`ca***lho`
-
-`c4r4lh0`
-
-`cocô`
-
-`coco`
-
-`cu cabeludo`
-
-`cucabeludo`
-
-### BR-039 — Exemplos de termos inadequados
-
-A lista inicial deve contemplar termos como:
-
-**Português:**
-
-* caralho;
-* puta;
-* piru;
-* piroca;
-* pica;
-* buceta;
-* vagina;
-* pênis;
-* cueca;
-* calcinha;
-* porra;
-* cuzinho;
-* cusinho;
-* cuzão;
-* cusão;
-* pau;
-* foda;
-* foda-se;
-* fodasse;
-* fuder;
-* fode;
-* sexo;
-* fezes;
-* urina;
-* cocô;
-* coco;
-* xixi;
-* mijar;
-* defecar;
-* cucabeludo;
-* cu cabeludo.
-
-**Inglês:**
-
-* sex;
-* fuck;
-* cock;
-* asshole;
-* pussy;
-* bastard;
-* bitch;
-* bullshit;
-* crap;
-* damn;
-* douche;
-* douchebag;
-* fag;
-* faggot;
-* jerk;
-* motherfucker;
-* shit;
-* shitty;
-* slut;
-* whore;
-* wtf;
-* dick.
-
-A lista não deve ficar limitada exclusivamente a esses exemplos.
-
-### BR-040 — Prevenção de falso positivo
-
-A detecção não deve bloquear um conteúdo apenas porque uma sequência curta de caracteres aparece dentro de outra palavra.
-
-Exemplo:
-
-`cu`
-
-isoladamente não deve ser considerado suficiente para bloquear um conteúdo.
-
-A detecção deve utilizar limites de palavra, contexto e/ou normalização apropriada.
-
-Termos compostos devem ser reconhecidos mesmo quando escritos juntos ou separados por espaços, desde que a normalização permita identificar a expressão.
-
-A validação deve evitar correspondências indevidas em palavras maiores, sem permitir que separadores ou caracteres de ofuscação sejam utilizados para contornar a restrição.
+### BR-040 — Falsos positivos
+A validação deve evitar bloquear palavras legítimas apenas por conterem uma sequência curta de caracteres. Termos técnicos e contextos legítimos precisam de testes de regressão.
 
 ### BR-041 — Termos técnicos
-
-A validação de conteúdo inadequado não deve bloquear termos técnicos legítimos apenas por possuírem caracteres semelhantes a termos inadequados.
-
-Exemplos:
-
-- C#;
-- C++;
-- .NET;
-- Node.js;
-- ASP.NET.
-
----
+Termos como `C#`, `C++`, `.NET`, `Node.js` e `ASP.NET` não devem ser bloqueados indevidamente.
 
 ## 7. Parser
 
-### BR-042 — Responsabilidade do Parser
+### BR-042 — Responsabilidade
+O parser valida e extrai o conteúdo do documento.
 
-O MatchCV.Parser é responsável pela extração e validação estrutural dos documentos.
+### BR-043 — Limite entre parser e IA
+O parser identifica o conteúdo presente; a IA interpreta sua relação com a vaga. A IA não substitui a validação do arquivo.
 
-### BR-043 — Parser não substituído pela IA
+### BR-044 — Resultado
+Os metadados retornados dependem do parser e podem incluir nome, tipo, tamanho, páginas, texto e indicadores de extração. Não se deve assumir que cada metadado é fornecido para todos os formatos sem verificar a implementação.
 
-O Parser responde principalmente:
-
-> O que existe no documento?
-
-A IA responde principalmente:
-
-> O que essas informações significam em relação à vaga?
-
-A IA não substitui o parser.
-
-### BR-044 — Resultado estruturado
-
-O Parser deve retornar uma representação estruturada contendo, quando aplicável:
-
-- nome do arquivo;
-- tipo do arquivo;
-- tamanho;
-- quantidade de páginas;
-- texto extraído;
-- possibilidade de extração;
-- estrutura de coluna;
-- presença de imagens;
-- proteção por senha.
-
-### BR-045 — Formatos do Parser
-
-O Parser deve suportar:
-
-- PDF;
-- DOC;
-- DOCX.
-
----
+### BR-045 — Formatos
+PDF, DOC e DOCX são os formatos previstos; suporte completo precisa ser comprovado por testes.
 
 ## 8. Inteligência artificial
 
 ### BR-046 — Análise semântica
+A camada de IA compara o conteúdo disponível com os requisitos da vaga.
 
-A comparação semântica entre currículo e vaga deve utilizar inteligência artificial.
-
-### BR-047 — Dois provedores
-
-O sistema deve possuir exatamente dois provedores de IA configurados na arquitetura.
-
-Os provedores específicos ainda podem ser definidos.
+### BR-047 — Provedores
+O projeto possui uma camada de integração que abstrai provedores externos. O número e os nomes de provedores ativos dependem da configuração e da implementação atual.
 
 ### BR-048 — Fallback
+Fallback só deve ocorrer para falhas classificadas como elegíveis pela implementação. Credenciais inválidas e erros de configuração não devem ser presumidos equivalentes a indisponibilidade temporária.
 
-O segundo provedor pode ser utilizado quando ocorrer uma falha elegível do primeiro provedor, principalmente falhas temporárias de disponibilidade ou serviço.
+### BR-049 — Uma análise
+A tentativa de fallback integra a mesma análise de negócio e não deve contar como nova análise do usuário.
 
-Falhas de configuração, como credenciais inválidas, não devem ser tratadas automaticamente da mesma maneira que uma indisponibilidade temporária.
+### BR-050 — Não inventar
+A IA não deve inventar experiências, empresas, cargos, tecnologias, formação, certificações, resultados, responsabilidades ou competências.
 
-### BR-049 — Uma consulta
+### BR-051 — Evidência
+O resultado deve distinguir fatos evidenciados no currículo de interpretações e requisitos sem evidência suficiente.
 
-A troca de provedor durante uma análise continua representando uma única consulta do usuário.
+### BR-052 — Resultado
+A análise contempla requisitos evidenciados, requisitos sem evidência suficiente, lacunas, problemas do currículo e sugestões.
 
-### BR-050 — Não inventar informações
+## 9. Cota de análises
 
-A IA não pode inventar:
+### BR-053 — Cota vigente
+A regra implementada/documentada atualmente é de três análises por usuário comum por mês-calendário UTC; administradores não estão sujeitos ao limite.
 
-- experiências;
-- empresas;
-- cargos;
-- tecnologias;
-- formação;
-- certificações;
-- resultados;
-- responsabilidades;
-- competências;
-- projetos;
-- conquistas.
+### BR-054 — Período
+A cota é mensal, não vitalícia. Não use regras antigas de três análises durante toda a vida da conta.
 
-### BR-051 — Origem das informações
+### BR-055 — Falhas
+Falhas de validação antes da reserva não devem consumir cota. Falhas posteriores devem liberar a reserva quando o fluxo de tratamento assim determinar; validar pelo código e testes.
 
-O resultado deve distinguir, quando aplicável:
+### BR-056 — Independência
+O controle de cota é uma responsabilidade distinta do parser e dos provedores de IA.
 
-- informação explicitamente encontrada no currículo;
-- informação fornecida separadamente pelo candidato;
-- interpretação da IA;
-- requisito não evidenciado.
+## 10. Usuários e acesso
 
-### BR-052 — Resultado da análise
+### BR-057 — Cadastro
+O cadastro público cria usuário comum.
 
-A análise deve contemplar:
-
-- requisitos evidenciados;
-- requisitos não evidenciados;
-- possíveis lacunas;
-- problemas do currículo;
-- sugestões de melhoria.
-
-O sistema não deve ter como objetivo principal produzir apenas um percentual de aderência.
-
----
-
-## 9. Consultas
-
-### BR-053 — V1 sem limite
-
-A V1 não possui limite de consultas.
-
-### BR-054 — Limite futuro
-
-Após a implementação de autenticação:
-
-- USER terá direito a 3 consultas durante toda a vida da conta;
-- ADMIN terá consultas ilimitadas.
-
-O limite será vitalício e não mensal.
-
-### BR-055 — Falha de validação
-
-Uma tentativa que falhar durante a validação não deve consumir uma consulta.
-
-### BR-056 — Controle independente
-
-O controle de consultas deve ser independente do Parser e da integração com IA.
-
----
-
-## 10. Usuários
-
-### BR-057 — Criação de usuário
-
-Usuários comuns poderão ser criados pelo sistema.
-
-### BR-058 — Administrador inicial
-
-A conta inicial de administrador será criada pela API utilizando `curl`.
-
-Não haverá cadastro público de administrador pelo frontend.
+### BR-058 — Bootstrap administrativo
+A criação inicial de administrador exige operação de bootstrap protegida por segredo configurado no ambiente. Não há concessão pública de perfil administrativo.
 
 ### BR-059 — Autenticação
+A autenticação por e-mail/senha e token de acesso está implementada na API.
 
-A autenticação será implementada posteriormente.
+### BR-060 — Perfis
+Os papéis incluem `USER` e `ADMIN`.
 
-### BR-060 — Autorização
-
-A autorização utilizará os papéis:
-
-- USER;
-- ADMIN.
-
-### BR-061 — Consultas por usuário
-
-Quando autenticação estiver implementada, o controle de consultas será associado ao usuário autenticado.
-
----
+### BR-061 — Propriedade da análise
+A consulta de uma análise deve estar restrita ao usuário proprietário autenticado, conforme a autorização no backend.
 
 ## 11. Privacidade e retenção
 
-### BR-062 — Não armazenar currículo permanentemente
+### BR-062 — Arquivo original
+O arquivo original não deve ser armazenado permanentemente.
 
-O currículo original não deve ser armazenado permanentemente.
+### BR-063 — Temporários
+Arquivos temporários devem ser removidos após o uso. O tempo de retenção de texto extraído e resultados deve ser definido por política operacional.
 
-### BR-063 — Retenção temporária
-
-Arquivos e dados extraídos poderão permanecer temporariamente durante o processamento.
-
-O período exato de retenção ainda será definido.
-
-### BR-064 — Minimização de dados
-
-O sistema deve armazenar somente os dados necessários para executar suas funções.
+### BR-064 — Minimização
+Persistir somente os dados necessários para as funções do produto.
 
 ### BR-065 — Logs
+Não registrar currículo completo, descrição integral da vaga, credenciais ou tokens.
 
-Logs não devem conter o currículo completo, descrição completa da vaga ou outros dados pessoais desnecessários.
-
-### BR-066 — Repositório
-
-Currículos reais de candidatos não devem ser armazenados no repositório do projeto.
-
----
+### BR-066 — Git
+Currículos reais não devem ser adicionados ao repositório.
 
 ## 12. Segurança
 
 ### BR-067 — Segredos
-
-Segredos não devem ser armazenados no código-fonte.
+Segredos não devem estar no código-fonte nem nos documentos versionados.
 
 ### BR-068 — Configuração
+Configurações sensíveis devem ser fornecidas por ambiente ou mecanismo seguro.
 
-Configurações sensíveis devem utilizar variáveis de ambiente.
+### BR-069 — Exemplo
+`.env.example` deve conter apenas nomes e exemplos não secretos de variáveis.
 
-### BR-069 — Exemplo de configuração
+### BR-070 — Validação prévia
+Limites e validações de entrada devem ocorrer antes de processamento caro sempre que possível.
 
-O arquivo `.env.example` deve documentar as variáveis necessárias sem conter credenciais reais.
+## 13. Organização arquitetural
 
-### BR-070 — Validação antes de processamento
+### BR-071 — API
+`MatchCV.Api` expõe a interface HTTP.
 
-Limites de upload e validações básicas devem ocorrer antes de operações potencialmente caras, como processamento de documentos e chamadas de IA.
+### BR-072 — Application
+`MatchCV.Application` coordena casos de uso.
 
----
+### BR-073 — Domain
+`MatchCV.Domain` contém entidades e regras de domínio.
 
-## 13. Arquitetura
+### BR-074 — Infrastructure
+`MatchCV.Infrastructure` implementa persistência e integrações técnicas.
 
-### BR-071 — MatchCV.Api
+### BR-075 — AI
+`MatchCV.AI` integra provedores externos.
 
-Responsável pela exposição HTTP da aplicação.
+### BR-076 — Parser
+`MatchCV.Parser` processa documentos.
 
-### BR-072 — MatchCV.Application
+### BR-077 — Worker
+`MatchCV.Worker` executa o processamento assíncrono.
 
-Responsável pelos casos de uso e pela orquestração da aplicação.
+### BR-078 — Tests
+`MatchCV.Tests` contém testes automatizados.
 
-### BR-073 — MatchCV.Domain
+### BR-079 — Db
+`MatchCV.Db` mantém migrations SQL.
 
-Responsável pelos conceitos centrais e regras de negócio do domínio.
+### BR-080 — Docs
+`MatchCV.Docs` contém a documentação técnica e funcional.
 
-### BR-074 — MatchCV.Infrastructure
+### BR-081 — Frontend
+`MatchCV.Frontend` contém a interface Angular.
 
-Responsável por persistência e integrações de infraestrutura.
-
-### BR-075 — MatchCV.AI
-
-Responsável pela abstração e integração dos provedores de inteligência artificial.
-
-### BR-076 — MatchCV.Parser
-
-Responsável pelo processamento e extração dos documentos.
-
-### BR-077 — MatchCV.Worker
-
-Responsável por processamento assíncrono quando necessário.
-
-### BR-078 — MatchCV.Tests
-
-Responsável pelos testes automatizados.
-
-### BR-079 — MatchCV.Db
-
-Responsável pelos recursos relacionados ao banco de dados.
-
-### BR-080 — MatchCV.Docs
-
-Responsável pela documentação do projeto.
-
-### BR-081 — MatchCV.Frontend
-
-Responsável pela interface do usuário.
-
-### BR-082 — Banco de dados
-
-O banco de dados da aplicação será SQL Server executado em Docker durante o desenvolvimento.
+### BR-082 — Banco
+SQL Server é utilizado para persistência, com configurações separadas por ambiente.
 
 ### BR-083 — Sistemas operacionais
+O desenvolvimento contempla Windows e Linux, sujeito aos requisitos de ferramentas e drivers.
 
-O projeto deve ser desenvolvido considerando compatibilidade com Windows e Linux.
-
-### BR-084 — Docker
-
-Docker e Docker Compose devem ser utilizados para os componentes aplicáveis do ambiente de desenvolvimento.
-
----
+### BR-084 — Containers
+Docker Compose é usado para os serviços locais e a instância SQL Server de testes.
 
 ## 14. Qualidade
 
 ### BR-085 — Testes unitários
-
-Regras de negócio relevantes devem possuir testes unitários.
+Regras de negócio relevantes devem ter testes unitários.
 
 ### BR-086 — Testes de integração
+Integrações importantes devem ter testes de integração.
 
-Integrações importantes devem possuir testes de integração.
+### BR-087 — Parser
+Cada formato suportado deve possuir testes específicos.
 
-### BR-087 — Testes do Parser
+### BR-088 — IA
+Os testes automatizados devem usar mocks/fakes sempre que possível e não depender obrigatoriamente de chamadas pagas a provedores reais.
 
-Cada formato suportado pelo Parser deve possuir testes específicos.
+## 15. Fluxo de análise
 
-### BR-088 — Testes de IA
+O fluxo atual é assíncrono: envio autenticado, validação, reserva de cota, criação/enfileiramento da análise, resposta HTTP 202, processamento pelo worker e consulta posterior do estado/resultado pelo proprietário. HTTP 202 confirma aceitação da tarefa, não conclusão da análise.
 
-Os testes da integração de IA não devem depender obrigatoriamente de chamadas reais aos provedores.
+## Manutenção
 
-Mocks ou implementações falsas devem ser utilizados nos testes automatizados.
-
----
-
-## 15. Fluxo inicial
-
-A V1 seguirá o fluxo:
-
-Usuário
-→ upload do currículo
-→ validação do arquivo
-→ Parser
-→ extração e normalização
-→ validação do conteúdo
-→ descrição da vaga
-→ validação da descrição
-→ análise por IA
-→ comparação currículo × vaga
-→ resultado
-
-Autenticação, autorização e controle de consultas serão incorporados posteriormente.
+Quando o comportamento do código mudar, atualize as regras relacionadas e seus testes. Este documento não substitui o código, as migrations nem a configuração efetiva do ambiente.

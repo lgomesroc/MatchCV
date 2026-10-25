@@ -1,218 +1,55 @@
-# Banco de Dados — MatchCV
+# Banco de dados — MatchCV
 
-## 1. Objetivo
+## Tecnologia e ambientes
 
-O MatchCV utiliza Microsoft SQL Server para persistência dos dados da aplicação.
+O MatchCV utiliza Microsoft SQL Server e o driver Python `pyodbc`. O banco principal local usa o nome `MatchCV`; a instância de testes é separada e utiliza o banco `MatchCVTest`, publicado na porta local 1435 pelo `docker-compose.test.yml`.
 
-O banco é executado localmente durante o desenvolvimento através de Docker.
+A configuração de conexão vem do ambiente. Nunca registre senhas nem strings de conexão completas em documentos versionados.
 
-## 2. Tecnologia
+## Migrations
 
-| Item                        | Tecnologia           |
-| --------------------------- | -------------------- |
-| SGBD                        | Microsoft SQL Server |
-| Versão                      | SQL Server 2022      |
-| Ambiente de desenvolvimento | Docker               |
-| Driver Python               | pyodbc               |
-| Linguagem de consulta       | T-SQL                |
-| Banco                       | MatchCV              |
-| Schema                      | dbo                  |
+As migrations versionadas ficam em `MatchCV.Db/Migrations/`; migrations específicas do banco de teste ficam em `MatchCV.Db/Migrations/Test/`. Revise e aplique-as em ordem no banco correto. Não presuma que a API executa migrations automaticamente.
 
-## 3. Princípios de persistência
+Antes de alterar o schema:
+1. Identifique o banco e o ambiente de destino.
+2. Leia a migration inteira.
+3. Verifique compatibilidade com os repositórios.
+4. Faça backup apropriado para ambientes com dados importantes.
+5. Execute os testes de banco/repositório.
 
-* Utilizar identificadores UUID.
-* Utilizar `DATETIME2` para datas e horários.
-* Armazenar datas de referência em UTC.
-* Utilizar parâmetros nas consultas SQL.
-* Evitar persistência desnecessária de dados pessoais.
-* Não armazenar permanentemente o arquivo original do currículo.
-* Não registrar conteúdo integral de currículos em logs.
-* Utilizar transações quando uma operação envolver múltiplas alterações relacionadas.
+## Persistência funcional
 
-## 4. Modelo de dados
+O banco armazena dados de conta, descrições de vagas, estado e resultados das análises e dados de suporte ao processamento assíncrono. As tabelas concretas e os tipos de coluna são definidos pelas migrations; consulte os arquivos SQL como fonte de verdade para o schema atual.
 
-O schema inclui as tabelas principais e as tabelas de suporte às operações assíncronas:
+Os repositórios devem usar consultas parametrizadas. Senhas são armazenadas como hashes, nunca em texto puro. O arquivo original do currículo não deve ser mantido permanentemente; qualquer persistência de texto extraído ou resultado deve respeitar a política de retenção.
 
-* `dbo.users`
-* `dbo.job_descriptions`
-* `dbo.analyses`
-* `dbo.analysis_queue`
-* `dbo.analysis_quota_reservations`
+## Fila e processamento assíncrono
 
-## 5. Banco
+O fluxo de análise usa tabelas de fila e reservas de cota criadas por migrations. A configuração da API e do worker precisa apontar para o mesmo banco. A chave de criptografia do payload, quando configurada, deve ser válida e consistente entre os componentes que escrevem e leem a fila.
 
-Nome padrão:
+A fila permite acompanhar estado e recuperar tarefas conforme a lógica implementada. Isso não elimina a necessidade de configurar e monitorar o worker.
 
-```text
-MatchCV
+## Banco de testes
+
+O serviço de teste é independente do banco de desenvolvimento. Para iniciar com o arquivo local de variáveis:
+
+```bash
+docker compose --env-file .env.test -f docker-compose.test.yml up -d
+docker compose -f docker-compose.test.yml ps
 ```
 
-## 6. Configuração
+O arquivo `.env.test` não deve ser versionado. A credencial configurada no contêiner precisa coincidir com a usada pelos testes. Se a senha do SQL Server for alterada em uma instância persistente, atualizar apenas o arquivo de ambiente não altera automaticamente a senha já definida dentro do banco.
 
-As informações de conexão são fornecidas por variáveis de ambiente.
+Consulte [Testing.md](Testing.md) para executar a suíte.
 
-```text
-DATABASE_HOST=localhost
-DATABASE_PORT=1433
-DATABASE_NAME=MatchCV
-DATABASE_USER=sa
-DATABASE_PASSWORD=<senha>
-```
+## Privacidade e segurança
 
-A senha real não deve ser armazenada no repositório.
+- Não use dados pessoais reais em testes automatizados.
+- Não coloque currículos no Git.
+- Não registre texto integral de currículos em logs.
+- Separe credenciais e bases de desenvolvimento, teste e produção.
+- Restrinja o acesso à instância e use HTTPS e configuração segura onde aplicável.
 
-## 7. String de conexão
+## Fonte de verdade
 
-O formato utilizado pela aplicação segue o padrão:
-
-```text
-DRIVER={ODBC Driver 18 for SQL Server};
-SERVER=host,port;
-DATABASE=name;
-UID=user;
-PWD=password;
-Encrypt=no;
-TrustServerCertificate=yes;
-```
-
-Os valores devem ser obtidos das configurações do ambiente.
-
-## 8. Tabela users
-
-Armazena os dados de identificação e controle de acesso dos usuários.
-
-| Campo         | Tipo SQL Server  | Descrição                |
-| ------------- | ---------------- | ------------------------ |
-| id            | UNIQUEIDENTIFIER | Identificador do usuário |
-| name          | NVARCHAR(150)    | Nome                     |
-| email         | NVARCHAR(255)    | E-mail                   |
-| password_hash | NVARCHAR(255)    | Hash da senha            |
-| role          | NVARCHAR(30)     | Perfil de acesso         |
-| created_at    | DATETIME2        | Data de criação          |
-| updated_at    | DATETIME2        | Última atualização       |
-
-### Regras
-
-* O e-mail deve possuir unicidade.
-* Senhas nunca devem ser armazenadas em texto puro.
-* O perfil ADMIN deve possuir permissões administrativas.
-* O perfil USER deve possuir permissões comuns.
-* O cadastro público não deve permitir a criação de administradores.
-
-## 9. Tabela job_descriptions
-
-Armazena a descrição da vaga utilizada em uma análise.
-
-| Campo      | Tipo SQL Server  | Descrição                  |
-| ---------- | ---------------- | -------------------------- |
-| id         | UNIQUEIDENTIFIER | Identificador da descrição |
-| content    | NVARCHAR(MAX)    | Conteúdo da vaga           |
-| created_at | DATETIME2        | Data de criação            |
-
-### Regras
-
-* O conteúdo deve ser validado antes da persistência.
-* O tamanho permitido é de 30 a 3000 caracteres úteis, conforme as regras de negócio.
-* O conteúdo não deve ser tratado como instrução de sistema para o modelo de IA.
-
-## 10. Tabela analyses
-
-Armazena o estado e o resultado de uma análise.
-
-| Campo                    | Tipo SQL Server  | Descrição                                           |
-| ------------------------ | ---------------- | --------------------------------------------------- |
-| id                       | UNIQUEIDENTIFIER | Identificador da análise                            |
-| resume_id                | UNIQUEIDENTIFIER | Identificador de referência do currículo processado |
-| job_description_id       | UNIQUEIDENTIFIER | Referência à descrição da vaga                      |
-| status                   | NVARCHAR(30)     | Estado da análise                                   |
-| evidenced_requirements   | NVARCHAR(MAX)    | Requisitos evidenciados                             |
-| unevidenced_requirements | NVARCHAR(MAX)    | Requisitos sem evidência                            |
-| gaps                     | NVARCHAR(MAX)    | Lacunas identificadas                               |
-| resume_issues            | NVARCHAR(MAX)    | Problemas do currículo                              |
-| suggestions              | NVARCHAR(MAX)    | Sugestões                                           |
-| created_at               | DATETIME2        | Data de criação                                     |
-| updated_at               | DATETIME2        | Última atualização                                  |
-
-Os campos que representam listas podem ser serializados como JSON em `NVARCHAR(MAX)`.
-
-## 11. Relacionamentos
-
-```text
-dbo.job_descriptions
-        │
-        │ 1:N
-        ▼
-   dbo.analyses
-
-dbo.users
-        │
-        └── Relacionamento com análises de usuários
-            a definir na evolução do modelo
-```
-
-A associação explícita entre usuário e análise deverá ser definida na evolução do schema, antes da implementação de consultas autenticadas por usuário.
-
-## 12. Estados da análise
-
-Estados previstos:
-
-* PENDING
-* PROCESSING
-* COMPLETED
-* FAILED
-
-As transições devem ser controladas pela entidade de domínio `Analysis`.
-
-## 13. Retenção e privacidade
-
-O MatchCV não deve manter o arquivo original do currículo permanentemente.
-
-A retenção dos textos extraídos e resultados deverá respeitar a política de privacidade e as regras de negócio definidas para a aplicação.
-
-A persistência de resultados não deve implicar armazenamento automático do documento original.
-
-## 14. Migrações
-
-As alterações de schema devem ser versionadas em:
-
-`MatchCV.Db/Migrations/`
-
-Cada migração deve:
-
-* Possuir identificação sequencial.
-* Ser revisada antes da execução.
-* Ser compatível com SQL Server.
-* Evitar perda acidental de dados.
-* Ser acompanhada de atualização deste documento.
-
-## 15. Reservas da cota mensal
-
-A migration `008_analysis_quota_reservations.sql` cria `dbo.analysis_quota_reservations`.
-
-- `RESERVED`: vaga temporariamente reservada para uma análise enviada ou em processamento.
-- `COMPLETED`: análise concluída; a vaga permanece consumida no mês de referência.
-- `RELEASED`: falha técnica ou reserva abandonada; a vaga volta a ficar disponível.
-
-A reserva é criada antes do enfileiramento, vinculada ao identificador da análise e contabilizada sob um bloqueio transacional por usuário. A cota gratuita é de três análises por mês-calendário UTC para `USER`; `ADMIN` não possui esse limite. A reconciliação periódica do worker corrige reservas vinculadas a análises já concluídas ou falhas e libera reservas sem análise após 30 minutos.
-
-## 16. Aplicação das migrações
-
-As migrações ficam em `MatchCV.Db/Migrations/`. Não há execução automática de migrações na inicialização da API ou no Docker Compose. Antes de publicar esta funcionalidade, aplique `008_analysis_quota_reservations.sql` no banco MatchCV usando uma ferramenta compatível com SQL Server, com permissões adequadas e backup conforme o ambiente. A migration é idempotente para os objetos que cria, mas deve ser revisada e aplicada na ordem numérica.
-
-## 17. Backup e recuperação
-
-Os ambientes de homologação e produção devem possuir estratégia de backup e recuperação compatível com a criticidade dos dados.
-
-O volume Docker local é destinado ao desenvolvimento e não substitui uma política de backup de produção.
-
-## 18. Segurança
-
-* Utilizar credenciais fora do repositório.
-* Não expor a porta do banco publicamente sem necessidade.
-* Utilizar consultas parametrizadas.
-* Restringir permissões do usuário de banco.
-* Não registrar senhas ou conteúdo sensível em logs.
-
-## 19. Situação
-
-Este documento descreve o modelo inicial e as diretrizes de persistência. O schema efetivamente implementado deve permanecer sincronizado com as migrações SQL.
+Este documento explica o uso e a operação do banco. Para tabelas, colunas, constraints e índices exatos, consulte as migrations SQL atuais.

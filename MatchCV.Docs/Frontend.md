@@ -1,91 +1,57 @@
 # Frontend — MatchCV
 
-## 1. Objetivo
+## Tecnologias
 
-Documentar a interface de usuário do MatchCV.
+O frontend está em `MatchCV.Frontend` e utiliza Angular e TypeScript. A versão do Angular CLI registrada no projeto é 22.2.0; use o `package-lock.json` como referência para as versões instaladas.
 
-## 2. Objetivo funcional
+## Responsabilidades
 
-Permitir que o candidato envie um currículo e uma descrição de vaga e receba uma análise estruturada.
+- Coletar a descrição da vaga e o currículo do usuário.
+- Validar campos obrigatórios antes do envio.
+- Comunicar-se com a API por HTTP.
+- Apresentar estados de envio e processamento.
+- Consultar e exibir o resultado da análise.
+- Exibir erros de validação, autenticação, autorização e limite de uso.
+- Oferecer os fluxos de autenticação implementados na interface.
 
-## 3. Telas previstas
+O frontend não deve acessar diretamente o SQL Server ou os provedores de IA.
 
-### Página inicial
+## Execução local
 
-Apresentação do MatchCV e acesso à funcionalidade de análise.
+```bash
+cd MatchCV.Frontend
+npm ci
+npm start
+```
 
-### Tela de análise
+O endereço local padrão do servidor de desenvolvimento Angular é `http://localhost:4200/`. Se o script `start` não estiver definido na versão local, consulte os scripts disponíveis com `npm run` e utilize o comando de desenvolvimento configurado no `package.json`.
 
-Campos:
+## Testes e build
 
-- Nome ou identificação do candidato, quando necessário.
-- Upload de currículo.
-- Descrição da vaga.
-- Ação para iniciar análise.
+```bash
+npm test
+npm run build
+```
 
-### Tela de resultado
+O workflow de CI executa os testes e o build do frontend. Para reproduzir o ambiente de CI, utilize a versão de Node especificada em `.github/workflows/ci.yml` e instale dependências com `npm ci`.
 
-Seções:
+## Integração com a API
 
-- Requisitos evidenciados.
-- Requisitos não evidenciados.
-- Lacunas identificadas.
-- Problemas do currículo.
-- Sugestões de melhoria.
+A API FastAPI expõe os endpoints de autenticação e análise. Os caminhos e schemas atuais devem ser conferidos no Swagger, pois prefixos globais podem ser alterados pela configuração da aplicação.
 
-### Autenticação
+A análise é assíncrona: uma resposta HTTP 202 indica que a solicitação foi aceita. A interface deve consultar o estado posterior e diferenciar processamento, conclusão e falha.
 
-Telas previstas para login e cadastro conforme a implementação do sistema de usuários.
+## Acessibilidade e privacidade
 
-### Área administrativa
+- Usar rótulos claros e mensagens de erro compreensíveis.
+- Permitir navegação por teclado.
+- Não persistir currículo ou dados sensíveis sem necessidade.
+- Não registrar tokens ou conteúdo de currículo em logs do navegador.
+- Tratar os dados apresentados pela IA como resultados sujeitos à validação e sem inventar qualificações.
 
-Área restrita para operações administrativas previstas.
+## Referências
 
-## 4. Componentes previstos
-
-- Upload de arquivo.
-- Campo de descrição da vaga.
-- Validação de formulário.
-- Indicador de processamento.
-- Exibição de erros.
-- Exibição de resultados.
-- Componentes de autenticação.
-
-## 5. Integração com API
-
-A comunicação será realizada por HTTP/HTTPS.
-
-A interface não deve acessar diretamente o SQL Server ou os provedores de IA.
-
-## 6. Estados da interface
-
-- Inicial.
-- Validando.
-- Enviando.
-- Processando.
-- Concluído.
-- Falha.
-
-## 7. Validações
-
-O frontend poderá antecipar validações de tamanho, formato e campos obrigatórios.
-
-A validação definitiva deverá ocorrer também no backend.
-
-## 8. Acessibilidade
-
-A interface deverá considerar:
-
-- Navegação por teclado.
-- Rótulos acessíveis.
-- Mensagens de erro compreensíveis.
-- Contraste adequado.
-- Compatibilidade com tecnologias assistivas.
-
-## 9. Privacidade
-
-O frontend não deve manter cópias desnecessárias de currículos ou dados sensíveis.
-
-## 10. Status
-
-Frontend documentado como planejamento. Framework, componentes concretos e telas serão atualizados após implementação.
+- [Guia de instalação](Getting-Started.md)
+- [API](API.md)
+- [Integração da API](API-Integration.md)
+- [Testes](Testing.md)
