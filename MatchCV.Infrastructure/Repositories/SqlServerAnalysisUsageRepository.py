@@ -3,6 +3,10 @@ from uuid import UUID, uuid4
 from MatchCV.Infrastructure.Database.DatabaseConnection import DatabaseConnection
 
 
+class MonthlyQuotaExceeded(Exception):
+    """O usuário esgotou as vagas gratuitas do mês atual."""
+
+
 class SqlServerAnalysisUsageRepository:
     """Controla a cota mensal gratuita com reservas concorrentes seguras."""
 
@@ -73,6 +77,25 @@ class SqlServerAnalysisUsageRepository:
                 )
                 connection.commit()
                 return reservation_id
+            except Exception as exception:
+                connection.rollback()
+                if "51002" in str(exception) or "Limite mensal de análises atingido" in str(exception):
+                    raise MonthlyQuotaExceeded("Você atingiu o limite de três análises neste mês.") from exception
+                raise
+            finally:
+                cursor.close()
+
+    def link_analysis(self, reservation_id: UUID, analysis_id: UUID) -> None:
+        with self._database_connection.connection() as connection:
+            cursor = connection.cursor()
+            try:
+                cursor.execute(
+                    "UPDATE dbo.analysis_quota_reservations SET analysis_id = ?, updated_at = SYSUTCDATETIME() WHERE id = ? AND status = N'RESERVED'",
+                    str(analysis_id), str(reservation_id),
+                )
+                if cursor.rowcount != 1:
+                    raise RuntimeError("A reserva da cota não foi encontrada.")
+                connection.commit()
             except Exception:
                 connection.rollback()
                 raise
