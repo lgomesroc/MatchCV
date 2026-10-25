@@ -1,4 +1,3 @@
-import os
 from dataclasses import replace
 
 import pytest
@@ -72,6 +71,7 @@ class TestDatabaseConnectionIntegration:
     def test_connects_to_the_configured_database(
         self,
         integration_database_connection: DatabaseConnection,
+        test_database_settings: AppSettings,
     ):
         with integration_database_connection.connection() as connection:
             cursor = connection.cursor()
@@ -83,4 +83,4 @@ class TestDatabaseConnectionIntegration:
                 cursor.close()
 
         assert row is not None
-        assert row[0] == os.environ["MATCHCV_TEST_DATABASE_NAME"]
+        assert row[0] == test_database_settings.database_name
