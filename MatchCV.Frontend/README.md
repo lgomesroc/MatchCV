@@ -1,59 +1,56 @@
-# MatchCVFrontend
+# MatchCV Frontend
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.2.0.
+Frontend do MatchCV desenvolvido com Angular e TypeScript. A versão do Angular CLI indicada pelo projeto é 22.2.0; as versões instaladas devem ser conferidas no `package.json` e no `package-lock.json`.
 
-## Development server
+## Pré-requisitos
 
-To start a local development server, run:
+- Node.js compatível com `.github/workflows/ci.yml`.
+- npm compatível com a configuração do CI.
 
-```bash
-ng serve
-```
+## Instalar dependências
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+Na raiz do repositório:
 
 ```bash
-ng generate component component-name
+cd MatchCV.Frontend
+npm ci
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+## Desenvolvimento local
 
 ```bash
-ng generate --help
+npm start
 ```
 
-## Building
+O endereço local padrão do servidor de desenvolvimento Angular é `http://localhost:4200/`. Se o script `start` não estiver disponível, execute `npm run` e use o script de desenvolvimento listado no `package.json`.
 
-To build the project run:
+## Testes e build
 
 ```bash
-ng build
+npm test
+npm run build
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+O workflow de CI executa os testes e o build do frontend. Use a versão de Node definida no workflow e instale dependências com `npm ci` para reproduzir o ambiente automatizado.
 
-## Running unit tests
+## Integração com a API
 
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+O frontend comunica-se com a API FastAPI por HTTP/HTTPS. Confira a configuração do endereço base da API no código/configuração do frontend e no ambiente em execução; não presuma que o endereço local e o de produção sejam iguais.
 
-```bash
-ng test
-```
+O envio de análise é assíncrono: HTTP 202 significa que a solicitação foi aceita. A interface deve acompanhar o estado posterior e apresentar conclusão ou falha. Erros 401 e 403 devem ser tratados sem revelar tokens ou dados internos.
 
-## Running end-to-end tests
+## Boas práticas
 
-For end-to-end (e2e) testing, run:
+- Não colocar credenciais, tokens ou chaves de IA no código do frontend.
+- Não registrar currículos completos no console do navegador.
+- Tratar o conteúdo enviado e os resultados de IA como dados não confiáveis.
+- Manter mensagens de validação compreensíveis e navegação acessível.
+- Atualizar este README quando os scripts, versões ou fluxos mudarem.
 
-```bash
-ng e2e
-```
+## Referências
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+- [README principal](../README.md)
+- [Guia de instalação](../MatchCV.Docs/Getting-Started.md)
+- [API](../MatchCV.Docs/API.md)
+- [Integração da API](../MatchCV.Docs/API-Integration.md)
+- [Testes](../MatchCV.Docs/Testing.md)
