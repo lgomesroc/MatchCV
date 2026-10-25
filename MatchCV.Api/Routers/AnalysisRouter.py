@@ -83,9 +83,16 @@ async def analyze_resume(
             raise HTTPException(status_code=403, detail=str(exception)) from exception
 
     try:
-        analysis = use_case.enqueue(request, user_id=current_user.id)
-        if reservation_id is not None:
-            usage_repository.link_analysis(reservation_id, analysis.id)
+        analysis = use_case.enqueue(
+            request,
+            user_id=current_user.id,
+            on_analysis_created=(
+                lambda analysis_id: usage_repository.link_analysis(
+                    reservation_id,
+                    analysis_id,
+                )
+            ) if reservation_id is not None else None,
+        )
         return AnalysisResponse(analysis_id=analysis.id, status=analysis.status.value)
     except DomainException as exception:
         if reservation_id is not None:
