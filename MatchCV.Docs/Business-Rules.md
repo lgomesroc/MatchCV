@@ -1,95 +1,57 @@
-
 # Regras de Negócio — MatchCV
 
-## 1. Objetivo
+Este documento resume as regras funcionais principais. A referência numerada detalhada fica em [BusinessRules/business-rules.md](BusinessRules/business-rules.md). Quando houver divergência, valide a regra contra o código e os testes antes de alterar a implementação.
 
-Este documento centraliza as regras funcionais do MatchCV.
+## Currículos
 
-A numeração deve permanecer estável para permitir rastreabilidade entre documentação, código e testes.
+- Formatos tratados pelo fluxo: PDF, DOC e DOCX; a aceitação efetiva depende do parser disponível.
+- Limite documentado: 1 MB.
+- Limite documentado: duas páginas.
+- Mínimo documentado: 30 caracteres úteis.
+- Arquivos corrompidos, protegidos ou sem texto extraível devem ser rejeitados.
+- OCR não faz parte do escopo documentado da V1.
+- O arquivo original não deve ser armazenado permanentemente.
 
-## 2. Currículos
+A capacidade real de contar páginas em formatos legados e de detectar layout depende do parser e precisa ser validada por testes específicos.
 
-- Formatos permitidos: PDF, DOC e DOCX.
-- Tamanho máximo: 1 MB.
-- Quantidade máxima: duas páginas.
-- Mínimo de 30 caracteres úteis.
-- Arquivos protegidos por senha devem ser rejeitados.
-- Arquivos corrompidos devem ser rejeitados.
-- Documentos sem texto extraível não são aceitos na V1.
-- OCR não faz parte do escopo inicial.
+## Descrição da vaga
 
-## 3. Descrição da vaga
+- Obrigatória.
+- Mínimo documentado de 30 caracteres úteis.
+- Máximo documentado de 3.000 caracteres.
+- Conteúdo deve ser textual e apropriado para análise.
 
-- Campo obrigatório.
-- Mínimo de 30 caracteres úteis.
-- Máximo de 3000 caracteres.
-- Deve conter conteúdo válido para análise.
+## Resultado da análise
 
-## 4. Análise
+A análise deve separar:
+- requisitos evidenciados;
+- requisitos sem evidência suficiente;
+- lacunas;
+- problemas do currículo;
+- sugestões de melhoria.
 
-O resultado deve distinguir:
+A ausência de evidência não prova que a pessoa não possui a competência. Não inventar empresas, cargos, experiências, tecnologias, formação, certificações ou resultados.
 
-- Requisitos evidenciados.
-- Requisitos não evidenciados.
-- Lacunas.
-- Problemas do currículo.
-- Sugestões.
+## Cota e usuários
 
-O sistema não deve inventar qualificações.
+- O cadastro público cria usuário comum (`USER`).
+- A criação inicial de administrador exige mecanismo de bootstrap protegido por configuração.
+- Usuários comuns possuem cota de três análises por mês-calendário UTC.
+- Administradores possuem análises ilimitadas.
+- O fallback entre provedores é parte da mesma análise.
+- Falhas tratadas antes da conclusão não devem consumir cota permanentemente; confira o fluxo de reserva/liberação e seus testes.
 
-## 5. Consultas
+## Validação de conteúdo
 
-A V1 não possui limite de consultas.
+Os campos textuais são validados de acordo com componentes de validação reutilizáveis, incluindo política para conteúdo inadequado. A normalização deve considerar acentos, maiúsculas/minúsculas e formas simples de ofuscação, sem bloquear indevidamente termos técnicos ou palavras legítimas.
 
-A evolução de autenticação e planos poderá estabelecer:
+## Privacidade
 
-- USER: até três análises concluídas por mês-calendário.
-- ADMIN: análises ilimitadas.
-- Falhas técnicas não devem consumir uma vaga da cota.
-- O processamento da fila deve ser serializado globalmente entre instâncias do worker.
+- Não incluir currículos reais no repositório.
+- Não registrar o conteúdo integral do currículo em logs.
+- Tratar arquivo original como temporário.
+- Limitar a persistência aos dados necessários para operar o serviço.
 
-O fallback entre provedores representa uma única consulta.
+## Status
 
-## 6. Usuários
-
-Perfis previstos:
-
-- USER.
-- ADMIN.
-
-O cadastro público não deve conceder privilégios administrativos.
-
-## 7. Privacidade
-
-O arquivo original do currículo não deve ser armazenado permanentemente.
-
-## 8. Conteúdo inadequado
-
-Currículo, descrição de vaga e campos textuais devem passar por validação de conteúdo inadequado conforme as regras específicas BR-037 a BR-040.
-
-A normalização deve considerar:
-
-- Maiúsculas e minúsculas.
-- Acentos.
-- Separadores.
-- Caracteres especiais.
-- Obfuscação simples.
-- Substituições numéricas.
-- Repetição de caracteres.
-
-A validação deve evitar falsos positivos em palavras legítimas.
-
-## 9. Segurança
-
-- Não expor credenciais.
-- Validar entradas.
-- Proteger operações administrativas.
-- Tratar conteúdo externo como não confiável.
-
-## 10. Rastreabilidade
-
-As regras detalhadas existentes devem ser preservadas. Este documento não substitui o conteúdo original das regras já aprovadas.
-
-## 11. Status
-
-As regras são referência funcional. Sua implementação deverá ser verificada por testes.
+Este resumo não substitui a verificação de implementação. Use as migrations, validadores, casos de uso e testes como fonte de verdade para comportamento efetivo.

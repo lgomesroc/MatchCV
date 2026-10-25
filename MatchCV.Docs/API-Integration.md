@@ -1,93 +1,72 @@
 # Integração da API — MatchCV
 
-## 1. Objetivo
+## Visão geral
 
-Documentar a comunicação entre a API, Application, Parser, AI, Infrastructure, banco de dados e frontend.
+O frontend se comunica com a API FastAPI por HTTP/HTTPS. A API coordena autenticação, validação de entrada, casos de uso e acesso aos repositórios; o frontend não acessa diretamente o SQL Server nem os provedores de IA.
 
-## 2. Visão geral
+## Fluxo de análise
 
 ```text
 Frontend
-   |
-   | POST /api/v1/analysis/resume
-   v
-API
-   |
-   | valida, extrai texto e cria análise pendente
-   v
-Application
-   |
-   +------> SQL Server: analyses + analysis_queue
-                 |
-                 v
-          Worker em thread separada
-                 |
-                 +------> AI providers
-                 |
-                 +------> SQL Server: status + resultado
+  |
+  | POST /analysis/resume (autenticado)
+  v
+API / AnalysisRouter
+  |
+  | valida texto ou arquivo + descrição da vaga
+  v
+AnalyzeResumeUseCase
+  |
+  | cria e enfileira a análise
+  v
+SQL Server / fila
+  |
+  v
+Worker
+  |
+  +--> Parser / IA
+  |
+  v
+Persistência do estado e do resultado
+  |
+  v
+GET /analysis/{analysis_id} (proprietário autenticado)
 ```
 
-## 3. Integração Frontend → API
+A rota de submissão aceita a descrição da vaga e exatamente uma das opções: texto do currículo ou arquivo. A resposta de sucesso é HTTP `202 Accepted` com o identificador e o estado inicial. A consulta posterior retorna o estado e, quando disponível, o resultado.
 
-O frontend enviará:
+Os caminhos completos podem incluir prefixos configurados na aplicação. Consulte o Swagger ativo ou `MatchCV.Api/main.py`; não presuma o prefixo `/api/v1` sem verificá-lo na configuração atual.
 
-- Descrição da vaga.
-- Arquivo de currículo.
-- Credenciais ou token de autenticação, quando aplicável.
+## Autenticação
 
-A API responde `202 Accepted` com `analysis_id` e status `pending`. O frontend consulta `GET /api/v1/analysis/{analysis_id}` até o status ser `completed` ou `failed`.
+As rotas de autenticação estão sob o prefixo `/auth`. O login retorna um token de acesso; rotas protegidas recebem o token Bearer. O frontend deve tratar erros de autenticação e autorização sem expor tokens ou detalhes internos.
 
-## 4. Integração API → Application
+## Camadas
 
-A API não deve executar regras de negócio diretamente.
+- **API:** schemas HTTP, códigos de resposta e dependências.
+- **Application:** casos de uso e coordenação do fluxo.
+- **Domain:** regras e entidades de negócio.
+- **Parser:** validação e extração de texto dos documentos.
+- **AI:** integração com provedores externos.
+- **Infrastructure:** SQL Server e repositórios.
+- **Worker:** processamento assíncrono da fila.
 
-Ela deve invocar os casos de uso da Application.
+As dependências concretas devem ser conectadas por configurações e injeção de dependência; regras de negócio não devem ficar duplicadas no frontend.
 
-## 5. Integração Application → Parser
+## Banco e fila
 
-A Application utiliza o contrato IResumeParserService.
+A persistência utiliza SQL Server e `pyodbc`. A fila e as migrations correspondentes precisam estar aplicadas no banco usado pelo ambiente. A configuração da API e do worker deve apontar para a mesma base e usar os mesmos parâmetros necessários para ler e processar tarefas.
 
-A implementação concreta deve ser fornecida por um adaptador externo.
+Quando o processamento assíncrono depende de uma variável de ambiente, confirme seu valor no serviço em execução antes de esperar que a API processe tarefas localmente.
 
-## 6. Integração Application → AI
+## Segurança e privacidade
 
-A Application utiliza uma abstração de análise.
+- A consulta de análise deve respeitar o usuário proprietário.
+- Currículo e descrição da vaga são dados não confiáveis.
+- Não registrar conteúdo integral de currículo, tokens ou credenciais.
+- Não persistir permanentemente o arquivo original sem necessidade e política aprovada.
+- Não usar banco de teste para dados de produção.
 
-A implementação concreta coordena os provedores de IA.
+## Diagnóstico
 
-## 7. Integração Application → Infrastructure
-
-Os repositórios são acessados por interfaces definidas na Application.
-
-Infrastructure implementa esses contratos.
-
-## 8. Integração com SQL Server
-
-A comunicação utiliza `pyodbc`.
-
-Consultas devem utilizar parâmetros.
-
-## 9. Falhas de integração
-
-Devem ser previstas falhas de:
-
-- Banco de dados.
-- Parser.
-- Provedor principal de IA.
-- Provedor de fallback.
-- Comunicação HTTP.
-- Autenticação.
-
-## 10. Segurança
-
-Dados recebidos de currículos e descrições de vaga devem ser tratados como conteúdo não confiável.
-
-O conteúdo não pode sobrescrever instruções de sistema ou regras de segurança do modelo de IA.
-
-## 11. Worker assíncrono
-
-A API só inicia a thread do worker quando `RUN_ANALYSIS_WORKER=true`. O worker consulta a fila SQL Server, descriptografa o payload temporário e processa a análise. `ANALYSIS_QUEUE_ENCRYPTION_KEY` deve ser uma chave Fernet válida e igual na API e no worker. A migração `005_analysis_worker_queue.sql` precisa estar aplicada no banco antes de habilitar o processamento assíncrono.
-
-O frontend acompanha o processamento consultando o endpoint autenticado `GET /api/v1/analysis/{analysis_id}`. O endpoint restringe a consulta ao proprietário da análise.
-
-No Render, a execução junto à API é provisória. Reinicializações e suspensão do serviço gratuito interrompem a thread; a fila e a recuperação de leases permitem recuperar tarefas, mas não substituem um worker dedicado em produção.
+Ao investigar uma falha, verifique separadamente: resposta HTTP, logs sanitizados da API, disponibilidade do banco, estado da fila, logs do worker e resposta do provedor de IA. Não conclua que uma análise foi concluída apenas porque a submissão retornou 202.

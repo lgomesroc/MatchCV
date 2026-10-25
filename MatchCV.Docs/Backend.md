@@ -1,208 +1,52 @@
 # Backend — MatchCV
 
-## 1. Objetivo
+## Visão geral
 
-O backend do MatchCV é responsável por receber as solicitações da aplicação,
-executar os casos de uso, processar documentos, realizar análises e persistir
-os dados necessários.
+O backend é desenvolvido em Python e utiliza FastAPI para expor endpoints HTTP. O código é organizado em módulos com responsabilidades separadas.
 
-A implementação é dividida em módulos para reduzir acoplamento e separar
-responsabilidades.
+## Módulos
 
-## 2. Componentes
+- `MatchCV.Api`: inicialização da aplicação, roteadores, dependências e schemas HTTP.
+- `MatchCV.Application`: casos de uso, DTOs e coordenação do fluxo de análise.
+- `MatchCV.Domain`: entidades, enums, validações e regras de domínio.
+- `MatchCV.Infrastructure`: conexão SQL Server e implementações de repositórios.
+- `MatchCV.Parser`: validação e extração de conteúdo de arquivos de currículo.
+- `MatchCV.AI`: abstração e comunicação com provedores externos de IA.
+- `MatchCV.Worker`: processamento assíncrono da fila de análises.
+- `MatchCV.Login`: autenticação, hashing de senha, política de senha e autorização.
+- `MatchCV.Db`: migrations SQL.
+- `MatchCV.Tests`: testes unitários e de integração.
 
-```text
-MatchCV.Api
-MatchCV.Application
-MatchCV.Domain
-MatchCV.Infrastructure
-MatchCV.Parser
-MatchCV.AI
-MatchCV.Worker
+Consulte [Architecture.md](Architecture.md) para o fluxo entre componentes. Este resumo não substitui a [estrutura do projeto](Project-Structure.md).
+
+## API e autenticação
+
+Os roteadores de autenticação expõem cadastro, login, consulta do usuário autenticado, alteração de senha, bootstrap administrativo e recuperação de senha. O roteador de análise permite submeter currículo e descrição da vaga e consultar o estado/resultado de uma análise pertencente ao usuário autenticado.
+
+A análise é enfileirada e a submissão bem-sucedida retorna HTTP 202. O processamento posterior é responsabilidade do fluxo assíncrono.
+
+## Cota de análises
+
+Usuários comuns têm cota de três análises por mês-calendário UTC. O fluxo reserva uma vaga antes de enfileirar e libera a reserva em falhas tratadas. Administradores não estão sujeitos a essa cota.
+
+## Persistência
+
+A persistência usa Microsoft SQL Server via `pyodbc`. O acesso é feito por repositórios e dependências de infraestrutura. As migrations ficam em `MatchCV.Db/Migrations/` e devem ser aplicadas de forma controlada; não presuma que iniciar a API as executa automaticamente.
+
+## Provedores de IA
+
+A integração com provedores externos está isolada no módulo `MatchCV.AI`. As credenciais e os parâmetros do provedor devem ser configurados no ambiente. Limites de uso, falhas de rede e disponibilidade do modelo podem afetar as análises.
+
+## Privacidade e erros
+
+O currículo é processado para análise; o documento original não deve ser armazenado permanentemente nem incluído em logs. Erros públicos devem ser controlados e não devem revelar segredos ou detalhes internos.
+
+## Testes
+
+A suíte está em `MatchCV.Tests/`. Execute os testes com o ambiente virtual ativo:
+
+```bash
+PYTHONPATH="$PWD" python -m pytest -q
 ```
 
-## 3. MatchCV.Api
-
-A API representa a porta de entrada HTTP da aplicação.
-
-Responsabilidades:
-
-- Receber requisições.
-- Validar entrada básica.
-- Acionar casos de uso.
-- Retornar respostas.
-- Aplicar middleware.
-- Tratar exceções.
-
-A API não deve implementar diretamente regras complexas de negócio.
-
-## 4. MatchCV.Application
-
-A camada Application coordena os casos de uso.
-
-Exemplos de responsabilidades:
-
-- Receber dados da API.
-- Validar o fluxo da operação.
-- Solicitar processamento do currículo.
-- Solicitar análise da descrição da vaga.
-- Acionar o serviço de IA.
-- Persistir resultados através de interfaces.
-- Montar DTOs de resposta.
-
-## 5. MatchCV.Domain
-
-Contém os conceitos centrais do sistema.
-
-Exemplos:
-
-- Usuário.
-- Descrição da vaga.
-- Análise.
-- Tipo de arquivo.
-- Regras de domínio.
-- Exceções específicas do domínio.
-
-A camada deve permanecer independente de infraestrutura.
-
-## 6. MatchCV.Infrastructure
-
-Responsável pelas implementações concretas.
-
-Inclui:
-
-- SQL Server.
-- Repositórios.
-- Adaptadores.
-- Serviços externos.
-- Configurações técnicas.
-
-## 7. MatchCV.Parser
-
-O Parser é responsável pelo processamento do currículo.
-
-Fluxo:
-
-```text
-Arquivo
-   │
-   ▼
-Validação do arquivo
-   │
-   ▼
-Identificação do formato
-   │
-   ▼
-Extração de texto
-   │
-   ▼
-Validação estrutural
-   │
-   ▼
-Resultado estruturado
-```
-
-O Parser não realiza a comparação semântica entre currículo e vaga.
-
-## 8. MatchCV.AI
-
-O módulo de IA abstrai os provedores externos.
-
-A aplicação deve trabalhar com uma interface e não depender diretamente de
-um provedor específico.
-
-Isso permite substituir ou adicionar provedores sem modificar os casos de
-uso principais.
-
-## 9. MatchCV.Worker
-
-O Worker poderá ser utilizado quando operações assíncronas forem necessárias.
-
-Exemplos:
-
-- Análise demorada.
-- Processamento em fila.
-- Tarefas de segundo plano.
-
-Enquanto não houver necessidade real, sua implementação permanece separada
-do fluxo síncrono principal.
-
-## 10. Persistência
-
-O backend utiliza SQL Server.
-
-As operações de banco devem ser executadas através da camada
-MatchCV.Infrastructure.
-
-Os casos de uso não devem criar conexões diretamente com o SQL Server.
-
-## 11. Configuração
-
-Configurações sensíveis devem ser fornecidas por variáveis de ambiente.
-
-Exemplos:
-
-```text
-DATABASE_HOST
-DATABASE_PORT
-DATABASE_NAME
-DATABASE_USER
-DATABASE_PASSWORD
-```
-
-Configurações de provedores de IA também devem utilizar variáveis de ambiente
-ou mecanismos equivalentes.
-
-Credenciais não devem ser versionadas no Git.
-
-## 12. Tratamento de currículo
-
-O currículo é processado temporariamente.
-
-O backend deve:
-
-1. Receber o arquivo.
-2. Validar o tamanho.
-3. Validar a extensão.
-4. Validar a integridade.
-5. Extrair o texto.
-6. Validar a quantidade de texto.
-7. Validar características estruturais.
-6. Encaminhar o conteúdo para análise.
-9. Descartar o arquivo temporário quando o processamento terminar.
-
-## 13. Logs
-
-Os logs devem registrar informações técnicas suficientes para diagnóstico,
-sem registrar o conteúdo do currículo.
-
-Não devem ser registrados:
-
-- Texto completo do currículo.
-- Dados pessoais desnecessários.
-- Senhas.
-- Tokens.
-- Chaves de API.
-- Credenciais de banco.
-
-## 14. Testes
-
-O backend deve possuir:
-
-- Testes unitários.
-- Testes de integração.
-
-Os testes devem cobrir principalmente:
-
-- Regras de negócio.
-- Validações.
-- Parser.
-- Casos de uso.
-- Repositórios.
-- Integrações críticas.
-
-## 15. Status
-
-O backend encontra-se em desenvolvimento.
-
-A documentação não deve considerar funcionalidades futuras como implementadas até que existam no código e tenham sido validadas.
+Testes de integração que usam SQL Server precisam de instância de teste e credenciais válidas. Consulte [Testing.md](Testing.md).

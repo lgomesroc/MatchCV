@@ -1,109 +1,97 @@
-# Guia de Desenvolvimento — MatchCV
+# Guia de desenvolvimento — MatchCV
 
-## 1. Objetivo
+## Pré-requisitos
 
-Orientar a preparação do ambiente e o desenvolvimento do MatchCV.
-
-## 2. Requisitos
-
-- Python.
 - Git.
-- Docker Desktop.
-- SQL Server em container.
-- Driver ODBC 18 para SQL Server.
-- Editor ou IDE compatível.
+- Python 3.12, conforme o workflow de CI.
+- Ambiente virtual Python.
+- Docker Engine e Docker Compose para SQL Server local e de teste.
+- Driver ODBC compatível com SQL Server.
+- Node.js e npm conforme `.github/workflows/ci.yml` para o frontend.
 
-## 3. Repositório
+## Preparar o repositório
 
-```cmd
-git clone git@github.com:lgomesroc/MatchCV.git
+```bash
+git clone https://github.com/lgomesroc/MatchCV.git
 cd MatchCV
+git switch developer
 ```
 
-## 4. Ambiente Python
+## Backend Python
 
-Criar ambiente virtual:
+Linux:
 
-```cmd
-python -m venv .venv
-```
-
-Ativar no Windows CMD:
-
-```cmd
-.venv\Scripts\activate
-```
-
-Instalar dependências:
-
-```cmd
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
 python -m pip install -r requirements.txt
 ```
 
-## 5. Configuração
-
-Copiar `.env.example` para `.env` e preencher os valores locais.
-
-O arquivo `.env` não deve ser versionado.
-
-## 6. Banco de dados
-
-Iniciar os serviços definidos no Docker Compose:
+Windows CMD:
 
 ```cmd
-docker compose up -d
+python -m venv .venv
+.venv\Scripts\activate
+python -m pip install -r requirements.txt
 ```
 
-Verificar os containers:
+Configure o ambiente a partir do modelo `.env.example`. Mantenha valores secretos em arquivos locais ignorados pelo Git ou em configurações seguras do ambiente.
 
-```cmd
+Para executar a API localmente:
+
+```bash
+uvicorn MatchCV.Api.main:app --reload
+```
+
+A documentação interativa costuma ficar em `http://127.0.0.1:8000/docs`.
+
+## SQL Server
+
+```bash
+docker compose up -d
 docker compose ps
 ```
 
-## 7. Desenvolvimento
+Aplique as migrations necessárias ao banco local em ordem. Consulte [Database.md](Database.md).
 
-As alterações devem respeitar a separação de responsabilidades.
+Para testes de integração, use a instância isolada de `docker-compose.test.yml`; consulte [Testing.md](Testing.md). Não reutilize banco de produção em testes.
 
-- Domain: regras de negócio.
-- Application: casos de uso.
-- Infrastructure: integrações.
-- Parser: documentos.
-- AI: provedores.
-- API: HTTP.
-- Frontend: interface.
+## Frontend
 
-## 8. Testes
+```bash
+cd MatchCV.Frontend
+npm ci
+npm test
+npm run build
+```
 
-Executar a suíte configurada no projeto.
+Consulte `package.json` para os scripts disponíveis. O workflow de CI é a referência para as versões de runtime usadas nas verificações automatizadas.
 
-Os testes que dependem do SQL Server ou de arquivos reais devem ser executados em ambiente apropriado.
+## Organização do código
 
-## 9. Git
+- `MatchCV.Api`: HTTP, schemas e dependências.
+- `MatchCV.Application`: casos de uso.
+- `MatchCV.Domain`: entidades e regras de domínio.
+- `MatchCV.Infrastructure`: banco e repositórios.
+- `MatchCV.Parser`: leitura e validação de documentos.
+- `MatchCV.AI`: integração com provedores.
+- `MatchCV.Worker`: processamento assíncrono.
+- `MatchCV.Login`: autenticação e autorização.
+- `MatchCV.Tests`: testes automatizados.
 
-Fluxo recomendado:
+## Git e revisão
 
-1. Criar ou utilizar branch de trabalho.
-2. Implementar alterações relacionadas.
-3. Revisar diferenças.
-4. Executar verificações.
-5. Agrupar alterações coerentes.
-6. Criar commit.
-7. Abrir ou atualizar Pull Request.
+Trabalhe em uma branch adequada à tarefa, mantenha os commits focados e revise o diff antes de enviar alterações. Execute testes relevantes antes de abrir ou atualizar um Pull Request. Não faça commits de arquivos `.env`, credenciais, currículos reais ou outros dados pessoais.
 
-## 10. Documentação
+## Documentação
 
-Alterações de arquitetura, banco, API ou regras devem atualizar os documentos correspondentes.
+Quando alterar comportamento, endpoints, schema, configuração ou regras de negócio, atualize os documentos relacionados. A estrutura de diretórios é documentada separadamente em [Project-Structure.md](Project-Structure.md).
 
-## 11. Segurança
+## Verificações úteis
 
-Não adicionar:
+```bash
+PYTHONPATH="$PWD" python -m pytest MatchCV.Tests/Unit -q
+python -m compileall -q MatchCV.Api MatchCV.AI MatchCV.Application MatchCV.Domain MatchCV.Infrastructure MatchCV.Parser
+```
 
-- `.env`.
-- Senhas.
-- Tokens.
-- Currículos reais.
-- Dados pessoais de terceiros.
-
-## 12. Status
-
-Este guia descreve o fluxo previsto. Os comandos definitivos de execução da aplicação serão atualizados após a conclusão da API.
+Para a suíte completa e os testes com banco, consulte [Testing.md](Testing.md).

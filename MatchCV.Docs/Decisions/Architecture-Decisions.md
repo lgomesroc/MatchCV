@@ -1,108 +1,57 @@
 # Decisões Arquiteturais — MatchCV
 
-## ADR-001 — Utilização de SQL Server
+Este documento registra decisões relevantes. Decisões descrevem o racional do projeto; comportamento efetivo deve ser verificado no código e nos testes.
 
-### Contexto
+## ADR-001 — SQL Server
 
-O projeto necessita de um banco relacional para persistência de usuários, descrições de vagas e resultados de análise.
+**Decisão:** utilizar Microsoft SQL Server como banco relacional, com acesso Python via `pyodbc` e migrations SQL versionadas.
 
-### Decisão
+**Consequências:** consultas devem ser parametrizadas; migrations precisam ser aplicadas em ordem; bancos de desenvolvimento, teste e produção devem ser separados. A instância de teste usa configuração própria.
 
-Utilizar Microsoft SQL Server 2022.
+## ADR-002 — Separação modular
 
-### Consequências
+**Decisão:** manter módulos distintos para API, Application, Domain, Infrastructure, Parser, AI, Worker, Login, banco, testes e frontend.
 
-- Utilização de T-SQL.
-- Driver Python `pyodbc`.
-- Migrações compatíveis com SQL Server.
-- Ambiente local via Docker.
+**Consequências:** regras de negócio devem permanecer testáveis e não ficar duplicadas na API ou no frontend. Integrações concretas devem ser isoladas por contratos quando apropriado.
 
----
+## ADR-003 — Provedores de IA por abstração
 
-## ADR-002 — Separação em camadas
+**Decisão:** integrar provedores externos por uma camada comum, permitindo substituição e fallback para falhas elegíveis.
 
-### Contexto
+**Consequências:** credenciais e parâmetros são configurados por ambiente. Uma tentativa de fallback pertence à mesma análise e não deve gerar uma nova cobrança de cota de negócio. Não se garante que um provedor esteja operacional apenas por estar configurado.
 
-O projeto precisa manter regras de negócio independentes de infraestrutura e fornecedores externos.
+## ADR-004 — Minimização de dados de currículo
 
-### Decisão
+**Decisão:** não armazenar permanentemente o arquivo original do currículo.
 
-Organizar o sistema em Domain, Application, Infrastructure, Parser, AI, API, Frontend e Worker.
+**Consequências:** arquivos temporários devem ser removidos após o processamento; logs não devem conter o conteúdo integral; testes devem usar dados sintéticos.
 
-### Consequências
+## ADR-005 — Evidência sem invenção
 
-- Redução de acoplamento.
-- Maior testabilidade.
-- Contratos explícitos.
-- Implementações concretas fora da camada de aplicação.
+**Decisão:** o sistema não deve inventar experiências, cargos, empresas, tecnologias, formação, certificações ou resultados.
 
----
-
-## ADR-003 — Abstração dos provedores de IA
-
-### Contexto
-
-A aplicação não deve depender permanentemente de um único fornecedor.
-
-### Decisão
-
-Utilizar uma interface comum de provedor e um serviço coordenador com fallback.
-
-### Consequências
-
-- Possibilidade de substituição de provedores.
-- Tratamento centralizado de falhas.
-- Uma análise permanece uma consulta mesmo com fallback.
-
----
-
-## ADR-004 — Não persistir permanentemente o currículo original
-
-### Contexto
-
-Currículos contêm dados pessoais e informações profissionais.
-
-### Decisão
-
-O arquivo original deve ser processado temporariamente e não armazenado permanentemente.
-
-### Consequências
-
-- Uso de processamento temporário.
-- Minimização de dados.
-- Cuidados especiais com logs e arquivos temporários.
-
----
-
-## ADR-005 — Análise sem invenção de qualificações
-
-### Contexto
-
-O sistema utiliza IA para comparar currículo e vaga.
-
-### Decisão
-
-A IA não pode inventar experiências, tecnologias, cargos, empresas, certificações ou resultados.
-
-### Consequências
-
-A resposta deve separar evidência, ausência de evidência, lacunas e sugestões.
-
----
+**Consequências:** o resultado distingue requisitos evidenciados, requisitos não evidenciados, lacunas, problemas do currículo e sugestões. Ausência de evidência não equivale a prova de ausência de competência.
 
 ## ADR-006 — Documentação modular
 
-### Contexto
+**Decisão:** manter o README principal para visão geral e guias separados por tema.
 
-Um README excessivamente extenso dificulta manutenção e consulta.
+**Consequências:** links relativos devem ser mantidos válidos e mudanças de comportamento/configuração devem atualizar os documentos relacionados.
 
-### Decisão
+## ADR-007 — Análise assíncrona
 
-Manter um README principal conciso e documentos separados por responsabilidade.
+**Decisão:** a submissão de análise enfileira o trabalho e retorna HTTP 202 antes do resultado final.
 
-### Consequências
+**Consequências:** a interface precisa consultar o estado posterior; API e worker devem compartilhar a configuração necessária para acessar o banco e processar a fila. Um HTTP 202 não garante que o worker terminou ou que a análise foi concluída.
 
-- Navegação por links relativos.
-- Documentação específica por módulo.
-- Atualização mais simples.
-- Planejamento separado do status de implementação.
+## ADR-008 — Autenticação e cota
+
+**Decisão:** proteger as operações de análise e associar cada análise ao usuário proprietário. Usuários comuns têm cota mensal de três análises; administradores não têm esse limite.
+
+**Consequências:** a autorização deve ser verificada no backend; cadastro público não pode criar administradores; bootstrap administrativo exige segredo de configuração.
+
+## ADR-009 — Ambientes de teste isolados
+
+**Decisão:** usar uma instância SQL Server separada para testes de integração.
+
+**Consequências:** credenciais e dados de teste são separados dos ambientes normais. A execução da suíte completa depende de a instância estar saudável e de as credenciais configuradas corresponderem às credenciais reais do contêiner.
