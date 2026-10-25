@@ -1,113 +1,72 @@
 # API — MatchCV
 
-## 1. Objetivo
+## Base URL e documentação interativa
 
-Documentar a interface HTTP utilizada pelo frontend e por clientes autorizados.
+A API usa FastAPI. Em execução local, o Swagger fica em `http://127.0.0.1:8000/docs` e o ReDoc em `http://127.0.0.1:8000/redoc`. Em produção, confirme a URL ativa no provedor de hospedagem.
 
-## 2. Responsabilidades
+As rotas de aplicação são registradas pelos roteadores em `MatchCV.Api/Routers/`; consulte o Swagger para o contrato atualizado de cada schema.
 
-A API será responsável por:
+## Autenticação
 
-- Receber requisições.
-- Validar dados de entrada.
-- Controlar autenticação.
-- Aplicar autorização.
-- Invocar casos de uso.
-- Converter resultados em respostas HTTP.
-- Padronizar erros.
+| Método | Rota | Finalidade |
+|---|---|---|
+| POST | `/auth/register` | Cadastrar usuário comum |
+| POST | `/auth/login` | Autenticar por e-mail e senha e receber token |
+| GET | `/auth/me` | Consultar o usuário autenticado |
+| POST | `/auth/change-password` | Alterar a senha do usuário autenticado |
+| POST | `/auth/admin/bootstrap` | Inicializar o administrador sob configuração protegida |
 
-## 3. Endpoints planejados
+O cadastro público não permite escolher o perfil administrativo. A inicialização do administrador exige o cabeçalho `X-Admin-Bootstrap-Token` e a variável `MATCHCV_ADMIN_BOOTSTRAP_TOKEN` configurada no ambiente. A rota de bootstrap deve ser tratada como operação sensível.
 
-Os caminhos abaixo representam o contrato inicial proposto. Não devem ser considerados endpoints implementados até sua criação e validação.
+As rotas protegidas usam token Bearer. Consulte os schemas no Swagger para os campos obrigatórios e as respostas exatas.
 
-### Análise de currículo
+## Recuperação de senha
 
-`POST /api/v1/analyses`
+| Método | Rota | Finalidade |
+|---|---|---|
+| POST | `/auth/password-reset/request` | Solicitar recuperação |
+| POST | `/auth/password-reset/confirm` | Confirmar token e definir nova senha |
 
-Finalidade:
+A resposta da solicitação é uniforme para evitar revelar se uma conta existe. O token só pode ser incluído na resposta em desenvolvimento quando `MATCHCV_PASSWORD_RESET_EXPOSE_TOKEN=true` e `APP_ENVIRONMENT=development`. O envio de e-mail não deve ser considerado configurado apenas porque as rotas existem; o canal de recuperação precisa ser validado separadamente.
 
-Enviar currículo e descrição da vaga para análise.
+## Análise de currículo
 
-Entrada prevista:
+| Método | Rota | Finalidade |
+|---|---|---|
+| POST | `/analysis/resume` | Enfileirar uma análise |
+| GET | `/analysis/{analysis_id}` | Consultar o estado e resultado de uma análise do usuário autenticado |
 
-- Arquivo do currículo.
-- Descrição da vaga.
+A submissão aceita a descrição da vaga e exatamente uma das opções de currículo: texto em `resume_text` ou arquivo em `resume`. Enviar ambos ou nenhum resulta em erro de validação. O envio bem-sucedido retorna HTTP `202 Accepted`, pois a análise é processada de forma assíncrona.
 
-Resposta de sucesso prevista:
+A consulta de uma análise é restrita ao usuário autenticado que a possui; uma análise inexistente ou pertencente a outro usuário não é retornada.
 
-`200 OK`
+Usuários comuns estão sujeitos à cota mensal de três análises. Administradores não estão sujeitos a esse limite. A cota é reservada durante o envio e liberada em falhas tratadas pelo fluxo da API.
 
-Conteúdo:
+## Saúde
 
-- Requisitos evidenciados.
-- Requisitos não evidenciados.
-- Lacunas.
-- Problemas do currículo.
-- Sugestões.
+O endpoint de saúde é definido na aplicação principal. Consulte o Swagger ou `MatchCV.Api/main.py` para o caminho e formato exatos publicados pela versão atual.
 
-### Consultar análise
+## Códigos HTTP relevantes
 
-`GET /api/v1/analyses/{id}`
-
-Finalidade:
-
-Consultar uma análise previamente registrada, respeitando autenticação e autorização.
-
-### Usuário autenticado
-
-`GET /api/v1/users/me`
-
-Finalidade:
-
-Retornar informações do usuário autenticado.
-
-### Autenticação
-
-Os endpoints de autenticação serão definidos conforme a implementação do mecanismo de identidade.
-
-## 4. Códigos HTTP
-
-| Código | Significado |
+| Código | Uso |
 |---|---|
-| 200 | Operação concluída |
-| 201 | Recurso criado |
-| 400 | Requisição inválida |
-| 401 | Não autenticado |
-| 403 | Sem autorização |
-| 404 | Recurso não encontrado |
-| 413 | Arquivo acima do limite |
-| 415 | Tipo de mídia não suportado |
-| 422 | Conteúdo não processável |
-| 429 | Limite de consultas excedido |
-| 500 | Erro interno |
-| 502 | Falha em serviço externo |
-| 503 | Serviço temporariamente indisponível |
+| 202 | Análise aceita para processamento assíncrono |
+| 201 | Cadastro ou inicialização de recurso concluída |
+| 400 | Entrada inválida ou operação não concluída |
+| 401 | Credenciais ausentes ou inválidas |
+| 403 | Operação não permitida, inclusive cota esgotada |
+| 404 | Análise não encontrada para o usuário |
+| 422 | Erro de validação de schema ou política de senha |
+| 429 | Limite de provedor externo, quando propagado/tratado |
+| 500 | Falha interna |
+| 503 | Serviço ou configuração necessária indisponível |
 
-## 5. Validação de entrada
+O código efetivo depende da rota e da exceção. Use os schemas e respostas do Swagger como contrato operacional.
 
-A API deverá validar:
+## Segurança
 
-- Campos obrigatórios.
-- Tamanho do arquivo.
-- Tipo de arquivo.
-- Descrição da vaga.
-- Identificação do usuário.
-- Permissões da operação.
-
-## 6. Segurança
-
-- Não expor stack traces ao cliente.
-- Não aceitar identificação de usuário como prova de autorização.
-- Não registrar arquivos ou currículos completos em logs.
-- Proteger endpoints administrativos.
-- Utilizar HTTPS em ambientes publicados.
-
-## 7. Versionamento
-
-A API utilizará versionamento de rota, inicialmente:
-
-`/api/v1`
-
-## 8. Status
-
-Endpoints documentados como planejamento. A implementação será registrada conforme a evolução da API.
+- Não inclua tokens, senhas, currículos ou chaves de API em URLs ou logs.
+- Não trate um ID fornecido pelo cliente como prova de autorização.
+- Use HTTPS em ambientes publicados.
+- Mantenha o token de bootstrap fora do repositório.
+- Não considere rotas planejadas como implementadas sem confirmação no código.
