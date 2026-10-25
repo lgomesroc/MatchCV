@@ -1,5 +1,6 @@
+from contextlib import contextmanager
 from datetime import datetime, timezone
-from typing import Optional
+from typing import Iterator, Optional
 from uuid import UUID, uuid4
 
 from MatchCV.Application.Queue.AnalysisQueueItem import (
@@ -25,6 +26,44 @@ class SqlServerAnalysisQueueRepository(
         database_connection: DatabaseConnection,
     ) -> None:
         self._database_connection = database_connection
+
+    @contextmanager
+    def exclusive_processing(self) -> Iterator[None]:
+        """Serializa workers por meio de um bloqueio global do SQL Server."""
+        with self._database_connection.connection() as connection:
+            cursor = connection.cursor()
+            acquired = False
+            try:
+                cursor.execute(
+                    """
+                    DECLARE @result INT;
+                    EXEC @result = sys.sp_getapplock
+                        @Resource = N'MatchCV:AnalysisWorker:Global',
+                        @LockMode = N'Exclusive',
+                        @LockOwner = N'Session',
+                        @LockTimeout = -1;
+                    SELECT @result;
+                    """
+                )
+                row = cursor.fetchone()
+                if row is None or int(row[0]) < 0:
+                    raise RuntimeError("Não foi possível obter o bloqueio global da fila.")
+                acquired = True
+                yield
+            finally:
+                if acquired:
+                    try:
+                        cursor.execute(
+                            """
+                            EXEC sys.sp_releaseapplock
+                                @Resource = N'MatchCV:AnalysisWorker:Global',
+                                @LockOwner = N'Session';
+                            """
+                        )
+                    finally:
+                        cursor.close()
+                else:
+                    cursor.close()
 
     def enqueue(
         self,

@@ -82,7 +82,8 @@ MatchCV/
 │   │   ├── 004_analysis_history.sql
 │   │   ├── 005_analysis_worker_queue.sql
 │   │   ├── 006_password_reset_tokens.sql
-│   │   └── 007_admin_password_policy.sql
+│   │   ├── 007_admin_password_policy.sql
+│   │   └── 008_analysis_quota_reservations.sql
 │   └── __init__.py
 ├── MatchCV.Docs/
 │   ├── BusinessRules/

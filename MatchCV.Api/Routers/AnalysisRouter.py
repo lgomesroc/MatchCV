@@ -15,7 +15,10 @@ from MatchCV.Domain.Entities.User import User
 from MatchCV.Domain.Enums.UserRole import UserRole
 from MatchCV.Domain.Exceptions.DomainException import DomainException
 from MatchCV.Infrastructure.Repositories.SqlServerAnalysisRepository import SqlServerAnalysisRepository
-from MatchCV.Infrastructure.Repositories.SqlServerAnalysisUsageRepository import SqlServerAnalysisUsageRepository
+from MatchCV.Infrastructure.Repositories.SqlServerAnalysisUsageRepository import (
+    MonthlyQuotaExceeded,
+    SqlServerAnalysisUsageRepository,
+)
 from MatchCV.Login.Authorization.CurrentUser import get_current_user
 
 
@@ -50,14 +53,6 @@ async def analyze_resume(
     resume_text: Annotated[str | None, Form()] = None,
     resume: Annotated[UploadFile | None, File()] = None,
 ) -> AnalysisResponse:
-    if current_user.role != UserRole.ADMIN:
-        completed_count = usage_repository.count_completed(current_user.id)
-        if completed_count >= usage_repository.FREE_ANALYSIS_LIMIT:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Você atingiu o limite de três análises concluídas da versão gratuita.",
-            )
-
     has_resume_text = bool(resume_text and resume_text.strip())
     has_resume_file = resume is not None
     if has_resume_text and has_resume_file:
@@ -80,16 +75,40 @@ async def analyze_resume(
             file_size_bytes=len(file_content),
         )
 
+    reservation_id = None
+    if current_user.role != UserRole.ADMIN:
+        try:
+            reservation_id = usage_repository.reserve_monthly_slot(current_user.id)
+        except MonthlyQuotaExceeded as exception:
+            raise HTTPException(status_code=403, detail=str(exception)) from exception
+
     try:
-        analysis = use_case.enqueue(request, user_id=current_user.id)
+        analysis = use_case.enqueue(
+            request,
+            user_id=current_user.id,
+            on_analysis_created=(
+                lambda analysis_id: usage_repository.link_analysis(
+                    reservation_id,
+                    analysis_id,
+                )
+            ) if reservation_id is not None else None,
+        )
         return AnalysisResponse(analysis_id=analysis.id, status=analysis.status.value)
     except DomainException as exception:
+        if reservation_id is not None:
+            usage_repository.release_reservation(reservation_id)
         raise HTTPException(status_code=400, detail=str(exception)) from exception
     except NotImplementedError as exception:
+        if reservation_id is not None:
+            usage_repository.release_reservation(reservation_id)
         raise HTTPException(status_code=503, detail=str(exception)) from exception
     except HTTPException:
+        if reservation_id is not None:
+            usage_repository.release_reservation(reservation_id)
         raise
     except Exception as exception:
+        if reservation_id is not None:
+            usage_repository.release_reservation(reservation_id)
         raise HTTPException(
             status_code=500,
             detail="Não foi possível colocar a análise na fila.",
