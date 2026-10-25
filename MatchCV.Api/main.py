@@ -1,4 +1,5 @@
 import hmac
+from contextlib import asynccontextmanager
 import os
 import threading
 from typing import Annotated
@@ -15,7 +16,15 @@ from MatchCV.Api.Routers.PasswordResetRouter import router as password_reset_rou
 
 security = HTTPBasic(auto_error=False)
 
+
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    _start_analysis_worker()
+    yield
+
+
 app = FastAPI(
+    lifespan=lifespan,
     title="MatchCV API",
     description=(
         "API do MatchCV para autenticação, autorização "
@@ -142,7 +151,3 @@ def _start_analysis_worker() -> None:
     )
     worker_thread.start()
 
-
-@app.on_event("startup")
-def start_background_analysis_worker() -> None:
-    _start_analysis_worker()
