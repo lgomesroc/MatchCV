@@ -21,6 +21,9 @@ from MatchCV.Infrastructure.Repositories.SqlServerAnalysisQueueRepository import
 from MatchCV.Infrastructure.Repositories.SqlServerAnalysisRepository import (
     SqlServerAnalysisRepository,
 )
+from MatchCV.Infrastructure.Repositories.SqlServerAnalysisUsageRepository import (
+    SqlServerAnalysisUsageRepository,
+)
 from MatchCV.AI.Services.AIProviderService import (
     AIProviderService,
 )
@@ -52,6 +55,10 @@ class AnalysisWorker:
         )
 
         self._analysis_repository = SqlServerAnalysisRepository(
+            database_connection
+        )
+
+        self._usage_repository = SqlServerAnalysisUsageRepository(
             database_connection
         )
 
@@ -116,12 +123,19 @@ class AnalysisWorker:
             return
 
         recovered = self._queue_repository.recover_processing()
+        reconciled = self._usage_repository.reconcile_reservations()
         self._last_recovery = now
 
         if recovered:
             logger.warning(
                 "Tarefas recuperadas após expiração do lease: %s",
                 recovered,
+            )
+
+        if reconciled:
+            logger.warning(
+                "Reservas de cota reconciliadas após falha anterior: %s",
+                reconciled,
             )
 
     def process_next(self) -> bool:
@@ -131,6 +145,12 @@ class AnalysisWorker:
         Retorna True quando uma tarefa foi reservada.
         """
 
+        # O bloqueio de sessão é mantido durante todo o processamento,
+        # incluindo a chamada de IA, e é compartilhado entre instâncias.
+        with self._queue_repository.exclusive_processing():
+            return self._process_next_under_lock()
+
+    def _process_next_under_lock(self) -> bool:
         queue_item = self._queue_repository.get_next_pending()
 
         if queue_item is None:
@@ -243,6 +263,9 @@ class AnalysisWorker:
                 return
 
             self._queue_repository.mark_completed(queue_item.id)
+            self._usage_repository.complete_reservation_for_analysis(
+                queue_item.analysis_id
+            )
             return
 
         if analysis.status == AnalysisStatus.FAILED:
@@ -252,6 +275,9 @@ class AnalysisWorker:
             self._queue_repository.mark_failed(
                 queue_item.id,
                 "A análise já estava marcada como falha.",
+            )
+            self._usage_repository.release_reservation_for_analysis(
+                queue_item.analysis_id
             )
             return
 
@@ -304,6 +330,9 @@ class AnalysisWorker:
             return
 
         self._queue_repository.mark_completed(queue_item.id)
+        self._usage_repository.complete_reservation_for_analysis(
+            queue_item.analysis_id
+        )
 
         logger.info(
             "Análise concluída: %s",
@@ -341,6 +370,9 @@ class AnalysisWorker:
 
                 elif analysis.status == AnalysisStatus.COMPLETED:
                     self._queue_repository.mark_completed(queue_id)
+                    self._usage_repository.complete_reservation_for_analysis(
+                        analysis_id
+                    )
                     return
 
                 elif analysis.status == AnalysisStatus.FAILED:
@@ -348,11 +380,17 @@ class AnalysisWorker:
                         queue_id,
                         safe_error,
                     )
+                    self._usage_repository.release_reservation_for_analysis(
+                        analysis_id
+                    )
                     return
 
             self._queue_repository.mark_failed(
                 queue_id,
                 safe_error,
+            )
+            self._usage_repository.release_reservation_for_analysis(
+                analysis_id
             )
 
         except Exception as handling_error:
