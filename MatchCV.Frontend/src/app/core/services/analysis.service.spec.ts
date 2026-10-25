@@ -8,7 +8,7 @@ import {
   HttpTestingController,
   provideHttpClientTesting,
 } from '@angular/common/http/testing';
-import { TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 
 import { AnalysisService } from './analysis.service';
 import { environment } from '../../../environments/environment';
@@ -34,13 +34,15 @@ describe('AnalysisService', () => {
 
   afterEach(() => {
     httpMock.verify();
+    vi.useRealTimers();
   });
 
   it('deve ser criado', () => {
     expect(service).toBeTruthy();
   });
 
-  it('deve enviar a descrição da vaga e o currículo em texto', fakeAsync(() => {
+  it('deve enviar a descrição da vaga e o currículo em texto', () => {
+    vi.useFakeTimers();
     let receivedResponse: unknown;
 
     service.analyze(
@@ -68,7 +70,7 @@ describe('AnalysisService', () => {
     expect(request.request.body.get('resume')).toBeNull();
 
     request.flush({ status: 'pending', analysis_id: 'analysis-123' });
-    tick(0);
+    vi.advanceTimersByTime(0);
 
     const statusRequest = httpMock.expectOne(
       `${environment.apiUrl}/analysis/analysis-123`,
@@ -88,9 +90,10 @@ describe('AnalysisService', () => {
       status: 'completed',
       analysis_id: 'analysis-123',
     });
-  }));
+  });
 
-  it('deve enviar o arquivo em vez do texto do currículo', fakeAsync(() => {
+  it('deve enviar o arquivo em vez do texto do currículo', () => {
+    vi.useFakeTimers();
     const file = new File(
       ['conteúdo de teste'],
       'curriculo.pdf',
@@ -117,13 +120,13 @@ describe('AnalysisService', () => {
     });
 
     request.flush({ status: 'pending', analysis_id: 'analysis-456' });
-    tick(0);
+    vi.advanceTimersByTime(0);
     const statusRequest = httpMock.expectOne(
       `${environment.apiUrl}/analysis/analysis-456`,
     );
     statusRequest.flush({ status: 'completed', analysis_id: 'analysis-456' });
-    tick(0);
-  }));
+    vi.advanceTimersByTime(0);
+  });
 
   it('deve retornar a mensagem padrão para erros que não sejam HTTP', () => {
     expect(service.getErrorMessage(new Error('Erro inesperado'))).toBe(
