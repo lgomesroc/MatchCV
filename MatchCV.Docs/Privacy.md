@@ -1,61 +1,42 @@
 # Privacidade — MatchCV
 
-## 1. Objetivo
+## Objetivo e princípio
 
-Definir os princípios de privacidade e minimização de dados do MatchCV.
+O MatchCV processa currículos para compará-los com descrições de vagas. O documento original é dado pessoal e profissional e não deve ser armazenado permanentemente.
 
-## 2. Princípio fundamental
+## Categorias de dados
 
-O currículo é fornecido para processamento e análise, não para armazenamento permanente do documento original.
+Dependendo do fluxo utilizado, podem ser tratados:
+- nome e e-mail da conta;
+- arquivo de currículo durante o processamento;
+- texto extraído do currículo;
+- descrição da vaga;
+- estado e resultado da análise;
+- dados técnicos mínimos necessários para operação e diagnóstico.
 
-## 3. Dados tratados
+## Minimização e retenção
 
-Podem ser tratados:
-
-- Nome, quando necessário.
-- E-mail da conta.
-- Arquivo de currículo durante o processamento.
-- Texto extraído.
-- Descrição da vaga.
-- Resultado da análise.
-- Informações técnicas necessárias à operação.
-
-## 4. Minimização
-
-O sistema deve coletar e armazenar somente os dados necessários para sua finalidade.
-
-## 5. Currículos
-
-- Não armazenar permanentemente o arquivo original.
-- Não incluir currículos no Git.
+- Não versionar currículos reais.
 - Não utilizar currículos reais em testes automatizados.
-- Não registrar conteúdo integral em logs.
+- Não registrar conteúdo integral de currículos ou descrições de vagas em logs.
 - Remover arquivos temporários após o processamento.
+- Armazenar somente dados necessários ao funcionamento do produto.
+- Definir e documentar o período de retenção dos resultados e dos dados da conta.
 
-## 6. Retenção
+A política formal de retenção e os procedimentos de exclusão devem ser confirmados antes de declarar concluído o ciclo de vida de dados.
 
-A retenção de resultados e dados de conta deverá possuir política explícita.
+## Provedores externos
 
-O processamento temporário não deve ser confundido com armazenamento permanente.
+A análise pode enviar conteúdo necessário a provedores externos de IA. Antes de utilizar um provedor em produção, verificar quais dados são enviados, a finalidade, os termos de tratamento, as opções de retenção e as credenciais/configurações aplicadas.
 
-## 7. Provedores de IA
+## Segurança operacional
 
-A integração com provedores externos deverá considerar:
+Tokens, senhas, chaves e strings de conexão não devem ser registrados em logs nem versionados. Logs devem priorizar códigos de erro e identificadores técnicos de correlação, sem dados pessoais desnecessários.
 
-- Dados transmitidos.
-- Finalidade do processamento.
-- Política de retenção do fornecedor.
-- Configurações de privacidade disponíveis.
-- Segurança das credenciais.
+## Direitos e solicitações
 
-## 8. Direitos do titular
+Os procedimentos para atender solicitações de acesso, correção ou exclusão devem ser definidos conforme a legislação aplicável e a política de operação. Não declare que há um fluxo automatizado de atendimento sem confirmar sua implementação.
 
-A evolução do produto deverá considerar mecanismos compatíveis com a legislação aplicável, incluindo solicitações de acesso, correção e exclusão quando cabíveis.
+## Estado
 
-## 9. Logs
-
-Logs devem priorizar informações técnicas e identificadores de correlação, evitando conteúdo pessoal.
-
-## 10. Status
-
-Os princípios estão definidos. Política formal de retenção e procedimentos operacionais deverão ser concluídos antes da publicação do sistema.
+Este documento registra princípios e cuidados. A política formal de retenção, os procedimentos de exclusão e as configurações de privacidade de cada provedor externo ainda precisam de validação operacional.
