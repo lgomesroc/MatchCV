@@ -23,6 +23,8 @@ class SqlServerAnalysisUsageRepository:
                     FROM dbo.analyses
                     WHERE user_id = ?
                       AND status = N'COMPLETED'
+                      AND created_at >= DATEFROMPARTS(YEAR(SYSUTCDATETIME()), MONTH(SYSUTCDATETIME()), 1)
+                      AND created_at < DATEADD(MONTH, 1, DATEFROMPARTS(YEAR(SYSUTCDATETIME()), MONTH(SYSUTCDATETIME()), 1))
                     """,
                     str(user_id),
                 )
