@@ -93,7 +93,7 @@ async def analyze_resume(
                 )
             ) if reservation_id is not None else None,
         )
-        return AnalysisResponse(analysis_id=analysis.id, status=analysis.status.value)
+        return AnalysisResponse(analysis_id=analysis.id, status=analysis.status.value.lower())
     except DomainException as exception:
         if reservation_id is not None:
             usage_repository.release_reservation(reservation_id)
