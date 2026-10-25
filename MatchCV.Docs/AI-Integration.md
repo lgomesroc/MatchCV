@@ -1,99 +1,53 @@
 # Integração com Inteligência Artificial — MatchCV
 
-## 1. Objetivo
+## Objetivo
 
-Documentar a integração com provedores de IA utilizados para analisar currículos e descrições de vagas.
+Descrever o papel da camada de IA na análise de currículos e descrições de vagas.
 
-## 2. Arquitetura
+## Arquitetura
 
-A integração utiliza abstrações para reduzir o acoplamento a um único fornecedor.
+A integração fica isolada no módulo `MatchCV.AI`, que é utilizado pelo fluxo de aplicação para evitar acoplamento direto dos casos de uso a um fornecedor específico. As configurações devem vir do ambiente; chaves não devem ser versionadas.
 
-## 3. Provedores
+## Fluxo funcional
 
-O sistema está preparado para:
+1. A API recebe o currículo e a descrição da vaga.
+2. O parser valida o arquivo e extrai o texto.
+3. O caso de uso organiza a análise e a envia ao processamento assíncrono.
+4. O worker processa a tarefa e utiliza o serviço de IA configurado.
+5. O resultado é persistido e disponibilizado pela consulta autenticada da análise.
 
-- Provedor principal.
-- Provedor de fallback.
+A submissão inicial retorna HTTP `202 Accepted`; isso significa que a tarefa foi aceita, não que a análise já terminou.
 
-Os fornecedores concretos serão definidos por configuração.
+## Provedores e fallback
 
-## 4. Fluxo
+O projeto possui uma camada de integração com provedores configuráveis. A configuração de provedores, modelos, URLs e timeouts é específica do ambiente. O comportamento de fallback depende dos erros classificados pela implementação e das configurações presentes.
 
-```text
-Application
-    |
-    v
-AIAnalysisProvider
-    |
-    v
-AIProviderService
-    |
-    v
-Provedor principal
-    |
-    +---- Sucesso ----> Resultado
-    |
-    +---- Falha elegível
-                 |
-                 v
-          Provedor fallback
-                 |
-                 v
-              Resultado
-```
+Não assuma que um provedor ou modelo está operacional apenas porque aparece em um exemplo de configuração. Confirme as variáveis e a disponibilidade da conta do fornecedor no ambiente em execução.
 
-## 5. Fallback
+## Estrutura do resultado
 
-O fallback deverá ser acionado somente em falhas classificadas como elegíveis para nova tentativa.
+A resposta de análise contempla:
 
-Falhas não recuperáveis devem ser propagadas.
+- `evidenced_requirements`: requisitos evidenciados no currículo.
+- `unevidenced_requirements`: requisitos sem evidência suficiente.
+- `gaps`: lacunas identificadas.
+- `resume_issues`: problemas de conteúdo ou estrutura do currículo.
+- `suggestions`: sugestões de melhoria.
 
-A utilização do fallback continua representando uma única consulta do usuário.
+A ausência de evidência no currículo não prova que a pessoa não possua determinada competência. A análise deve se limitar ao conteúdo fornecido e não inventar experiências, empresas, cargos, tecnologias, certificações, formação ou resultados.
 
-## 6. Estrutura da resposta
+## Entradas não confiáveis
 
-A análise deverá retornar:
+Currículo e descrição da vaga são dados de entrada, não instruções privilegiadas. A aplicação deve tratar tentativas de prompt injection como conteúdo não confiável e validar a estrutura da resposta antes de persistir ou exibir os resultados.
 
-- Evidenced requirements.
-- Unevidenced requirements.
-- Gaps.
-- Resume issues.
-- Suggestions.
+## Falhas operacionais
 
-## 7. Integridade das informações
+Considere indisponibilidade do provedor, timeout, limite de uso, credenciais inválidas, resposta malformada e falha de fallback. Mensagens de erro não devem expor chaves, dados pessoais ou o conteúdo integral dos documentos.
 
-A IA não deve inventar:
+## Testes
 
-- Experiências.
-- Empresas.
-- Cargos.
-- Tecnologias.
-- Certificações.
-- Formação.
-- Resultados profissionais.
+Testes unitários devem usar provedores simulados sempre que possível. Testes que chamem serviços reais dependem de credenciais válidas, quota e disponibilidade externa e não devem ser requisito para executar a suíte unitária.
 
-> Ausência de evidência não significa necessariamente ausência de competência.
+## Estado
 
-## 8. Prompt injection
-
-Currículo e descrição da vaga devem ser tratados como dados, nunca como instruções privilegiadas.
-
-## 9. Falhas
-
-Devem ser tratados:
-
-- Timeout.
-- Indisponibilidade.
-- Limite de requisições.
-- Resposta inválida.
-- Erros de autenticação do provedor.
-- Falha do provedor principal.
-- Falha do fallback.
-
-## 10. Segurança
-
-Chaves de API devem ser obtidas por configuração segura e não podem ser versionadas.
-
-## 11. Status
-
-A abstração e o mecanismo de fallback estão em desenvolvimento. Provedores reais e validação de respostas permanecem pendentes.
+Este documento descreve o fluxo e as garantias esperadas; a disponibilidade real de cada provedor, modelo e fallback deve ser verificada nas configurações e nos testes do ambiente correspondente.
