@@ -1,3 +1,4 @@
+from typing import Callable
 from uuid import UUID, uuid4
 
 from MatchCV.Application.DTOs.AnalysisResult import AnalysisResult
@@ -59,6 +60,7 @@ class AnalyzeResumeUseCase:
         self,
         request: AnalyzeResumeRequest,
         user_id: UUID,
+        on_analysis_created: Callable[[UUID], None] | None = None,
     ) -> Analysis:
         """Valida e persiste uma análise pendente sem chamar o provedor de IA."""
         if self._queue_repository is None or self._payload_encryption is None:
@@ -108,6 +110,9 @@ class AnalyzeResumeUseCase:
             job_description_id=job_description.id,
         )
         self._analysis_repository.add(analysis, user_id)
+
+        if on_analysis_created is not None:
+            on_analysis_created(analysis.id)
 
         payload = AnalysisQueuePayload(
             resume_text=resume_text,
