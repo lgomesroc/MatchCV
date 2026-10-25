@@ -81,7 +81,8 @@ MatchCV/
 │   │   ├── 003_unique_admin.sql
 │   │   ├── 004_analysis_history.sql
 │   │   ├── 005_analysis_worker_queue.sql
-│   │   └── 006_password_reset_tokens.sql
+│   │   ├── 006_password_reset_tokens.sql
+│   │   └── 007_admin_password_policy.sql
 │   └── __init__.py
 ├── MatchCV.Docs/
 │   ├── BusinessRules/
@@ -278,9 +279,13 @@ MatchCV/
 │   │   ├── ResumeFileValidator.py
 │   │   └── ResumeStructureValidator.py
 │   └── __init__.py
+├── MatchCV.Script/
+│   ├── change_admin_password.py
+│   ├── create_admin.py
+│   └── reset_admin_password.py
 ├── MatchCV.Tests/
 │   ├── Integration/
-│   │   ├── Api/
+│    │   ├── Api/
 │   │   │   ├── __init__.py
 │   │   │   ├── test_analysis_router.py
 │   │   │   ├── test_api_contract.py
