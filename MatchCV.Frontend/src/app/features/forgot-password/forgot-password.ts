@@ -80,7 +80,7 @@ export class ForgotPasswordComponent implements OnInit {
     operation
       .pipe(finalize(() => (this.isSubmitting = false)))
       .subscribe({
-        next: (response) => {
+        next: () => {
           if (this.isResetMode) {
             this.message = 'Sua senha foi alterada. Você já pode entrar com a nova senha.';
             this.token = '';
@@ -93,7 +93,6 @@ export class ForgotPasswordComponent implements OnInit {
           }
 
           this.message =
-            response.message ||
             'Se houver uma conta elegível para esse e-mail, você receberá instruções de recuperação.';
         },
         error: (error: HttpErrorResponse) => {
