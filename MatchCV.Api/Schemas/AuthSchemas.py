@@ -47,7 +47,6 @@ class PasswordResetRequest(BaseModel):
 
 class PasswordResetRequestResponse(BaseModel):
     message: str
-    reset_token: str | None = None
 
 
 class PasswordResetConfirmRequest(BaseModel):
