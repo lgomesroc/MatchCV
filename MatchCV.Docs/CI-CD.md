@@ -43,6 +43,6 @@ Credenciais e chaves devem ser configuradas em mecanismos seguros do ambiente. N
 
 ## Limitações atuais documentadas
 
-- O job do backend executa testes unitários, não a suíte completa de integração com SQL Server.
+- Os workflows unitário e de integração são independentes; confira o resultado de ambos no GitHub.
 - A execução de testes de integração local exige configuração separada; consulte [Testing.md](Testing.md).
 - A configuração de deploy deve ser verificada diretamente nos serviços hospedados antes de afirmar que uma publicação foi concluída.
