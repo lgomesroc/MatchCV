@@ -33,6 +33,7 @@
 
 - [Segurança](Security.md)
 - [Privacidade](Privacy.md)
+- [Política de retenção e exclusão](Data-Retention-and-Deletion.md)
 - [Regras de negócio](Business-Rules.md)
 - [Regras de negócio — referência detalhada](BusinessRules/business-rules.md)
 - [Roadmap](Roadmap.md)
