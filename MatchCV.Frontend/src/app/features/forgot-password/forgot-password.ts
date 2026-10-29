@@ -3,7 +3,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { finalize } from 'rxjs';
+import { finalize, take } from 'rxjs';
 
 import { AuthService } from '../../core/services/auth.service';
 
@@ -28,9 +28,17 @@ export class ForgotPasswordComponent implements OnInit {
   isSubmitting = false;
 
   ngOnInit(): void {
-    this.route.fragment.subscribe((fragment) => {
+    this.route.fragment.pipe(take(1)).subscribe((fragment) => {
       const params = new URLSearchParams(fragment ?? '');
       this.token = params.get('token') ?? '';
+      if (this.token) {
+        // O fragmento não vai ao servidor, e removê-lo do endereço reduz exposição no histórico.
+        void this.router.navigate([], {
+          relativeTo: this.route,
+          fragment: null,
+          replaceUrl: true,
+        });
+      }
     });
   }
 
