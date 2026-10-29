@@ -79,7 +79,7 @@ def test_recovery_response_does_not_reveal_whether_email_exists(recovery_client)
 def test_production_never_returns_reset_token_even_if_legacy_flag_is_set(
     recovery_client, monkeypatch
 ):
-    client, _, _ = recovery_client
+    client, _, sender = recovery_client
     monkeypatch.setenv("MATCHCV_PASSWORD_RESET_EXPOSE_TOKEN", "true")
 
     response = client.post(
@@ -89,6 +89,7 @@ def test_production_never_returns_reset_token_even_if_legacy_flag_is_set(
 
     assert response.status_code == 200
     assert "reset_token" not in response.json()
+    assert len(sender.sent) == 1
 
 
 def test_token_is_single_use(recovery_client):
