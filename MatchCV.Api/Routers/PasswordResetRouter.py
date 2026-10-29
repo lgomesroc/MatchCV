@@ -60,6 +60,8 @@ def request_password_reset(
     )
 
     if "@" in email and not email.startswith("@"):
+        digest: str | None = None
+        created = False
         candidate = secrets.token_urlsafe(32)
         digest = hashlib.sha256(candidate.encode("utf-8")).hexdigest()
         try:
@@ -84,9 +86,16 @@ def request_password_reset(
                 )
                 email_sender.send_recovery_instructions(email, reset_url)
         except Exception:
-            # Não devolve token nem detalhes internos. A falha fica no log do serviço.
+            # Revoga o token se não foi possível concluir o envio. Não expõe detalhes.
             import logging
 
+            if created and digest:
+                try:
+                    repository.revoke_token(digest)
+                except Exception:
+                    logging.getLogger(__name__).exception(
+                        "Não foi possível revogar token após falha no envio de recuperação."
+                    )
             logging.getLogger(__name__).exception(
                 "Falha ao processar solicitação de recuperação de senha."
             )
