@@ -8,10 +8,6 @@ from MatchCV.Api.Routers.PasswordResetRouter import (
     get_password_reset_email_sender,
     get_password_reset_repository,
 )
-from MatchCV.Infrastructure.Services.PasswordResetEmailSender import (
-    PasswordResetEmailSender,
-)
-
 
 class FakeResetRepository:
     def __init__(self):
