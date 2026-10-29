@@ -1,13 +1,15 @@
 import { expect, test, type Page } from '@playwright/test';
 import { randomUUID } from 'node:crypto';
-import { writeFile } from 'node:fs/promises';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
 const live = process.env.MATCHCV_LIVE_SERVICES === 'true';
 const frontendURL = process.env.MATCHCV_LIVE_FRONTEND_URL;
 const apiBaseURL = (process.env.MATCHCV_LIVE_API_URL ?? '').replace(/\/$/, '');
 const confirm = process.env.MATCHCV_LIVE_CONFIRM_PRODUCTION;
-const quota = Number(process.env.MATCHCV_LIVE_USER_QUOTA ?? '3');
+const quota = 3;
+const adminEmail = process.env.MATCHCV_LIVE_ADMIN_EMAIL;
+const adminPassword = process.env.MATCHCV_LIVE_ADMIN_PASSWORD;
 
 const jobDescription =
   'Vaga de teste sintética: desenvolver APIs REST, escrever testes automatizados, utilizar SQL Server e documentar serviços backend. Não representa uma vaga real.';
@@ -190,18 +192,31 @@ test.describe('Fluxo real completo: Angular → API → SQL Server → fila → 
           timeout: 45_000,
         });
         quotaResponses.push(response.status());
-        if (response.status() === 429) break;
+        if (response.status() === 403) break;
         expect(response.status(), `envio ${index + 1} no teste de cota`).toBe(202);
         const queued = await response.json();
         expect(queued.analysis_id).toBeTruthy();
       }
-      expect(quotaResponses).toContain(429);
-      checks.push('Cota de usuário comum impõe limite HTTP 429');
+      expect(quotaResponses).toContain(403);
+      checks.push('Cota de usuário comum bloqueia a quarta reserva com HTTP 403');
+
+      const admin = await login(page, required('MATCHCV_LIVE_ADMIN_EMAIL', adminEmail), required('MATCHCV_LIVE_ADMIN_PASSWORD', adminPassword));
+      expect(admin.role.toLowerCase()).toBe('admin');
+      for (let index = 0; index < quota + 1; index++) {
+        const response = await request.post(\`${apiBaseURL}/api/v1/analysis/resume\`, {
+          headers: { Authorization: \`Bearer \${admin.token}\` },
+          multipart: { job_description: jobDescription, resume_text: resumeText },
+          timeout: 45_000,
+        });
+        expect(response.status(), \`envio administrativo \${index + 1}\`).toBe(202);
+      }
+      checks.push('Administrador pode enfileirar mais de três análises sem bloqueio de cota');
 
       report.checks = checks;
       report.finishedAt = new Date().toISOString();
       report.outcome = 'passed';
       const output = process.env.MATCHCV_LIVE_REPORT_PATH ?? join(process.cwd(), 'test-results', 'live-services-e2e-report.json');
+      await mkdir(join(output, '..'), { recursive: true });
       await writeFile(output, JSON.stringify(report, null, 2), { encoding: 'utf8' });
     } catch (error) {
       report.checks = checks;
