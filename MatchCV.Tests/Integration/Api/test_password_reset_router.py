@@ -1,4 +1,3 @@
-import hashlib
 from urllib.parse import urlparse, parse_qs
 
 import pytest
@@ -116,3 +115,22 @@ def test_token_is_single_use(recovery_client):
     assert first.status_code == 204
     assert second.status_code == 400
     assert "user@example.com" in repository.password_hashes
+
+
+
+def test_failed_email_delivery_revokes_new_token(recovery_client):
+    client, repository, sender = recovery_client
+
+    def fail_send(recipient: str, reset_url: str) -> None:
+        raise RuntimeError("SMTP unavailable")
+
+    sender.send_recovery_instructions = fail_send
+    response = client.post(
+        "/api/v1/auth/password-reset/request",
+        json={"email": "user@example.com"},
+    )
+
+    assert response.status_code == 200
+    assert response.json().get("reset_token") is None
+    assert repository.tokens
+    assert all(token["used"] for token in repository.tokens.values())
