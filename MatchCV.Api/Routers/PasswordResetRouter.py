@@ -2,6 +2,7 @@ import hashlib
 import os
 import secrets
 from typing import Annotated
+from urllib.parse import quote
 
 from fastapi import APIRouter, Depends, HTTPException, status
 
@@ -16,6 +17,9 @@ from MatchCV.Infrastructure.Repositories.SqlServerPasswordResetRepository import
 )
 from MatchCV.Login.Authentication.PasswordHasher import PasswordHasher
 from MatchCV.Login.Authentication.PasswordPolicy import PasswordPolicy
+from MatchCV.Infrastructure.Services.PasswordResetEmailSender import (
+    PasswordResetEmailSender,
+)
 
 
 router = APIRouter(prefix="/auth/password-reset", tags=["Password recovery"])
@@ -25,6 +29,10 @@ def get_password_reset_repository() -> SqlServerPasswordResetRepository:
     return SqlServerPasswordResetRepository(
         database_connection=get_database_connection(),
     )
+
+
+def get_password_reset_email_sender() -> PasswordResetEmailSender:
+    return PasswordResetEmailSender()
 
 
 @router.post(
@@ -38,33 +46,52 @@ def request_password_reset(
         SqlServerPasswordResetRepository,
         Depends(get_password_reset_repository),
     ],
+    email_sender: Annotated[
+        PasswordResetEmailSender,
+        Depends(get_password_reset_email_sender),
+    ],
 ) -> PasswordResetRequestResponse:
     email = request.email.strip().lower()
-    reset_token: str | None = None
 
-    # Resposta uniforme: não confirma se a conta existe nem se é ADMIN.
+    # Resposta uniforme: não confirma se a conta existe, nem se é ADMIN.
+    message = (
+        "Se houver uma conta elegível para esse e-mail, "
+        "você receberá instruções de recuperação."
+    )
+
     if "@" in email and not email.startswith("@"):
         candidate = secrets.token_urlsafe(32)
         digest = hashlib.sha256(candidate.encode("utf-8")).hexdigest()
-        created = repository.create_token(email, digest)
+        try:
+            created = repository.create_token(email, digest)
+            if created:
+                environment = os.getenv("APP_ENVIRONMENT", "development").strip().lower()
+                if environment in {"production", "prod"} and os.getenv(
+                    "MATCHCV_PASSWORD_RESET_EXPOSE_TOKEN", ""
+                ).strip().lower() == "true":
+                    repository.revoke_token(digest)
+                    raise RuntimeError(
+                        "MATCHCV_PASSWORD_RESET_EXPOSE_TOKEN não pode ser habilitado em produção."
+                    )
 
-        if created:
-            environment = os.getenv("APP_ENVIRONMENT", "development").lower()
-            expose_token = (
-                environment == "development"
-                and os.getenv("MATCHCV_PASSWORD_RESET_EXPOSE_TOKEN", "").lower()
-                == "true"
+                frontend_url = os.getenv("PASSWORD_RESET_FRONTEND_URL", "").strip().rstrip("/")
+                if not frontend_url:
+                    repository.revoke_token(digest)
+                    raise RuntimeError("PASSWORD_RESET_FRONTEND_URL não configurada.")
+
+                reset_url = (
+                    f"{frontend_url}/forgot-password?token={quote(candidate, safe='')}"
+                )
+                email_sender.send_recovery_instructions(email, reset_url)
+        except Exception:
+            # Não devolve token nem detalhes internos. A falha fica no log do serviço.
+            import logging
+
+            logging.getLogger(__name__).exception(
+                "Falha ao processar solicitação de recuperação de senha."
             )
-            if expose_token:
-                reset_token = candidate
 
-    return PasswordResetRequestResponse(
-        message=(
-            "Se a conta puder recuperar a senha, as instruções serão "
-            "disponibilizadas pelo canal de recuperação configurado."
-        ),
-        reset_token=reset_token,
-    )
+    return PasswordResetRequestResponse(message=message)
 
 
 @router.post("/confirm", status_code=status.HTTP_204_NO_CONTENT)
