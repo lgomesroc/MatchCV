@@ -70,7 +70,7 @@ async function register(page: Page, email: string, name: string, password: strin
   await expect(page).toHaveURL(/\/login\?registered=true$/);
 }
 
-async function login(page: Page, email: string, password: string): Promise<Session> {
+async function login(page: Page, request: import('@playwright/test').APIRequestContext, email: string, password: string): Promise<Session> {
   const responsePromise = page.waitForResponse((r) =>
     r.url().includes('/api/v1/auth/login') && r.request().method() === 'POST',
   );
@@ -84,7 +84,7 @@ async function login(page: Page, email: string, password: string): Promise<Sessi
   expect(payload.access_token).toBeTruthy();
   expect(payload.user.id).toBeTruthy();
   await expect(page).toHaveURL(/\/analysis$/);
-  const me = await page.request.get(`${apiBaseURL}/api/v1/auth/me`, {
+  const me = await request.get(`${apiBaseURL}/api/v1/auth/me`, {
     headers: { Authorization: `Bearer ${payload.access_token}` },
   });
   expect(me.status(), 'sessão autenticada /me').toBe(200);
@@ -184,7 +184,7 @@ test.describe('Fluxo real completo: Angular → API → SQL Server → fila → 
       await register(page, userEmail, name, password);
       checks.push('Cadastro real pela interface Angular');
 
-      const user = await login(page, userEmail, password);
+      const user = await login(page, request, userEmail, password);
       expect(user.role).not.toBe('admin');
       checks.push('Login e /auth/me reais');
 
@@ -199,7 +199,7 @@ test.describe('Fluxo real completo: Angular → API → SQL Server → fila → 
       report.fileAnalysis = { id: fileId, status: fileResult.status };
 
       await register(page, otherEmail, name, password);
-      const other = await login(page, otherEmail, password);
+      const other = await login(page, request, otherEmail, password);
       const denied = await request.get(`${apiBaseURL}/api/v1/analysis/${textId}`, {
         headers: { Authorization: `Bearer ${other.token}` },
       });
@@ -222,7 +222,7 @@ test.describe('Fluxo real completo: Angular → API → SQL Server → fila → 
       expect(quotaResponses).toContain(403);
       checks.push('Cota de usuário comum bloqueia a quarta reserva com HTTP 403');
 
-      const admin = await login(page, required('MATCHCV_LIVE_ADMIN_EMAIL', adminEmail), required('MATCHCV_LIVE_ADMIN_PASSWORD', adminPassword));
+      const admin = await login(page, request, required('MATCHCV_LIVE_ADMIN_EMAIL', adminEmail), required('MATCHCV_LIVE_ADMIN_PASSWORD', adminPassword));
       expect(admin.role.toLowerCase()).toBe('admin');
       for (let index = 0; index < quota + 1; index++) {
         const response = await request.post(`${apiBaseURL}/api/v1/analysis/resume`, {
