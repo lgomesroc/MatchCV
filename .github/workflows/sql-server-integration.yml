@@ -32,7 +32,7 @@ jobs:
       MATCHCV_TEST_DATABASE_NAME: MatchCVTest
       MATCHCV_TEST_DATABASE_USER: sa
       # Integration tests must not need live AI credentials.
-      ANALYSIS_QUEUE_ENCRYPTION_KEY: 'test-only-key-for-ci'
+      ANALYSIS_QUEUE_ENCRYPTION_KEY: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA='
 
     steps:
       - name: Checkout repository
