@@ -67,15 +67,6 @@ def request_password_reset(
         try:
             created = repository.create_token(email, digest)
             if created:
-                environment = os.getenv("APP_ENVIRONMENT", "development").strip().lower()
-                if environment in {"production", "prod"} and os.getenv(
-                    "MATCHCV_PASSWORD_RESET_EXPOSE_TOKEN", ""
-                ).strip().lower() == "true":
-                    repository.revoke_token(digest)
-                    raise RuntimeError(
-                        "MATCHCV_PASSWORD_RESET_EXPOSE_TOKEN não pode ser habilitado em produção."
-                    )
-
                 frontend_url = os.getenv("PASSWORD_RESET_FRONTEND_URL", "").strip().rstrip("/")
                 if not frontend_url:
                     repository.revoke_token(digest)
