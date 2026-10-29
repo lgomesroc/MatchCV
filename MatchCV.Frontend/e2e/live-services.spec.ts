@@ -181,6 +181,15 @@ test.describe('Fluxo real completo: Angular → API → SQL Server → fila → 
       expect((await health.json()).status).toBe('ok');
       checks.push('API health real');
 
+      const unauthenticated = await request.get(`${apiBaseURL}/api/v1/auth/me`);
+      expect(unauthenticated.status(), 'API recusa sessão sem token').toBe(401);
+      const invalidLogin = await request.post(`${apiBaseURL}/api/v1/auth/login`, {
+        data: { email: `invalid-${suffix}@example.com`, password: `Invalid-${randomUUID()}-Aa1!` },
+        timeout: 45_000,
+      });
+      expect(invalidLogin.status(), 'API recusa credenciais inválidas').toBe(401);
+      checks.push('Erros reais da API: sessão ausente e credenciais inválidas');
+
       await register(page, userEmail, name, password);
       checks.push('Cadastro real pela interface Angular');
 
