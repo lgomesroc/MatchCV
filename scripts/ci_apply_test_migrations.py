@@ -76,7 +76,11 @@ def main() -> int:
                         cursor.execute(batch)
                 print(f"Applied {migration.name}")
             cursor.execute("SELECT DB_NAME()")
-            cursor.fetchone()
+            current_database = cursor.fetchone()[0]
+            if current_database != EXPECTED_DATABASE:
+                raise RuntimeError(
+                    f"Migration context is {current_database}; expected {EXPECTED_DATABASE}"
+                )
             cursor.execute(
                 "SELECT DB_ID(?)",
                 EXPECTED_DATABASE,
