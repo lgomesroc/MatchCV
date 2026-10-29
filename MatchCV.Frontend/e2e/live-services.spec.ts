@@ -226,11 +226,11 @@ test.describe('Fluxo real completo: Angular → API → SQL Server → fila → 
       expect(admin.role.toLowerCase()).toBe('admin');
       for (let index = 0; index < quota + 1; index++) {
         const response = await request.post(`${apiBaseURL}/api/v1/analysis/resume`, {
-          headers: { Authorization: `Bearer \${admin.token}` },
+          headers: { Authorization: `Bearer ${admin.token}` },
           multipart: { job_description: jobDescription, resume_text: resumeText },
           timeout: 45_000,
         });
-        expect(response.status(), `envio administrativo \${index + 1}`).toBe(202);
+        expect(response.status(), `envio administrativo ${index + 1}`).toBe(202);
       }
       checks.push('Administrador pode enfileirar mais de três análises sem bloqueio de cota');
 
