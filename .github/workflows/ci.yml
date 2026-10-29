@@ -1,4 +1,3 @@
-
 name: MatchCV CI
 
 on:
@@ -42,6 +41,9 @@ jobs:
 
       - name: Run backend unit tests
         run: python -m pytest MatchCV.Tests/Unit -q
+
+      - name: Run resume parser integration tests
+        run: python -m pytest MatchCV.Tests/Integration/Parser -q
 
   frontend:
     name: Frontend - Angular
