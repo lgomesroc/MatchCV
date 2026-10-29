@@ -138,4 +138,5 @@ Esse comando não remove volumes persistentes. Não remova volumes se precisar p
 - [Banco de dados](Database.md)
 - [Ambientes](Environments.md)
 - [Testes](Testing.md)
+- [Recuperação de senha por e-mail](Password-Recovery.md)
 - [Processamento de currículos](Resume-Processing.md)
