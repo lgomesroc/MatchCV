@@ -32,6 +32,7 @@
 ## Segurança e negócio
 
 - [Segurança](Security.md)
+- [Recuperação de senha por e-mail](Password-Recovery.md)
 - [Privacidade](Privacy.md)
 - [Regras de negócio](Business-Rules.md)
 - [Regras de negócio — referência detalhada](BusinessRules/business-rules.md)
