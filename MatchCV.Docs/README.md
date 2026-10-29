@@ -28,6 +28,7 @@
 - [CI/CD](CI-CD.md)
 - [Implantação](Deployment.md)
 - [Testes](Testing.md)
+- [Validação ponta a ponta com serviços reais](Real-Services-E2E-Validation.md)
 
 ## Segurança e negócio
 
