@@ -8,7 +8,6 @@ import { ForgotPasswordComponent } from './forgot-password';
 describe('ForgotPasswordComponent', () => {
   let authService: jasmine.SpyObj<AuthService>;
   let router: jasmine.SpyObj<Router>;
-  let fragment: string | null;
 
   beforeEach(async () => {
     authService = jasmine.createSpyObj<AuthService>('AuthService', [
@@ -20,7 +19,6 @@ describe('ForgotPasswordComponent', () => {
     );
     authService.confirmPasswordReset.and.returnValue(of(void 0));
     router = jasmine.createSpyObj<Router>('Router', ['navigate']);
-    fragment = null;
 
     await TestBed.configureTestingModule({
       imports: [ForgotPasswordComponent],
