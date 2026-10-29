@@ -82,7 +82,7 @@ def request_password_reset(
                     raise RuntimeError("PASSWORD_RESET_FRONTEND_URL não configurada.")
 
                 reset_url = (
-                    f"{frontend_url}/forgot-password?token={quote(candidate, safe='')}"
+                    f"{frontend_url}/forgot-password#token={quote(candidate, safe='')}"
                 )
                 email_sender.send_recovery_instructions(email, reset_url)
         except Exception:
