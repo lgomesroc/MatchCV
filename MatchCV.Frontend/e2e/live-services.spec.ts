@@ -1,7 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 import { randomUUID } from 'node:crypto';
 import { mkdir, writeFile } from 'node:fs/promises';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 
 const live = process.env.MATCHCV_LIVE_SERVICES === 'true';
 const frontendURL = process.env.MATCHCV_LIVE_FRONTEND_URL;
@@ -203,12 +203,12 @@ test.describe('Fluxo real completo: Angular → API → SQL Server → fila → 
       const admin = await login(page, required('MATCHCV_LIVE_ADMIN_EMAIL', adminEmail), required('MATCHCV_LIVE_ADMIN_PASSWORD', adminPassword));
       expect(admin.role.toLowerCase()).toBe('admin');
       for (let index = 0; index < quota + 1; index++) {
-        const response = await request.post(\`${apiBaseURL}/api/v1/analysis/resume\`, {
-          headers: { Authorization: \`Bearer \${admin.token}\` },
+        const response = await request.post(`${apiBaseURL}/api/v1/analysis/resume`, {
+          headers: { Authorization: `Bearer \${admin.token}` },
           multipart: { job_description: jobDescription, resume_text: resumeText },
           timeout: 45_000,
         });
-        expect(response.status(), \`envio administrativo \${index + 1}\`).toBe(202);
+        expect(response.status(), `envio administrativo \${index + 1}`).toBe(202);
       }
       checks.push('Administrador pode enfileirar mais de três análises sem bloqueio de cota');
 
@@ -216,7 +216,7 @@ test.describe('Fluxo real completo: Angular → API → SQL Server → fila → 
       report.finishedAt = new Date().toISOString();
       report.outcome = 'passed';
       const output = process.env.MATCHCV_LIVE_REPORT_PATH ?? join(process.cwd(), 'test-results', 'live-services-e2e-report.json');
-      await mkdir(join(output, '..'), { recursive: true });
+      await mkdir(dirname(output), { recursive: true });
       await writeFile(output, JSON.stringify(report, null, 2), { encoding: 'utf8' });
     } catch (error) {
       report.checks = checks;
@@ -224,6 +224,7 @@ test.describe('Fluxo real completo: Angular → API → SQL Server → fila → 
       report.outcome = 'failed';
       report.error = error instanceof Error ? error.message : 'Erro não identificado';
       const output = process.env.MATCHCV_LIVE_REPORT_PATH ?? join(process.cwd(), 'test-results', 'live-services-e2e-report.json');
+      await mkdir(dirname(output), { recursive: true });
       await writeFile(output, JSON.stringify(report, null, 2), { encoding: 'utf8' });
       throw error;
     }
