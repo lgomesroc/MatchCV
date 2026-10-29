@@ -97,15 +97,37 @@ async function login(page: Page, email: string, password: string): Promise<Sessi
   };
 }
 
+function createSyntheticPdf(): Buffer {
+  const stream = 'BT /F1 10 Tf 20 100 Td (Synthetic test resume: backend developer, REST APIs, automated tests, SQL.) Tj ET\n';
+  const objects = [
+    '<< /Type /Catalog /Pages 2 0 R >>',
+    '<< /Type /Pages /Kids [3 0 R] /Count 1 >>',
+    '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 300 144] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>',
+    '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>',
+    `<< /Length ${Buffer.byteLength(stream, 'ascii')} >>\nstream\n${stream}endstream`,
+  ];
+  let pdf = '%PDF-1.4\n';
+  const offsets = [0];
+  for (let index = 0; index < objects.length; index++) {
+    offsets.push(Buffer.byteLength(pdf, 'ascii'));
+    pdf += `${index + 1} 0 obj\n${objects[index]}\nendobj\n`;
+  }
+  const xrefOffset = Buffer.byteLength(pdf, 'ascii');
+  pdf += `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n`;
+  for (const offset of offsets.slice(1)) {
+    pdf += `${String(offset).padStart(10, '0')} 00000 n \n`;
+  }
+  pdf += `trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF\n`;
+  return Buffer.from(pdf, 'ascii');
+}
+
 async function submitAnalysis(page: Page, mode: 'text' | 'file') {
   await page.goto('/analysis');
   await page.getByLabel('Descrição da vaga').fill(jobDescription);
   if (mode === 'text') {
     await page.getByLabel('Seu currículo').fill(resumeText);
   } else {
-    const pdf = Buffer.from(
-      '%PDF-1.4\n1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n2 0 obj<</Type/Pages/Kids[3 0 R]/Count 1>>endobj\n3 0 obj<</Type/Page/Parent 2 0 R/MediaBox[0 0 300 144]/Resources<</Font<</F1 4 0 R>>>>/Contents 5 0 R>>endobj\n4 0 obj<</Type/Font/Subtype/Type1/BaseFont/Helvetica>>endobj\n5 0 obj<</Length 90>>stream\nBT /F1 10 Tf 20 100 Td (Synthetic test resume: backend developer, REST APIs, automated tests, SQL.) Tj ET\nendstream endobj\ntrailer<</Root 1 0 R>>\n%%EOF',
-    );
+    const pdf = createSyntheticPdf();
     await page.locator('input[type="file"]').setInputFiles({
       name: 'synthetic-test-resume.pdf',
       mimeType: 'application/pdf',
