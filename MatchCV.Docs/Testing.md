@@ -2,7 +2,7 @@
 
 ## Objetivo
 
-Documentar como executar os testes automatizados e distinguir testes unitários de testes de integração.
+Documentar como executar os testes automatizados e distinguir testes unitários, testes de integração e testes de ponta a ponta.
 
 ## Pré-requisitos
 
@@ -10,7 +10,8 @@ Documentar como executar os testes automatizados e distinguir testes unitários 
 - Ambiente virtual ativado.
 - Dependências instaladas por `python -m pip install -r requirements.txt`.
 - Para testes de banco, Docker e SQL Server acessível.
-- Arquivo de configuração de teste com credenciais locais válidas; nunca versionar segredos.
+- Node.js e npm conforme as versões definidas em `.github/workflows/ci.yml`.
+- Para Playwright local, Chromium instalado por `npx playwright install chromium`.
 
 ## Executar testes
 
@@ -45,32 +46,41 @@ Confirme que o SQL Server está pronto e que as credenciais configuradas no cont
 
 As migrações específicas do banco de teste ficam em `MatchCV.Db/Migrations/Test/`. Os testes de integração devem usar dados descartáveis e não devem apontar para o banco de produção.
 
-## Tipos de teste
+## Frontend Angular e Playwright
 
-- **Unitários:** verificam regras, validações e componentes isolados sem depender de serviços reais.
-- **Integração de API:** verificam contratos HTTP e comportamento dos endpoints.
-- **Banco e repositórios:** verificam conexão, schema e persistência no SQL Server.
-- **Frontend:** executados pelo projeto Angular em `MatchCV.Frontend`.
-
-Para os testes do frontend:
+Na raiz do repositório:
 
 ```bash
 cd MatchCV.Frontend
 npm ci
 npm test
 npm run build
+npx playwright install chromium
+npm run test:e2e
 ```
+
+O Playwright inicia o servidor Angular local em `http://127.0.0.1:4200`. Os cenários de ponta a ponta interceptam as chamadas HTTP da API com respostas sintéticas, portanto não precisam de credenciais, serviços reais, banco de produção nem cota de análise.
+
+A suíte cobre login e cadastro, validação do formulário, envio do currículo, acompanhamento do processamento assíncrono, exibição do resultado, falha da API, cota esgotada, API indisponível e retorno ao formulário.
+
+## Tipos de teste
+
+- **Unitários:** verificam regras, validações e componentes isolados sem depender de serviços reais.
+- **Integração de API:** verificam contratos HTTP e comportamento dos endpoints.
+- **Banco e repositórios:** verificam conexão, schema e persistência no SQL Server.
+- **Frontend:** testes unitários Angular, build e testes Playwright de ponta a ponta.
 
 ## Diagnóstico de falhas
 
 1. Leia o resumo final do pytest e separe erros de coleta de falhas de asserção.
 2. Em erros de conexão, verifique contêiner, porta, banco e credenciais antes de alterar os testes.
 3. Execute isoladamente o teste que falhou para reduzir o tempo de diagnóstico.
-4. Não considere a suíte aprovada enquanto houver falhas ou erros não explicados.
+4. Em falhas Playwright, confira o trace e a captura de tela gerados para o teste que falhou.
+5. Não considere a suíte aprovada enquanto houver falhas ou erros não explicados.
 
 ## CI
 
-O workflow `.github/workflows/ci.yml` executa testes unitários do backend e testes/build do frontend em pushes e pull requests para `developer` e `main`. Os testes que exigem um SQL Server real não são executados por esse job unitário.
+O workflow `.github/workflows/ci.yml` executa testes unitários do backend, testes unitários Angular, build do frontend e testes Playwright em pushes e pull requests para `developer` e `main`. Os testes Playwright usam a API simulada pelo navegador; os testes que exigem SQL Server são executados em um workflow separado.
 
 ## Documentação relacionada
 
