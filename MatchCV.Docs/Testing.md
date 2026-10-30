@@ -70,7 +70,13 @@ npm run build
 
 ## CI
 
-O workflow `.github/workflows/ci.yml` executa testes unitários do backend e testes/build do frontend em pushes e pull requests para `developer` e `main`. Os testes que exigem um SQL Server real não são executados por esse job unitário.
+O workflow `.github/workflows/ci.yml` executa testes unitários do backend e testes/build do frontend.
+
+O workflow separado `.github/workflows/sql-server-integration.yml` inicia um contêiner SQL Server 2022 exclusivo na porta 1435, aplica em ordem os scripts de `MatchCV.Db/Migrations/Test/`, valida as tabelas obrigatórias e executa `MatchCV.Tests/Integration`. Ao final, remove o contêiner e o volume de teste.
+
+O script `scripts/ci_apply_test_migrations.py` recusa qualquer host que não seja local, porta diferente de 1435 ou banco diferente de `MatchCVTest`. As fixtures da suíte também validam host, porta, usuário e nome do banco antes de conectar. O job não recebe `DATABASE_HOST` nem `DATABASE_NAME` da aplicação e não usa segredos de produção. A senha do contêiner é exclusiva de teste e pode ser substituída pelo secret opcional `MATCHCV_TEST_DATABASE_PASSWORD`.
+
+Para reproduzir localmente, defina `TEST_DATABASE_PASSWORD` e `MATCHCV_TEST_DATABASE_PASSWORD` com uma senha exclusiva de teste, inicie `docker-compose.test.yml`, aplique as migrations com `python scripts/ci_apply_test_migrations.py` e execute `PYTHONPATH="$PWD" python -m pytest MatchCV.Tests/Integration -q`. Nunca reutilize credenciais ou endpoints de produção.
 
 ## Documentação relacionada
 

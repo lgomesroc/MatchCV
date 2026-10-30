@@ -23,6 +23,10 @@ Esse job executa os testes unitários; não inicializa o SQL Server de integraç
 4. Executa `npm test` com `CI=true`.
 5. Executa `npm run build`.
 
+### SQL Server — integração
+
+O workflow `.github/workflows/sql-server-integration.yml` sobe um SQL Server 2022 descartável, aplica as migrations específicas de teste, valida o schema e executa a suíte de integração. O job usa somente `127.0.0.1:1435/MatchCVTest`, falha se host/porta/banco divergirem e remove o volume ao terminar. Ele não usa as variáveis de conexão de produção.
+
 ## Fluxo de contribuição
 
 O fluxo recomendado é trabalhar em uma branch específica, revisar as alterações, executar testes relevantes e abrir ou atualizar um Pull Request para revisão. A branch `main` deve representar o estado integrado estável.
@@ -39,6 +43,6 @@ Credenciais e chaves devem ser configuradas em mecanismos seguros do ambiente. N
 
 ## Limitações atuais documentadas
 
-- O job do backend executa testes unitários, não a suíte completa de integração com SQL Server.
+- Os workflows unitário e de integração são independentes; confira o resultado de ambos no GitHub.
 - A execução de testes de integração local exige configuração separada; consulte [Testing.md](Testing.md).
 - A configuração de deploy deve ser verificada diretamente nos serviços hospedados antes de afirmar que uma publicação foi concluída.
