@@ -92,6 +92,17 @@ def test_validate_accepts_text_with_at_least_30_useful_characters():
     ResumeStructureValidator.validate(parsed_resume)
 
 
+def test_validate_rejects_extracted_text_longer_than_15000_characters():
+    parsed_resume = create_valid_parsed_resume(extracted_text="A" * 15001)
+    with pytest.raises(ParserException, match="15000 caracteres extraídos"):
+        ResumeStructureValidator.validate(parsed_resume)
+
+
+def test_validate_accepts_extracted_text_at_maximum_length():
+    parsed_resume = create_valid_parsed_resume(extracted_text="A" * 15000)
+    ResumeStructureValidator.validate(parsed_resume)
+
+
 def test_validate_rejects_password_protected_resume():
     parsed_resume = create_valid_parsed_resume(
         is_password_protected=True,

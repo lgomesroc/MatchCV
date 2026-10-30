@@ -128,6 +128,16 @@ def test_create_rejects_text_with_fewer_than_30_useful_characters():
         )
 
 
+def test_create_rejects_extracted_text_longer_than_15000_characters():
+    with pytest.raises(DomainException, match="15000 caracteres extraídos"):
+        create_valid_resume(extracted_text="A" * 15001)
+
+
+def test_create_accepts_extracted_text_at_maximum_length():
+    result = create_valid_resume(extracted_text="A" * 15000)
+    assert len(result.extracted_text) == Resume.MAX_CHARACTERS
+
+
 def test_create_rejects_inappropriate_content():
     with pytest.raises(DomainException):
         create_valid_resume(
