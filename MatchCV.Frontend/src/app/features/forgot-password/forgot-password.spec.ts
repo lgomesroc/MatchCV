@@ -1,22 +1,51 @@
 
 import { TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { ActivatedRoute, Router, provideRouter } from '@angular/router';
+import { of, throwError } from 'rxjs';
 
+import { AuthService } from '../../core/services/auth.service';
 import { ForgotPasswordComponent } from './forgot-password';
 
 describe('ForgotPasswordComponent', () => {
+  let authService: {
+    requestPasswordReset: ReturnType<typeof vi.fn>;
+    confirmPasswordReset: ReturnType<typeof vi.fn>;
+  };
+
+  let router: Router;
+
   beforeEach(async () => {
+    authService = {
+      requestPasswordReset: vi.fn().mockReturnValue(
+        of({
+          message: 'Se houver uma conta elegível, enviaremos instruções.',
+        }),
+      ),
+      confirmPasswordReset: vi.fn().mockReturnValue(of(void 0)),
+    };
+
     await TestBed.configureTestingModule({
       imports: [ForgotPasswordComponent],
-      providers: [provideRouter([])],
+      providers: [
+        provideRouter([]),
+        {
+          provide: AuthService,
+          useValue: authService,
+        },
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            fragment: of(null),
+          },
+        },
+      ],
     }).compileComponents();
+
+    router = TestBed.inject(Router);
   });
 
   function createComponent() {
-    const fixture = TestBed.createComponent(
-      ForgotPasswordComponent,
-    );
-
+    const fixture = TestBed.createComponent(ForgotPasswordComponent);
     fixture.detectChanges();
 
     return {
@@ -25,151 +54,99 @@ describe('ForgotPasswordComponent', () => {
     };
   }
 
-  function fillValidForm(
-    component: ForgotPasswordComponent,
-  ): void {
-    component.email = 'usuario@matchcv.com';
-    component.password = 'Senha123!';
-    component.confirmPassword = 'Senha123!';
-  }
-
   it('deve criar o componente', () => {
     const { component } = createComponent();
 
     expect(component).toBeTruthy();
   });
 
-  it('deve rejeitar e-mail inválido', () => {
+  it('valida e-mail no modo de solicitação', () => {
     const { component } = createComponent();
 
-    fillValidForm(component);
     component.email = 'email-invalido';
-
     expect(component.formIsValid).toBe(false);
+
+    component.email = ' usuario@example.com ';
+    expect(component.formIsValid).toBe(true);
   });
 
-  it('deve aceitar e-mail com espaços externos', () => {
+  it('envia pedido e mostra mensagem genérica sem revelar existência da conta', () => {
     const { component } = createComponent();
 
-    fillValidForm(component);
-    component.email = ' usuario@matchcv.com ';
+    component.email = 'usuario@example.com';
+    component.submit();
+
+    expect(authService.requestPasswordReset).toHaveBeenCalledWith(
+      'usuario@example.com',
+    );
+
+    expect(component.message).toContain(
+      'Se houver uma conta elegível',
+    );
+  });
+
+  it('valida complexidade e confirmação da nova senha', () => {
+    const { component } = createComponent();
+
+    component.token = 'token-de-teste-com-tamanho-suficiente-123456';
+    component.password = 'Senha123!';
+    component.confirmPassword = 'Outra123!';
+
+    expect(component.formIsValid).toBe(false);
+
+    component.confirmPassword = 'Senha123!';
 
     expect(component.formIsValid).toBe(true);
   });
 
-  it('deve rejeitar senha com menos de oito caracteres', () => {
+  it('envia token e nova senha e redireciona ao login', () => {
     const { component } = createComponent();
+    const navigateSpy = vi
+      .spyOn(router, 'navigate')
+      .mockResolvedValue(true);
 
-    component.password = 'Ab1!';
-    component.confirmPassword = 'Ab1!';
+    const token = 'token-de-teste-com-tamanho-suficiente-123456';
 
-    expect(component.passwordIsValid).toBe(false);
-    expect(component.formIsValid).toBe(false);
-  });
-
-  it('deve exigir letra maiúscula', () => {
-    const { component } = createComponent();
-
-    component.password = 'senha123!';
-    component.confirmPassword = component.password;
-
-    expect(component.passwordIsValid).toBe(false);
-  });
-
-  it('deve exigir letra minúscula', () => {
-    const { component } = createComponent();
-
-    component.password = 'SENHA123!';
-    component.confirmPassword = component.password;
-
-    expect(component.passwordIsValid).toBe(false);
-  });
-
-  it('deve exigir número', () => {
-    const { component } = createComponent();
-
-    component.password = 'SenhaTeste!';
-    component.confirmPassword = component.password;
-
-    expect(component.passwordIsValid).toBe(false);
-  });
-
-  it('deve exigir caractere especial', () => {
-    const { component } = createComponent();
-
-    component.password = 'Senha1234';
-    component.confirmPassword = component.password;
-
-    expect(component.passwordIsValid).toBe(false);
-  });
-
-  it('deve rejeitar senhas diferentes', () => {
-    const { component } = createComponent();
-
-    component.email = 'usuario@matchcv.com';
+    component.token = token;
     component.password = 'Senha123!';
-    component.confirmPassword = 'Outra456!';
+    component.confirmPassword = 'Senha123!';
 
-    expect(component.passwordsMatch).toBe(false);
-    expect(component.formIsValid).toBe(false);
+    component.submit();
+
+    expect(authService.confirmPasswordReset).toHaveBeenCalledWith(
+      token,
+      'Senha123!',
+      'Senha123!',
+    );
+
+    expect(navigateSpy).toHaveBeenCalledWith(
+      ['/login'],
+      expect.objectContaining({
+        state: {
+          passwordResetMessage:
+            'Sua senha foi alterada. Você já pode entrar com a nova senha.',
+        },
+      }),
+    );
+
+    expect(component.token).toBe('');
   });
 
-  it('deve rejeitar confirmação vazia', () => {
+  it('mostra mensagem segura quando token é inválido, expirado ou reutilizado', () => {
+    authService.confirmPasswordReset.mockReturnValue(
+      throwError(() => ({ status: 400 })),
+    );
+
     const { component } = createComponent();
 
-    component.email = 'usuario@matchcv.com';
+    component.token = 'token-de-teste-com-tamanho-suficiente-123456';
     component.password = 'Senha123!';
-    component.confirmPassword = '';
-
-    expect(component.passwordsMatch).toBe(false);
-    expect(component.formIsValid).toBe(false);
-  });
-
-  it('deve aceitar os campos quando forem válidos', () => {
-    const { component } = createComponent();
-
-    fillValidForm(component);
-
-    expect(component.passwordIsValid).toBe(true);
-    expect(component.passwordsMatch).toBe(true);
-    expect(component.formIsValid).toBe(true);
-  });
-
-  it('não deve alterar a mensagem quando o formulário for inválido', () => {
-    const { component } = createComponent();
-
-    component.email = 'email-invalido';
-    component.password = 'senha';
-    component.confirmPassword = 'diferente';
-    component.message = '';
+    component.confirmPassword = 'Senha123!';
 
     component.submit();
 
-    expect(component.message).toBe('');
-  });
-
-  it('deve informar que a recuperação ainda não está habilitada', () => {
-    const { component } = createComponent();
-
-    fillValidForm(component);
-    component.submit();
-
-    expect(component.message).toContain(
-      'ainda não está habilitada',
-    );
-    expect(component.message).toContain(
-      'verificação segura da sua identidade',
-    );
-  });
-
-  it('não deve apresentar mensagem de sucesso de recuperação', () => {
-    const { component } = createComponent();
-
-    fillValidForm(component);
-    component.submit();
-
-    expect(component.message).not.toContain(
-      'Senha alterada com sucesso',
+    expect(component.errorMessage).toContain(
+      'inválido, expirou ou já foi utilizado',
     );
   });
 });

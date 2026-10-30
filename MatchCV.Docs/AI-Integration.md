@@ -6,48 +6,62 @@ Descrever o papel da camada de IA na análise de currículos e descrições de v
 
 ## Arquitetura
 
-A integração fica isolada no módulo `MatchCV.AI`, que é utilizado pelo fluxo de aplicação para evitar acoplamento direto dos casos de uso a um fornecedor específico. As configurações devem vir do ambiente; chaves não devem ser versionadas.
+A integração fica isolada no módulo `MatchCV.AI`, utilizado pelo fluxo de aplicação para evitar acoplamento direto a um fornecedor. As configurações vêm do ambiente; chaves não devem ser versionadas.
 
 ## Fluxo funcional
 
 1. A API recebe o currículo e a descrição da vaga.
 2. O parser valida o arquivo e extrai o texto.
 3. O caso de uso organiza a análise e a envia ao processamento assíncrono.
-4. O worker processa a tarefa e utiliza o serviço de IA configurado.
+4. O worker utiliza o serviço de IA configurado.
 5. O resultado é persistido e disponibilizado pela consulta autenticada da análise.
 
-A submissão inicial retorna HTTP `202 Accepted`; isso significa que a tarefa foi aceita, não que a análise já terminou.
+A submissão inicial retorna HTTP `202 Accepted`: a tarefa foi aceita, mas a análise ainda não terminou.
 
 ## Provedores e fallback
 
-O projeto possui uma camada de integração com provedores configuráveis. A configuração de provedores, modelos, URLs e timeouts é específica do ambiente. O comportamento de fallback depende dos erros classificados pela implementação e das configurações presentes.
+O serviço tenta o provedor principal e usa o fallback para falhas classificadas como recuperáveis, incluindo timeout e HTTP 429. Se os dois provedores falharem, a análise termina com erro controlado. Respostas malformadas e incompletas são rejeitadas pelo parser; conforme a classificação atual, erros não recuperáveis não acionam fallback.
 
-Não assuma que um provedor ou modelo está operacional apenas porque aparece em um exemplo de configuração. Confirme as variáveis e a disponibilidade da conta do fornecedor no ambiente em execução.
+A disponibilidade real de cada provedor depende das credenciais, modelo, URL, quota e timeout configurados no ambiente.
 
-## Estrutura do resultado
+## Contrato da resposta
 
-A resposta de análise contempla:
+A resposta deve conter cinco listas de textos:
 
-- `evidenced_requirements`: requisitos evidenciados no currículo.
+- `evidenced_requirements`: requisitos com evidência identificável.
 - `unevidenced_requirements`: requisitos sem evidência suficiente.
-- `gaps`: lacunas identificadas.
-- `resume_issues`: problemas de conteúdo ou estrutura do currículo.
-- `suggestions`: sugestões de melhoria.
+- `gaps`: diferenças concretas entre vaga e currículo.
+- `resume_issues`: problemas objetivos no próprio currículo.
+- `suggestions`: ações úteis sem recomendar inventar qualificações.
 
-A ausência de evidência no currículo não prova que a pessoa não possua determinada competência. A análise deve se limitar ao conteúdo fornecido e não inventar experiências, empresas, cargos, tecnologias, certificações, formação ou resultados.
+O parser rejeita JSON inválido, campos obrigatórios ausentes, campos que não sejam listas e itens que não sejam textos.
 
-## Entradas não confiáveis
+## Resistência a instruções maliciosas
 
-Currículo e descrição da vaga são dados de entrada, não instruções privilegiadas. A aplicação deve tratar tentativas de prompt injection como conteúdo não confiável e validar a estrutura da resposta antes de persistir ou exibir os resultados.
+O currículo e a descrição da vaga são dados não confiáveis, não instruções privilegiadas. Tentativas de prompt injection não podem alterar as regras, revelar o prompt ou forçar a aprovação. Os testes verificam a construção do prompt, o contrato de saída e o fluxo de fallback.
+
+Esses testes não garantem, sozinhos, o comportamento de todos os modelos reais. A avaliação semântica de provedores externos deve ser feita com casos de referência controlados, sem dados pessoais.
+
+## Datas
+
+A data de referência é incluída dinamicamente no prompt usando a data do servidor, e pode ser fixada nos testes. Uma data passada não é inválida apenas por ser antiga: junho de 2025 deve ser aceita quando a referência é outubro de 2026.
+
+Datas futuras só devem ser apontadas quando representarem claramente período profissional, projeto ou evento concluído que ainda não poderia ter ocorrido. Datas previstas para conclusão de formação acadêmica em andamento são permitidas e não devem ser marcadas como erro apenas por estarem no futuro. Se o contexto não permitir concluir que há erro, não invente inconsistência.
 
 ## Falhas operacionais
 
 Considere indisponibilidade do provedor, timeout, limite de uso, credenciais inválidas, resposta malformada e falha de fallback. Mensagens de erro não devem expor chaves, dados pessoais ou o conteúdo integral dos documentos.
 
-## Testes
+## Executar os testes
 
-Testes unitários devem usar provedores simulados sempre que possível. Testes que chamem serviços reais dependem de credenciais válidas, quota e disponibilidade externa e não devem ser requisito para executar a suíte unitária.
+Na raiz do repositório, com as dependências instaladas:
 
-## Estado
+```bash
+PYTHONPATH="$PWD" python -m pytest MatchCV.Tests/Unit/AI -q
+```
 
-Este documento descreve o fluxo e as garantias esperadas; a disponibilidade real de cada provedor, modelo e fallback deve ser verificada nas configurações e nos testes do ambiente correspondente.
+Os testes usam provedores e respostas simulados. Não dependem de chaves de API, quota paga, acesso à rede nem dados reais de candidatos.
+
+## Limitações
+
+A suíte automatizada verifica o tratamento de erros, a classificação de falhas, o fallback, a estrutura de saída e as regras enviadas ao modelo. Para confirmar a qualidade semântica de um provedor real, é necessária uma avaliação controlada específica do modelo configurado. Uma resposta HTTP 200 não prova, por si só, que a análise está correta.

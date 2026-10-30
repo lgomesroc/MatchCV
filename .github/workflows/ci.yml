@@ -1,4 +1,3 @@
-
 name: MatchCV CI
 
 on:
@@ -43,8 +42,11 @@ jobs:
       - name: Run backend unit tests
         run: python -m pytest MatchCV.Tests/Unit -q
 
+      - name: Run resume parser integration tests
+        run: python -m pytest MatchCV.Tests/Integration/Parser -q
+
   frontend:
-    name: Frontend - Angular
+    name: Frontend - Angular and Playwright
     runs-on: ubuntu-latest
 
     defaults:
@@ -75,3 +77,11 @@ jobs:
 
       - name: Build frontend
         run: npm run build
+
+      - name: Install Playwright Chromium and system dependencies
+        run: npx playwright install --with-deps chromium
+
+      - name: Run Playwright end-to-end tests
+        run: npm run test:e2e
+        env:
+          CI: "true"
