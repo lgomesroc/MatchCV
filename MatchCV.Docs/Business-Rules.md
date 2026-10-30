@@ -17,8 +17,9 @@ A capacidade real de contar páginas em formatos legados e de detectar layout de
 ## Descrição da vaga
 
 - Obrigatória.
-- Mínimo documentado de 30 caracteres úteis.
-- Máximo documentado de 3.000 caracteres.
+- Mínimo documentado: 30 caracteres úteis.
+- Máximo: **15.000 caracteres**, tanto para a descrição da vaga quanto para o texto de currículo informado diretamente.
+- O limite de upload de arquivo continua sendo 1 MB; o limite de caracteres não altera o tamanho máximo do arquivo.
 - Conteúdo deve ser textual e apropriado para análise.
 
 ## Resultado da análise
