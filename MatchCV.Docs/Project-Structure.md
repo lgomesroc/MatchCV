@@ -37,6 +37,7 @@ MatchCV/
 │   │   ├── DevelopmentAIProvider.py
 │   │   ├── OpenAICompatibleProvider.py
 │   │   └── SecondaryAIProvider.py
+<<<<<<< Updated upstream
 │   └── Services/
 │       ├── __init__.py
 │       ├── AIHttpClient.py
@@ -44,6 +45,16 @@ MatchCV/
 │       ├── AIResponseParser.py
 │       ├── AnalysisPromptBuilder.py
 │       └── IAIProvider.py
+=======
+│   ├── Services/
+│   │   ├── __init__.py
+│   │   ├── AIHttpClient.py
+│   │   ├── AIProviderService.py
+│   │   ├── AIResponseParser.py
+│   │   ├── AnalysisPromptBuilder.py
+│   │   └── IAIProvider.py
+│   └── __init__.py
+>>>>>>> Stashed changes
 ├── MatchCV.Api/
 │   ├── __init__.py
 │   ├── Dependencies/
@@ -55,11 +66,21 @@ MatchCV/
 │   │   ├── AnalysisRouter.py
 │   │   ├── AuthRouter.py
 │   │   └── PasswordResetRouter.py
+<<<<<<< Updated upstream
 │   └── Schemas/
 │       ├── __init__.py
 │       ├── AnalysisResponse.py
 │       ├── AuthSchemas.py
 │       └── ErrorResponse.py
+=======
+│   ├── Schemas/
+│   │   ├── __init__.py
+│   │   ├── AnalysisResponse.py
+│   │   ├── AuthSchemas.py
+│   │   └── ErrorResponse.py
+│   ├── __init__.py
+│   └── main.py
+>>>>>>> Stashed changes
 ├── MatchCV.Application/
 │   ├── __init__.py
 │   ├── DTOs/
@@ -115,8 +136,11 @@ MatchCV/
 │   ├── Architecture.md
 │   ├── Backend.md
 │   ├── Business-Rules.md
+<<<<<<< Updated upstream
 │   ├── BusinessRules/
 │   │   └── business-rules.md
+=======
+>>>>>>> Stashed changes
 │   ├── CI-CD.md
 │   ├── Data-Retention-and-Deletion.md
 │   ├── Database.md
@@ -192,11 +216,16 @@ MatchCV/
 │   │   │   │   │   └── auth.guard.ts
 │   │   │   │   ├── interceptors/
 │   │   │   │   │   ├── auth.interceptor.spec.ts
+<<<<<<< Updated upstream
 │   │   │   │   │   └── auth.interceptor.ts
+=======
+│   │   │   │   │   ├── auth.interceptor.ts
+>>>>>>> Stashed changes
 │   │   │   │   ├── models/
 │   │   │   │   │   ├── analysis-response.ts
 │   │   │   │   │   └── auth.ts
 │   │   │   │   └── services/
+<<<<<<< Updated upstream
 │   │   │   │       ├── analysis.service.spec.ts
 │   │   │   │       ├── analysis.service.ts
 │   │   │   │       ├── auth.service.spec.ts
@@ -245,15 +274,81 @@ MatchCV/
 │   │   │           ├── register.scss
 │   │   │           ├── register.spec.ts
 │   │   │           └── register.ts
+=======
+│   │   │   │   │   ├── analysis.service.spec.ts
+│   │   │   │   │   ├── analysis.service.ts
+│   │   │   │   │   ├── auth.service.spec.ts
+│   │   │   │   │   ├── auth.service.ts
+│   │   │   │   │   └── memory-cache.service.ts
+│   │   │   ├── features/
+│   │   │   │   ├── analysis/
+│   │   │   │   │   └── components/
+│   │   │   │   │   │   ├── analysis-failed/
+│   │   │   │   │   │   │   ├── analysis-failed.html
+│   │   │   │   │   │   │   ├── analysis-failed.scss
+│   │   │   │   │   │   │   └── analysis-failed.ts
+│   │   │   │   │   │   ├── analysis-input/
+│   │   │   │   │   │   │   ├── analysis-input.html
+│   │   │   │   │   │   │   ├── analysis-input.scss
+│   │   │   │   │   │   │   └── analysis-input.ts
+│   │   │   │   │   │   ├── analysis-processing/
+│   │   │   │   │   │   │   ├── analysis-processing.html
+│   │   │   │   │   │   │   ├── analysis-processing.scss
+│   │   │   │   │   │   │   └── analysis-processing.ts
+│   │   │   │   │   │   └── analysis-result/
+│   │   │   │   │   │   │   ├── analysis-result.html
+│   │   │   │   │   │   │   ├── analysis-result.scss
+│   │   │   │   │   │   │   └── analysis-result.ts
+│   │   │   │   │   ├── analysis.html
+│   │   │   │   │   ├── analysis.scss
+│   │   │   │   │   ├── analysis.spec.ts
+│   │   │   │   │   └── analysis.ts
+│   │   │   │   ├── change-password/
+│   │   │   │   │   ├── change-password.html
+│   │   │   │   │   ├── change-password.scss
+│   │   │   │   │   ├── change-password.spec.ts
+│   │   │   │   │   └── change-password.ts
+│   │   │   │   ├── forgot-password/
+│   │   │   │   │   ├── forgot-password.html
+│   │   │   │   │   ├── forgot-password.scss
+│   │   │   │   │   ├── forgot-password.spec.ts
+│   │   │   │   │   └── forgot-password.ts
+│   │   │   │   ├── login/
+│   │   │   │   │   ├── login.html
+│   │   │   │   │   ├── login.scss
+│   │   │   │   │   ├── login.spec.ts
+│   │   │   │   │   └── login.ts
+│   │   │   │   └── register/
+│   │   │   │   │   ├── register.html
+│   │   │   │   │   ├── register,scss
+│   │   │   │   │   ├── register.spec.ts
+│   │   │   │   │   └── register.ts
+│   │   │   ├── app.config.ts
+│   │   │   ├── app.html
+│   │   │   ├── app.routes.ts
+│   │   │   ├── app.scss
+│   │   │   ├── app.spec.ts
+│   │   │   └── app.ts
+>>>>>>> Stashed changes
 │   │   ├── environments/
 │   │   │   ├── environment.production.ts
 │   │   │   └── environment.ts
 │   │   ├── index.html
 │   │   ├── main.ts
 │   │   └── styles.scss
+<<<<<<< Updated upstream
 │   ├── tsconfig.app.json
 │   ├── tsconfig.json
 │   └── tsconfig.spec.json
+=======
+│   ├── .gitignore
+│   ├── angular.json
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── playwright.config.ts
+│   ├── README.md
+│   └── tsconfig.json
+>>>>>>> Stashed changes
 ├── MatchCV.Infrastructure/
 │   ├── __init__.py
 │   ├── Config/
@@ -301,9 +396,16 @@ MatchCV/
 │   ├── Dependencies/
 │   │   ├── __init__.py
 │   │   └── AuthDependencies.py
+<<<<<<< Updated upstream
 │   └── Tokens/
 │       ├── __init__.py
 │       └── TokenService.py
+=======
+│   ├── Tokens/
+│   │   ├── __init__.py
+│   │   └── TokenService.py
+│   └── __init__.py
+>>>>>>> Stashed changes
 ├── MatchCV.Parser/
 │   ├── __init__.py
 │   ├── Exceptions/
@@ -332,7 +434,11 @@ MatchCV/
 ├── MatchCV.Script/
 │   ├── change_admin_password.py
 │   ├── create_admin.py
+<<<<<<< Updated upstream
 │   └── reset_admin_password.py
+=======
+│   ├── reset_admin_password.py
+>>>>>>> Stashed changes
 ├── MatchCV.Tests/
 │   ├── __init__.py
 │   ├── Integration/
@@ -367,6 +473,7 @@ MatchCV/
 │   │       ├── test_database_fixtures.py
 │   │       └── test_schema.py
 │   └── Unit/
+<<<<<<< Updated upstream
 │       ├── __init__.py
 │       ├── AI/
 │       │   └── test_ai_representative_cases.py
@@ -406,9 +513,61 @@ MatchCV/
 │       │   └── test_resume_structure_validator.py
 │       └── Worker/
 │           └── test_analysis_worker.py
+=======
+│   │   ├── AI/
+│   │   │   └── test_ai_representative_cases.py
+│   │   ├── Application/
+│   │   │   ├── __init__.py
+│   │   │   ├── test_analysis_result.py
+│   │   │   ├── test_analyze_resume_request.py
+│   │   │   ├── test_analyze_resume_use_case.py
+│   │   │   ├── test_async_analysis_enqueue.py
+│   │   │   ├── test_interfaces.py
+│   │   │   └── test_parsed_resume_result.py
+│   │   ├── Domain/
+│   │   │   ├── __init__.py
+│   │   │   ├── test_analysis.py
+│   │   │   ├── test_job_description.py
+│   │   │   ├── test_profanity_validator.py
+│   │   │   ├── test_resume.py
+│   │   │   └── test_text_content_validator.py
+│   │   ├── Infrastructure/
+│   │   │   └── test_password_reset_email_sender.py
+│   │   ├── Login/
+│   │   │   ├── test_authentication_service.py
+│   │   │   ├── test_current_user_authorization.py
+│   │   │   ├── test_password_hasher.py
+│   │   │   ├── test_password_policy.py
+│   │   │   ├── test_password_recovery_policy.py
+│   │   │   ├── test_role_checker.py
+│   │   │   └── test_token_service.py
+│   │   ├── Parser/
+│   │   │   ├── __init__.py
+│   │   │   ├── test_doc_resume_parser.py
+│   │   │   ├── test_docx_resume_parser.py
+│   │   │   ├── test_parsed_resume.py
+│   │   │   ├── test_pdf_resume_parser.py
+│   │   │   ├── test_resume_file_validator.py
+│   │   │   ├── test_resume_parser_service.py
+│   │   │   └── test_resume_structure_validator.py
+│   │   └── __init__.py
+│   └── __init__.py
+>>>>>>> Stashed changes
 ├── MatchCV.Worker/
+│   ├── scripts/
+│   │   ├── ci_apply_test_migrations.py
+│   │   └── smoke_test_live_flow.py
 │   ├── __init__.py
 │   └── AnalysisWorker.py
+<<<<<<< Updated upstream
+=======
+├── .dockerignore
+├── .env.example
+├── .gitignore
+├── docker-compose.test.yml
+├── docker-compose.yml
+├── Dockerfile
+>>>>>>> Stashed changes
 ├── README.md
 ├── requirements.txt
 └── scripts/
