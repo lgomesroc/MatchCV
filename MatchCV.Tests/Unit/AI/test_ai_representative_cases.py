@@ -9,13 +9,14 @@ import pytest
 from MatchCV.AI.Exceptions.AIProviderException import AIProviderException
 from MatchCV.AI.Models.AIAnalysisResponse import AIAnalysisResponse
 from MatchCV.AI.Services.AIHttpClient import AIHttpClient
+from MatchCV.AI.Services.AIProviderService import AIProviderService
+from MatchCV.AI.Services.AIResponseParser import AIResponseParser
+from MatchCV.AI.Services.AnalysisPromptBuilder import AnalysisPromptBuilder
+
 
 AI_HTTP_CLIENT_MODULE = importlib.import_module(
     "MatchCV.AI.Services.AIHttpClient"
 )
-from MatchCV.AI.Services.AIProviderService import AIProviderService
-from MatchCV.AI.Services.AIResponseParser import AIResponseParser
-from MatchCV.AI.Services.AnalysisPromptBuilder import AnalysisPromptBuilder
 
 
 VALID_RESPONSE = {
@@ -161,6 +162,7 @@ def test_http_429_is_classified_as_retryable(monkeypatch):
 def test_http_timeout_is_classified_as_retryable(monkeypatch):
     monkeypatch.setattr(
         AI_HTTP_CLIENT_MODULE.request,
+        "urlopen",
         Mock(side_effect=TimeoutError("tempo esgotado")),
     )
 
