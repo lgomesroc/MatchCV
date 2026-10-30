@@ -1,3 +1,4 @@
+
 name: MatchCV SQL Server Integration
 
 on:
@@ -20,7 +21,7 @@ concurrency:
 jobs:
   sql-server-integration:
     name: SQL Server - migrations and integration tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 25
 
     env:
@@ -49,8 +50,8 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y curl gnupg2 unixodbc-dev
-          curl -sSL https://packages.microsoft.com/keys/microsoft.asc | sudo gpg --dearmor -o /usr/share/keyrings/microsoft-prod.gpg
-          echo "deb [arch=amd64,arm64,armhf signed-by=/usr/share/keyrings/microsoft-prod.gpg] https://packages.microsoft.com/ubuntu/22.04/prod jammy main" | sudo tee /etc/apt/sources.list.d/mssql-release.list
+          curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | sudo gpg --batch --yes --dearmor -o /usr/share/keyrings/microsoft-prod.gpg
+          curl -fsSL https://packages.microsoft.com/config/ubuntu/24.04/prod.list | sudo tee /etc/apt/sources.list.d/mssql-release.list
           sudo apt-get update
           sudo ACCEPT_EULA=Y apt-get install -y msodbcsql18
 
@@ -62,6 +63,7 @@ jobs:
 
       - name: Start isolated SQL Server test instance
         run: docker compose --env-file /dev/null -f docker-compose.test.yml up -d
+
       - name: Apply test migrations and validate schema
         run: python scripts/ci_apply_test_migrations.py
 
