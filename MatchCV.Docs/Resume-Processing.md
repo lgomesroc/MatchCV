@@ -6,7 +6,7 @@ Descrever o caminho do currículo desde o envio até a disponibilização do tex
 
 ## Formatos e limites
 
-Os formatos previstos são PDF, DOC e DOCX. As regras de negócio documentam limite de 1 MB, até duas páginas e mínimo de 30 caracteres úteis. A capacidade efetiva de cada formato depende do parser concreto e deve ser confirmada por testes; não trate extensão permitida como garantia de suporte completo.
+Os formatos previstos são PDF, DOC e DOCX. As regras de negócio documentam limite de 1 MB, até duas páginas, mínimo de 30 caracteres úteis e máximo de 15000 caracteres extraídos ou colados. A capacidade efetiva de cada formato depende do parser concreto e deve ser confirmada por testes; não trate extensão permitida como garantia de suporte completo.
 
 ## Fluxo
 
@@ -25,7 +25,7 @@ Upload
 
 O conteúdo recebido é não confiável. A validação deve considerar extensão, estrutura real, integridade, proteção por senha e disponibilidade de texto extraível. PDFs somente com imagem não são processados por OCR no escopo documentado da V1.
 
-A descrição da vaga é obrigatória, com limite documentado de 3.000 caracteres e mínimo de 30 caracteres úteis.
+A descrição da vaga é obrigatória, com limite de 15000 caracteres e mínimo de 30 caracteres úteis. O currículo também possui limite de 15000 caracteres, tanto quando colado no formulário quanto quando extraído de PDF/DOC/DOCX.
 
 ## PDF, DOCX e DOC
 

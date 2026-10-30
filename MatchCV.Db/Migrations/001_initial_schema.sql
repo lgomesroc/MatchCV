@@ -37,7 +37,7 @@ BEGIN
     CREATE TABLE dbo.job_descriptions
     (
         id UNIQUEIDENTIFIER NOT NULL,
-        content NVARCHAR(3000) NOT NULL,
+        content NVARCHAR(MAX) NOT NULL,
         created_at DATETIME2 NOT NULL
             CONSTRAINT DF_job_descriptions_created_at
             DEFAULT SYSUTCDATETIME(),
