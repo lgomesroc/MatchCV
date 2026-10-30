@@ -34,7 +34,8 @@ export class AnalysisInputComponent {
   @ViewChild('resumeFileInput')
   private resumeFileInput?: ElementRef<HTMLInputElement>;
 
-  readonly maxJobDescriptionCharacters = 3000;
+  readonly maxJobDescriptionCharacters = 15000;
+  readonly maxResumeTextCharacters = 15000;
 
   onJobDescriptionChange(value: string): void {
     this.jobDescriptionChange.emit(value);

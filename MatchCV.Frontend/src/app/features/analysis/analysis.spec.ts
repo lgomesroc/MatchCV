@@ -61,12 +61,27 @@ describe('AnalysisComponent', () => {
     expect(component.canAnalyze()).toBe(false);
   });
 
-  it('deve rejeitar descrição acima do limite de três mil caracteres', () => {
+  it('deve rejeitar descrição acima do limite de quinze mil caracteres', () => {
     const { component } = createComponent();
 
-    component.jobDescription = 'A'.repeat(3001);
+    component.jobDescription = 'A'.repeat(15001);
     component.resumeText = 'Currículo de teste';
 
+    expect(component.canAnalyze()).toBe(false);
+  });
+
+  it('deve aceitar descrição e currículo no limite de quinze mil caracteres', () => {
+    const { component } = createComponent();
+    component.jobDescription = 'A'.repeat(15000);
+    component.resumeText = 'A'.repeat(15000);
+    expect(component.canAnalyze()).toBe(true);
+  });
+
+  it('deve rejeitar currículo acima do limite de quinze mil caracteres', () => {
+    const { component } = createComponent();
+    component.jobDescription = validJob;
+    component.onResumeTextChange('A'.repeat(15001));
+    expect(component.errorMessage).toContain('15000 caracteres');
     expect(component.canAnalyze()).toBe(false);
   });
 

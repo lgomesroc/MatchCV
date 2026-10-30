@@ -33,6 +33,25 @@ class TestSqlServerJobDescriptionRepository:
         assert retrieved.id == job_description.id
         assert retrieved.content == job_description.content
 
+    def test_add_and_get_by_id_supports_15000_characters(
+        self,
+        test_database_connection: DatabaseConnection,
+        cleanup_registry,
+    ):
+        repository = SqlServerJobDescriptionRepository(
+            database_connection=test_database_connection,
+        )
+        content = "A" * 15000
+        job_description = JobDescription.create(content)
+        cleanup_registry["job_description_ids"].append(job_description.id)
+
+        repository.add(job_description)
+        retrieved = repository.get_by_id(job_description.id)
+
+        assert retrieved is not None
+        assert retrieved.content == content
+        assert len(retrieved.content) == 15000
+
     def test_get_by_id_returns_none_when_record_does_not_exist(
         self,
         test_database_connection: DatabaseConnection,

@@ -43,9 +43,9 @@ def test_create_rejects_content_with_fewer_than_30_useful_characters():
         JobDescription.create("Desenvolvedor com APIs")
 
 
-def test_create_rejects_content_longer_than_3000_characters():
+def test_create_rejects_content_longer_than_15000_characters():
     with pytest.raises(DomainException):
-        JobDescription.create("A" * 3001)
+        JobDescription.create("A" * 15001)
 
 
 def test_create_accepts_content_at_the_maximum_length():
