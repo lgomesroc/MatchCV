@@ -2,18 +2,22 @@
 
 ## Objetivo
 
-Descrever o caminho do currículo desde o envio até a disponibilização do texto para análise.
+Descrever o caminho do currículo desde o envio até a disponibilização do texto para análise, incluindo as limitações confirmadas dos parsers.
 
 ## Formatos e limites
 
-Os formatos previstos são PDF, DOC e DOCX. As regras de negócio documentam limite de 1 MB, até duas páginas e mínimo de 30 caracteres úteis. A capacidade efetiva de cada formato depende do parser concreto e deve ser confirmada por testes; não trate extensão permitida como garantia de suporte completo.
+- Tamanho máximo: 1 MiB (1.048.576 bytes).
+- Até duas páginas, conforme a informação de paginação disponível ao parser.
+- Mínimo de 30 caracteres alfanuméricos úteis extraídos.
+- Extensões aceitas na entrada: PDF, DOC e DOCX, sem diferenciar maiúsculas de minúsculas.
+
+**Importante:** aceitar uma extensão não significa que o formato esteja integralmente suportado. O parser DOC legado ainda não está implementado: arquivos `.doc` são rejeitados com uma mensagem orientando a conversão para DOCX ou PDF. DOCX é lido por `python-docx`; a paginação estimada não equivale necessariamente à paginação visual do Word.
 
 ## Fluxo
 
 ```text
 Upload
-  -> validação da entrada e tamanho
-  -> identificação/validação do formato real
+  -> validação do nome, extensão e tamanho
   -> parser correspondente
   -> extração de texto
   -> validações estruturais
@@ -21,17 +25,29 @@ Upload
   -> enfileiramento para processamento assíncrono
 ```
 
-## Validação
+## Validação de conteúdo
 
-O conteúdo recebido é não confiável. A validação deve considerar extensão, estrutura real, integridade, proteção por senha e disponibilidade de texto extraível. PDFs somente com imagem não são processados por OCR no escopo documentado da V1.
+O conteúdo recebido é não confiável. Os parsers devem rejeitar arquivos vazios, corrompidos, protegidos por senha, sem texto extraível ou com texto insuficiente. O formato real é validado indiretamente pela capacidade do parser correspondente de abrir e ler o conteúdo; não se deve tratar a extensão como prova do tipo real.
+
+PDFs somente com imagem não são processados por OCR no escopo da V1.
 
 A descrição da vaga é obrigatória, com limite documentado de 3.000 caracteres e mínimo de 30 caracteres úteis.
 
 ## PDF, DOCX e DOC
 
-- **PDF:** validar arquivo e texto extraível; documento protegido ou sem texto útil deve falhar de forma controlada.
-- **DOCX:** a extração textual pode não reproduzir a paginação visual; contar páginas com precisão pode exigir renderização/conversão.
-- **DOC:** formato legado exige implementação ou conversão compatível; aceitar a extensão não prova que o parser esteja operacional para todos os arquivos.
+- **PDF:** o parser usa `pypdf` para extrair texto. Arquivos corrompidos e protegidos por senha devem falhar com erro controlado.
+- **DOCX:** o parser extrai parágrafos e tabelas. A quantidade de páginas é estimada a partir de quebras explícitas e pode não refletir a paginação real.
+- **DOC:** formato binário legado não é processado nesta versão. Converta para DOCX ou PDF antes do envio.
+
+## Testes com arquivos
+
+A suíte `MatchCV.Tests/Integration/Parser/test_real_resume_files.py` gera documentos PDF e DOCX válidos durante o teste e também testa arquivos corrompidos, PDF protegido por senha, texto insuficiente, limite de tamanho e conteúdo incompatível com a extensão. Os arquivos são sintéticos; currículos pessoais não devem ser adicionados ao repositório.
+
+Para executar:
+
+```bash
+PYTHONPATH="$PWD" python -m pytest MatchCV.Tests/Integration/Parser -q
+```
 
 ## Saída e análise semântica
 
@@ -41,12 +57,8 @@ O resultado deve distinguir requisitos evidenciados, requisitos sem evidência s
 
 ## Privacidade
 
-O arquivo original deve ser temporário e removido após o processamento. Não salvar currículos reais no Git nem registrar conteúdo integral em logs.
+O arquivo original deve ser temporário e removido após o processamento. Não salve currículos reais no Git nem registre conteúdo integral em logs.
 
 ## Falhas
 
-Retornar erros controlados para formato inválido, arquivo corrompido/protegido, texto insuficiente e falhas de extração. Não expor stack traces, caminhos internos ou conteúdo pessoal nas respostas públicas.
-
-## Estado
-
-As regras documentadas não comprovam suporte completo de cada formato. Confirme o código de seleção de parser e os testes de PDF, DOC e DOCX antes de afirmar compatibilidade integral.
+Retorne erros controlados para formato inválido, arquivo corrompido/protegido, texto insuficiente e falhas de extração. Não exponha stack traces, caminhos internos ou conteúdo pessoal nas respostas públicas.

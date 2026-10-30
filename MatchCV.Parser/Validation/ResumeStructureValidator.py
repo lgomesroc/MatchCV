@@ -10,6 +10,11 @@ class ResumeStructureValidator:
 
     @classmethod
     def validate(cls, parsed_resume: ParsedResume) -> None:
+        if parsed_resume.is_password_protected:
+            raise ParserException(
+                "Não é possível processar um currículo protegido por senha."
+            )
+
         if parsed_resume.page_count <= 0:
             raise ParserException(
                 "O currículo deve possuir pelo menos uma página."
@@ -36,11 +41,6 @@ class ResumeStructureValidator:
         if useful_characters < cls.MIN_USEFUL_CHARACTERS:
             raise ParserException(
                 "O currículo deve possuir pelo menos 30 caracteres úteis."
-            )
-
-        if parsed_resume.is_password_protected:
-            raise ParserException(
-                "Não é possível processar um currículo protegido por senha."
             )
 
         if parsed_resume.is_single_column is False:
