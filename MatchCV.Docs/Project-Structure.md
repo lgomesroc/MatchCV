@@ -8,16 +8,23 @@ A estrutura foi planejada para separar domínio, aplicação, infraestrutura, pr
 
 ```text
 MatchCV/
+├── .dockerignore
+├── .env.example
 ├── .github/
-│   └──workflows/
-│   │   ├── cd.yml
-│   │   ├── ci.yml
-│   │   └── sql-server-integration.yml
+│   └── workflows/
+│       ├── cd.yml
+│       ├── ci.yml
+│       └── sql-server-integration.yml
+├── .gitignore
+├── docker-compose.test.yml
+├── docker-compose.yml
+├── Dockerfile
 ├── Docs/
 │   └── test-job-description.txt
 ├── MatchCV/
 │   └── __init__.py
 ├── MatchCV.AI/
+│   ├── __init__.py
 │   ├── Exceptions/
 │   │   ├── __init__.py
 │   │   └── AIProviderException.py
@@ -26,33 +33,37 @@ MatchCV/
 │   │   ├── AIAnalysisResponse.py
 │   │   └── AIProviderConfig.py
 │   ├── Providers/
-│   │   ├──  __init__.py
+│   │   ├── __init__.py
 │   │   ├── DevelopmentAIProvider.py
 │   │   ├── OpenAICompatibleProvider.py
 │   │   └── SecondaryAIProvider.py
-│   ├── Services/
-│   │   ├── __init__.py
-│   │   ├── AIProviderService.py
-│   │   ├── AIResponseParser.py
-│   │   ├── AnalysisPromptBuilder.py
-│   │   └── IAIProvider.py
-│   └── __init__.py
+│   └── Services/
+│       ├── __init__.py
+│       ├── AIHttpClient.py
+│       ├── AIProviderService.py
+│       ├── AIResponseParser.py
+│       ├── AnalysisPromptBuilder.py
+│       └── IAIProvider.py
 ├── MatchCV.Api/
+│   ├── __init__.py
 │   ├── Dependencies/
 │   │   ├── __init__.py
 │   │   └── AnalysisDependencies.py
+│   ├── main.py
 │   ├── Routers/
 │   │   ├── __init__.py
 │   │   ├── AnalysisRouter.py
+│   │   ├── AuthRouter.py
 │   │   └── PasswordResetRouter.py
-│   ├── Schemas/
-│   │   ├── __init__.py
-│   │   ├── AnalysisResponse.py
-│   │   └── ErrorResponse.py
-│   ├── __init__.py
-│   └── main.py
+│   └── Schemas/
+│       ├── __init__.py
+│       ├── AnalysisResponse.py
+│       ├── AuthSchemas.py
+│       └── ErrorResponse.py
 ├── MatchCV.Application/
+│   ├── __init__.py
 │   ├── DTOs/
+│   │   ├── __init__.py
 │   │   ├── AnalysisResult.py
 │   │   ├── AnalyzeResumeRequest.py
 │   │   └── ParsedResumeResult.py
@@ -60,7 +71,7 @@ MatchCV/
 │   │   ├── __init__.py
 │   │   ├── IAnalysisProvider.py
 │   │   └── IResumeParserService.py
-│   ├── Queue
+│   ├── Queue/
 │   │   ├── __init__.py
 │   │   ├── AnalysisQueueItem.py
 │   │   ├── AnalysisQueuePayload.py
@@ -70,47 +81,47 @@ MatchCV/
 │   │   ├── IAnalysisRepository.py
 │   │   ├── IJobDescriptionRepository.py
 │   │   └── IUserRepository.py
-│   ├── UseCases/
-│   │   ├── __init__.py
-│   │   └── AnalyzeResumeUseCase.py
-│   └── __init__.py
+│   └── UseCases/
+│       ├── __init__.py
+│       └── AnalyzeResumeUseCase.py
 ├── MatchCV.Db/
-│   ├── Migrations/
-│   │   ├── Test/
-│   │   │   ├── 001_initial_schema.sql
-│   │   │   ├── 002_user_analysis_usage.sql
-│   │   │   ├── 003_unique_admin.sql
-│   │   │   ├── 004_analysis_history.sql
-│   │   │   ├── 005_analysis_worker_queue.sql
-│   │   │   ├── 006_password_reset_tokens.sql
-│   │   │   ├── 007_admin_password_policy.sql
-│   │   │   ├── 008_analysis_quota_reservations.sql
-│   │   │   └── 009_job_description_text_limit.sql
-│   │   ├── __init__.py
-│   │   ├── 001_initial_schema.sql
-│   │   ├── 002_user_analysis_usage.sql
-│   │   ├── 003_unique_admin.sql
-│   │   ├── 004_analysis_history.sql
-│   │   ├── 005_analysis_worker_queue.sql
-│   │   ├── 006_password_reset_tokens.sql
-│   │   ├── 007_admin_password_policy.sql
-│   │   ├── 008_analysis_quota_reservations.sql
-│   │   └── 009_job_description_text_limit.sql
-│   └── __init__.py
+│   ├── __init__.py
+│   └── Migrations/
+│       ├── __init__.py
+│       ├── 001_initial_schema.sql
+│       ├── 002_user_analysis_usage.sql
+│       ├── 003_unique_admin.sql
+│       ├── 004_analysis_history.sql
+│       ├── 005_analysis_worker_queue.sql
+│       ├── 006_password_reset_tokens.sql
+│       ├── 007_admin_password_policy.sql
+│       ├── 008_analysis_quota_reservations.sql
+│       ├── 009_job_description_text_limit.sql
+│       └── Test/
+│           ├── 001_initial_schema.sql
+│           ├── 002_user_analysis_usage.sql
+│           ├── 003_unique_admin.sql
+│           ├── 004_analysis_history.sql
+│           ├── 005_analysis_worker_queue.sql
+│           ├── 006_password_reset_tokens.sql
+│           ├── 007_admin_password_policy.sql
+│           ├── 008_analysis_quota_reservations.sql
+│           └── 009_job_description_text_limit.sql
 ├── MatchCV.Docs/
-│   ├── BusinessRules/
-│   │   └── business-rules.md
-│   ├── Decisions/
-│   │   └── Architecture-Decisions.md
 │   ├── AI-Integration.md
 │   ├── Analysis-Polling-Timeout.md
-│   ├── API.md
 │   ├── API-Integration.md
+│   ├── API.md
 │   ├── Architecture.md
 │   ├── Backend.md
+│   ├── Business-Rules.md
+│   ├── BusinessRules/
+│   │   └── business-rules.md
 │   ├── CI-CD.md
 │   ├── Data-Retention-and-Deletion.md
 │   ├── Database.md
+│   ├── Decisions/
+│   │   └── Architecture-Decisions.md
 │   ├── Deployment.md
 │   ├── Development-Guide.md
 │   ├── Environments.md
@@ -129,6 +140,7 @@ MatchCV/
 │   ├── Technologies.md
 │   └── Testing.md
 ├── MatchCV.Domain/
+│   ├── __init__.py
 │   ├── Entities/
 │   │   ├── __init__.py
 │   │   ├── Analysis.py
@@ -148,92 +160,102 @@ MatchCV/
 │   │   ├── ProfanityValidator.py
 │   │   └── TextContentValidator.py
 │   └── ValueObjects/
-│   │   └── __init__.py
-│   └── __init__.py
+│       └── __init__.py
 ├── MatchCV.Frontend/
+│   ├── .editorconfig
+│   ├── .gitignore
+│   ├── .prettierrc
+│   ├── angular.json
 │   ├── e2e/
-│   │   ├── analysis.spec.ts
 │   │   ├── analysis-states.spec.ts
+│   │   ├── analysis.spec.ts
 │   │   ├── live-services.spec.ts
 │   │   ├── login.spec.ts
 │   │   └── registration.spec.ts
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── playwright.config.ts
+│   ├── public/
+│   │   └── favicon.ico
+│   ├── README.md
 │   ├── src/
 │   │   ├── app/
+│   │   │   ├── app.config.ts
+│   │   │   ├── app.html
+│   │   │   ├── app.routes.ts
+│   │   │   ├── app.scss
+│   │   │   ├── app.spec.ts
+│   │   │   ├── app.ts
 │   │   │   ├── core/
 │   │   │   │   ├── guards/
-│   │   │   │   │   ├── auth.guard.ts
-│   │   │   │   │   └── auth.guard.spec.ts
+│   │   │   │   │   ├── auth.guard.spec.ts
+│   │   │   │   │   └── auth.guard.ts
 │   │   │   │   ├── interceptors/
-│   │   │   │   │   ├── auth.interceptor.ts
-│   │   │   │   │   └── auth.interceptor.spec.ts
+│   │   │   │   │   ├── auth.interceptor.spec.ts
+│   │   │   │   │   └── auth.interceptor.ts
 │   │   │   │   ├── models/
 │   │   │   │   │   ├── analysis-response.ts
 │   │   │   │   │   └── auth.ts
 │   │   │   │   └── services/
-│   │   │   │   │   ├── analysis.service.spec.ts
-│   │   │   │   │   ├── analysis.service.ts
-│   │   │   │   │   ├── auth.service.ts
-│   │   │   │   │   ├── auth.service.spec.ts
-│   │   │   │   │   └── memory-cache.service.ts
-│   │   │   ├── features/
-│   │   │   │   ├── analysis/
-│   │   │   │   │   └── components/
-│   │   │   │   │   │   ├── analysis-failed/
-│   │   │   │   │   │   │   ├── analysis-failed.html
-│   │   │   │   │   │   │   ├── analysis-failed.scss
-│   │   │   │   │   │   │   └── analysis-failed.ts
-│   │   │   │   │   │   ├── analysis-input/
-│   │   │   │   │   │   │   ├── analysis-input.html
-│   │   │   │   │   │   │   ├── analysis-input.scss
-│   │   │   │   │   │   │   └── analysis-input.ts
-│   │   │   │   │   │   ├── analysis-processing/
-│   │   │   │   │   │   │   ├── analysis-processing.html
-│   │   │   │   │   │   │   ├── analysis-processing.scss
-│   │   │   │   │   │   │   └── analysis-processing.ts
-│   │   │   │   │   │   └── analysis-result/
-│   │   │   │   │   │   │   ├── analysis-result.html
-│   │   │   │   │   │   │   ├── analysis-result.scss
-│   │   │   │   │   │   │   └── analysis-result.ts
-│   │   │   │   │   ├── analysis.html
-│   │   │   │   │   ├── analysis.scss
-│   │   │   │   │   ├──analysis.spec.ts
-│   │   │   │   │   └── analysis.ts
-│   │   │   │   ├── change-password/
-│   │   │   │   │   ├── change-password.html
-│   │   │   │   │   ├── change-password.scss
-│   │   │   │   │   ├── change-password.spec.ts
-│   │   │   │   │   └── change-password.ts
-│   │   │   │   ├── forgot-password/
-│   │   │   │   │   ├── forgot-password.html
-│   │   │   │   │   ├── forgot-password.scss
-│   │   │   │   │   ├── forgot-password.spec.ts
-│   │   │   │   │   └── forgot-password.ts
-│   │   │   │   ├── login/
-│   │   │   │   │   ├── login.html
-│   │   │   │   │   ├── login.scss
-│   │   │   │   │   ├── login.spec.ts
-│   │   │   │   │   └── login.ts
-│   │   │   │   └── register/
-│   │   │   │   │   ├── register.html
-│   │   │   │   │   ├── register,scss
-│   │   │   │   │   └── register.ts
-│   │   │   ├── app.html
-│   │   │   ├── app.scss
-│   │   │   ├──app.spec.ts
-│   │   │   ├── app.ts
-│   │   │   ├── app.config.ts
-│   │   │   ├── app.routes.ts
-│   │   │   └── app.spec.ts
+│   │   │   │       ├── analysis.service.spec.ts
+│   │   │   │       ├── analysis.service.ts
+│   │   │   │       ├── auth.service.spec.ts
+│   │   │   │       ├── auth.service.ts
+│   │   │   │       └── memory-cache.service.ts
+│   │   │   └── features/
+│   │   │       ├── analysis/
+│   │   │       │   ├── analysis.html
+│   │   │       │   ├── analysis.scss
+│   │   │       │   ├── analysis.spec.ts
+│   │   │       │   ├── analysis.ts
+│   │   │       │   └── components/
+│   │   │       │       ├── analysis-failed/
+│   │   │       │       │   ├── analysis-failed.html
+│   │   │       │       │   ├── analysis-failed.scss
+│   │   │       │       │   └── analysis-failed.ts
+│   │   │       │       ├── analysis-input/
+│   │   │       │       │   ├── analysis-input.html
+│   │   │       │       │   ├── analysis-input.scss
+│   │   │       │       │   └── analysis-input.ts
+│   │   │       │       ├── analysis-processing/
+│   │   │       │       │   ├── analysis-processing.html
+│   │   │       │       │   ├── analysis-processing.scss
+│   │   │       │       │   └── analysis-processing.ts
+│   │   │       │       └── analysis-result/
+│   │   │       │           ├── analysis-result.html
+│   │   │       │           ├── analysis-result.scss
+│   │   │       │           └── analysis-result.ts
+│   │   │       ├── change-password/
+│   │   │       │   ├── change-password.html
+│   │   │       │   ├── change-password.scss
+│   │   │       │   ├── change-password.spec.ts
+│   │   │       │   └── change-password.ts
+│   │   │       ├── forgot-password/
+│   │   │       │   ├── forgot-password.html
+│   │   │       │   ├── forgot-password.scss
+│   │   │       │   ├── forgot-password.spec.ts
+│   │   │       │   └── forgot-password.ts
+│   │   │       ├── login/
+│   │   │       │   ├── login.html
+│   │   │       │   ├── login.scss
+│   │   │       │   ├── login.spec.ts
+│   │   │       │   └── login.ts
+│   │   │       └── register/
+│   │   │           ├── register.html
+│   │   │           ├── register.scss
+│   │   │           ├── register.spec.ts
+│   │   │           └── register.ts
+│   │   ├── environments/
+│   │   │   ├── environment.production.ts
+│   │   │   └── environment.ts
 │   │   ├── index.html
 │   │   ├── main.ts
 │   │   └── styles.scss
-│   ├── .gitignore
-│   ├── angular.json
-│   ├── package.json
-│   ├── playwright.config.ts
-│   ├── README.md
-│   └── tsconfig.json
+│   ├── tsconfig.app.json
+│   ├── tsconfig.json
+│   └── tsconfig.spec.json
 ├── MatchCV.Infrastructure/
+│   ├── __init__.py
 │   ├── Config/
 │   │   ├── __init__.py
 │   │   ├── AISettings.py
@@ -252,32 +274,38 @@ MatchCV/
 │   │   ├── __init__.py
 │   │   ├── SqlServerAnalysisQueueRepository.py
 │   │   ├── SqlServerAnalysisRepository.py
+│   │   ├── SqlServerAnalysisUsageRepository.py
 │   │   ├── SqlServerJobDescriptionRepository.py
 │   │   ├── SqlServerPasswordResetRepository.py
 │   │   └── SqlServerUserRepository.py
-│   ├── Security
+│   ├── Security/
 │   │   ├── __init__.py
 │   │   └── AnalysisPayloadEncryption.py
-│   ├── Services/
-│   │   ├── __init__.py
-│   │   ├── AIAnalysisProvider.py
-│   │   ├── PasswordResetEmailSender.py
-│   │   └── ResumeParserAdapter.py
-│   └── __init__.py
+│   └── Services/
+│       ├── __init__.py
+│       ├── AIAnalysisProvider.py
+│       ├── PasswordResetEmailSender.py
+│       └── ResumeParserAdapter.py
 ├── MatchCV.Login/
+│   ├── __init__.py
 │   ├── Authentication/
+│   │   ├── __init__.py
 │   │   ├── AuthenticationService.py
 │   │   ├── PasswordHasher.py
+│   │   ├── PasswordPolicy.py
 │   │   └── PasswordRecoveryPolicy.py
 │   ├── Authorization/
+│   │   ├── __init__.py
 │   │   ├── CurrentUser.py
 │   │   └── RoleChecker.py
-│   ├── Tokens/
-│   │   └── TokenService.py
 │   ├── Dependencies/
+│   │   ├── __init__.py
 │   │   └── AuthDependencies.py
-│   └── __init__.py
+│   └── Tokens/
+│       ├── __init__.py
+│       └── TokenService.py
 ├── MatchCV.Parser/
+│   ├── __init__.py
 │   ├── Exceptions/
 │   │   ├── __init__.py
 │   │   └── ParserException.py
@@ -295,21 +323,20 @@ MatchCV/
 │   ├── Services/
 │   │   ├── __init__.py
 │   │   └── ResumeParserService.py
-│   ├── Validation/
-│   │   ├── __init__.py
-│   │   ├── Data/
-│   │   │   └── __init__.py
-│   │   ├── ResumeFileValidator.py
-│   │   └── ResumeStructureValidator.py
-│   └── __init__.py
+│   └── Validation/
+│       ├── __init__.py
+│       ├── Data/
+│       │   └── __init__.py
+│       ├── ResumeFileValidator.py
+│       └── ResumeStructureValidator.py
 ├── MatchCV.Script/
 │   ├── change_admin_password.py
-│   ├── ci_apply_test_migrations.py
 │   ├── create_admin.py
-│   ├── reset_admin_password.py
-│   └── smoke_test_live_flow.py
+│   └── reset_admin_password.py
 ├── MatchCV.Tests/
+│   ├── __init__.py
 │   ├── Integration/
+│   │   ├── __init__.py
 │   │   ├── Api/
 │   │   │   ├── __init__.py
 │   │   │   ├── test_analysis_router.py
@@ -319,6 +346,7 @@ MatchCV/
 │   │   │   ├── test_health_endpoint.py
 │   │   │   ├── test_password_reset_router.py
 │   │   │   └── test_swagger_security.py
+│   │   ├── conftest.py
 │   │   ├── Database/
 │   │   │   ├── __init__.py
 │   │   │   ├── test_database_connection.py
@@ -335,62 +363,57 @@ MatchCV/
 │   │   │   ├── test_sql_server_user_repository.py
 │   │   │   └── test_sql_server_workflow_persistence.py
 │   │   └── TestDatabase/
-│   │   │   ├── test_connection.py
-│   │   │   ├── test_database_fixtures.py
-│   │   │   └── test_schema.py
-│   │   ├── __init__.py
-│   │   └── conftest.py
+│   │       ├── test_connection.py
+│   │       ├── test_database_fixtures.py
+│   │       └── test_schema.py
 │   └── Unit/
-│   │   ├── AI/
-│   │   │   └── test_ai_representative_cases.py
-│   │   ├── Application/
-│   │   │   ├── __init__.py
-│   │   │   ├── test_analyze_resume_use_case.py
-│   │   │   ├── test_analysis_result.py
-│   │   │   ├── test_analyze_resume_request.py
-│   │   │   ├── test_async_analysis_enqueue.py
-│   │   │   ├── test_interfaces.py
-│   │   │   └── test_parsed_resume_result.py
-│   │   ├── Domain/
-│   │   │   ├── __init__.py
-│   │   │   ├── test_analysis.py
-│   │   │   ├── test_job_description.py
-│   │   │   ├── test_profanity_validator.py
-│   │   │   ├── test_resume.py
-│   │   │   └── test_text_content_validator.py
-│   │   ├── Infrastructure/
-│   │   │   └── test_password_reset_email_sender.py
-│   │   ├── Login/
-│   │   │   ├── test_authentication_service.py
-│   │   │   ├── test_current_user_authorization.py
-│   │   │   ├── test_password_hasher.py
-│   │   │   ├── test_password_policy.py
-│   │   │   ├── test_password_recovery_policy.py
-│   │   │   ├── test_role_checker.py
-│   │   │   └── test_token_service.py
-│   │   └── Parser/
-│   │   │   ├── __init__.py
-│   │   │   ├── test_doc_resume_parser.py
-│   │   │   ├── test_docx_resume_parser.py
-│   │   │   ├── test_parsed_resume.py
-│   │   │   ├── test_pdf_resume_parser.py
-│   │   │   ├── test_resume_file_validator.py
-│   │   │   ├── test_resume_parser_service.py
-│   │   │   └── test_resume_structure_validator.py
-│   │   └── __init__.py
-│   └── __init__.py
+│       ├── __init__.py
+│       ├── AI/
+│       │   └── test_ai_representative_cases.py
+│       ├── Application/
+│       │   ├── __init__.py
+│       │   ├── test_analysis_result.py
+│       │   ├── test_analyze_resume_request.py
+│       │   ├── test_analyze_resume_use_case.py
+│       │   ├── test_async_analysis_enqueue.py
+│       │   ├── test_interfaces.py
+│       │   └── test_parsed_resume_result.py
+│       ├── Domain/
+│       │   ├── __init__.py
+│       │   ├── test_analysis.py
+│       │   ├── test_job_description.py
+│       │   ├── test_profanity_validator.py
+│       │   ├── test_resume.py
+│       │   └── test_text_content_validator.py
+│       ├── Infrastructure/
+│       │   └── test_password_reset_email_sender.py
+│       ├── Login/
+│       │   ├── test_authentication_service.py
+│       │   ├── test_current_user_authorization.py
+│       │   ├── test_password_hasher.py
+│       │   ├── test_password_policy.py
+│       │   ├── test_password_recovery_policy.py
+│       │   ├── test_role_checker.py
+│       │   └── test_token_service.py
+│       ├── Parser/
+│       │   ├── __init__.py
+│       │   ├── test_doc_resume_parser.py
+│       │   ├── test_docx_resume_parser.py
+│       │   ├── test_parsed_resume.py
+│       │   ├── test_pdf_resume_parser.py
+│       │   ├── test_resume_file_validator.py
+│       │   ├── test_resume_parser_service.py
+│       │   └── test_resume_structure_validator.py
+│       └── Worker/
+│           └── test_analysis_worker.py
 ├── MatchCV.Worker/
 │   ├── __init__.py
 │   └── AnalysisWorker.py
-├── .dockerignore
-├── .env.example
-├── .env.test.example
-├── .gitignore
-├── docker-compose.test.yml
-├── docker-compose.yml
-├── Dockerfile
 ├── README.md
-└── requirements.txt
+├── requirements.txt
+└── scripts/
+    ├── ci_apply_test_migrations.py
+    └── smoke_test_live_flow.py
 ```
 
 ## Organização da documentação
@@ -432,7 +455,7 @@ A documentação está separada por assunto para facilitar manutenção, consult
 | `MatchCV.Domain` | Entidades, regras e conceitos centrais |
 | `MatchCV.Infrastructure` | Banco de dados, repositórios e serviços externos |
 | `MatchCV.Parser` | Validação e extração de documentos |
-| `MatchCV.Worker` | Processamento assíncrono, quando implementado |
+| `MatchCV.Worker` | Execução do processamento assíncrono de análises |
 | `MatchCV.Tests` | Testes unitários e de integração |
 
 ### MatchCV.AI
@@ -553,12 +576,11 @@ As regras genéricas de domínio, como validação de nome, conteúdo textual e 
 
 ### MatchCV.Worker
 
-Responsável por processamentos assíncronos que possam ser retirados do fluxo HTTP principal.
+Responsável pela execução do processamento assíncrono de análises, retirando o trabalho pesado do fluxo HTTP principal.
 
-Exemplos futuros:
+Atualmente contém o worker de análise. A arquitetura também permite evoluções como:
 
-* processamento de análise;
-* processamento de IA;
+* processamento adicional de tarefas de IA;
 * tarefas de limpeza;
 * remoção de arquivos temporários.
 
@@ -590,21 +612,19 @@ Testes de IA não devem depender obrigatoriamente de chamadas reais aos provedor
 
 ### MatchCV.Db
 
-Contém recursos relacionados ao banco de dados.
+Contém os scripts SQL versionados de criação e evolução do schema, incluindo migrations específicas para o ambiente de teste.
 
-Responsabilidades futuras:
+Responsabilidades:
 
-* scripts;
-* inicialização;
-* migrations, quando aplicável;
-* configuração de banco;
-* dados técnicos necessários ao ambiente.
+* migrations de produção;
+* migrations isoladas para testes;
+* versionamento da evolução do banco de dados.
 
 ### MatchCV.Frontend
 
-Responsável pela interface do usuário.
+Responsável pela interface Angular do usuário, incluindo a experiência de análise, autenticação e recuperação de senha.
 
-Responsabilidades futuras:
+Responsabilidades:
 
 * upload do currículo;
 * entrada da descrição da vaga;
