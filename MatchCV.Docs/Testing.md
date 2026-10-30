@@ -32,19 +32,36 @@ PYTHONPATH="$PWD" python -m pytest MatchCV.Tests/Integration/TestDatabase -q
 
 ## SQL Server para testes
 
-O arquivo `docker-compose.test.yml` define uma instância separada para testes, publicada na porta local 1435 e destinada ao banco `MatchCVTest`. Configure a variável `TEST_DATABASE_PASSWORD` no ambiente ou no arquivo local `.env.test`.
+O arquivo `docker-compose.test.yml` define uma instância separada do SQL Server 2022, publicada na porta local 1435 e destinada exclusivamente ao banco `MatchCVTest`. Configure as variáveis `TEST_DATABASE_PASSWORD` e `MATCHCV_TEST_DATABASE_PASSWORD` com uma senha exclusiva de teste, no ambiente ou em um arquivo local `.env.test`. Nunca versione esse arquivo nem compartilhe suas credenciais.
 
-Como o Compose não carrega automaticamente `.env.test`, quando as variáveis não estiverem exportadas use:
+Como o Compose não carrega automaticamente `.env.test` e o script de migrations precisa receber as variáveis no ambiente do processo, carregue-as no terminal antes de iniciar os testes:
 
 ```bash
+set -a
+. ./.env.test
+set +a
+
 docker compose --env-file .env.test -f docker-compose.test.yml up -d
 docker compose -f docker-compose.test.yml ps
 docker logs --tail 50 matchcv-test-sqlserver
 ```
 
-Confirme que o SQL Server está pronto e que as credenciais configuradas no contêiner coincidem com as usadas pelos testes antes de iniciar a suíte. Não compartilhe senhas em logs, mensagens ou commits.
+Confirme que o SQL Server está pronto e que as credenciais configuradas no contêiner coincidem com as usadas pelos testes antes de iniciar a suíte.
 
-As migrações específicas do banco de teste ficam em `MatchCV.Db/Migrations/Test/`. Os testes de integração devem usar dados descartáveis e não devem apontar para o banco de produção.
+As migrações específicas do banco de teste ficam em `MatchCV.Db/Migrations/Test/`. Para aplicá-las e validar o schema localmente:
+
+```bash
+python scripts/ci_apply_test_migrations.py
+PYTHONPATH="$PWD" python -m pytest MatchCV.Tests/Integration -q
+```
+
+O script aguarda o SQL Server ficar disponível, aplica os arquivos SQL de teste em ordem e valida a existência das tabelas obrigatórias. Ele recusa hosts não locais, portas diferentes de 1435 e bancos diferentes de `MatchCVTest`. Os testes de integração devem usar dados descartáveis e nunca apontar para o banco de produção.
+
+Ao terminar, remova a instância e o volume descartável:
+
+```bash
+docker compose -f docker-compose.test.yml down --volumes --remove-orphans
+```
 
 ## Frontend Angular e Playwright
 
@@ -80,7 +97,13 @@ A suíte cobre login e cadastro, validação do formulário, envio do currículo
 
 ## CI
 
-O workflow `.github/workflows/ci.yml` executa testes unitários do backend, testes unitários Angular, build do frontend e testes Playwright em pushes e pull requests para `developer` e `main`. Os testes Playwright usam a API simulada pelo navegador; os testes que exigem SQL Server são executados em um workflow separado.
+O workflow `.github/workflows/ci.yml` executa os testes unitários do backend, os testes unitários Angular, o build do frontend e os testes Playwright em pushes e pull requests para `developer` e `main`. Os testes Playwright usam a API simulada pelo navegador e não dependem de serviços externos nem do SQL Server.
+
+O workflow separado `.github/workflows/sql-server-integration.yml` inicia um contêiner SQL Server 2022 exclusivo na porta 1435, aplica em ordem os scripts de `MatchCV.Db/Migrations/Test/`, valida as tabelas obrigatórias e executa `MatchCV.Tests/Integration`. Ao final, remove o contêiner e o volume de teste.
+
+O script `scripts/ci_apply_test_migrations.py` recusa qualquer host que não seja local, porta diferente de 1435 ou banco diferente de `MatchCVTest`. As fixtures da suíte também validam os parâmetros de conexão antes de conectar. O job utiliza uma senha exclusiva de teste, que pode ser substituída pelo secret opcional `MATCHCV_TEST_DATABASE_PASSWORD`; não utiliza credenciais ou endpoints de produção.
+
+Para reproduzir localmente a suíte de integração, carregue `TEST_DATABASE_PASSWORD` e `MATCHCV_TEST_DATABASE_PASSWORD` com uma senha exclusiva de teste, inicie `docker-compose.test.yml`, aplique as migrations com `python scripts/ci_apply_test_migrations.py` e execute `PYTHONPATH="$PWD" python -m pytest MatchCV.Tests/Integration -q`. Nunca reutilize credenciais ou endpoints de produção.
 
 ## Documentação relacionada
 
