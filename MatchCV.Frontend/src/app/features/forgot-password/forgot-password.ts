@@ -1,9 +1,10 @@
+
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { finalize, take } from 'rxjs';
+import { Observable, finalize, map, take } from 'rxjs';
 
 import { AuthService } from '../../core/services/auth.service';
 
@@ -31,11 +32,12 @@ export class ForgotPasswordComponent implements OnInit {
     this.route.fragment.pipe(take(1)).subscribe((fragment) => {
       const params = new URLSearchParams(fragment ?? '');
       this.token = params.get('token') ?? '';
+
       if (this.token) {
-        // O fragmento não vai ao servidor, e removê-lo do endereço reduz exposição no histórico.
+        // O fragmento não vai ao servidor. Removê-lo do endereço reduz
+        // sua exposição no histórico de navegação.
         void this.router.navigate([], {
           relativeTo: this.route,
-          fragment: null,
           replaceUrl: true,
         });
       }
@@ -57,7 +59,10 @@ export class ForgotPasswordComponent implements OnInit {
   }
 
   get passwordsMatch(): boolean {
-    return this.password.length > 0 && this.password === this.confirmPassword;
+    return (
+      this.password.length > 0 &&
+      this.password === this.confirmPassword
+    );
   }
 
   get formIsValid(): boolean {
@@ -77,26 +82,32 @@ export class ForgotPasswordComponent implements OnInit {
     this.errorMessage = '';
     this.isSubmitting = true;
 
-    const operation = this.isResetMode
+    const operation: Observable<void> = this.isResetMode
       ? this.authService.confirmPasswordReset(
           this.token,
           this.password,
           this.confirmPassword,
         )
-      : this.authService.requestPasswordReset(this.email.trim());
+      : this.authService
+          .requestPasswordReset(this.email.trim())
+          .pipe(map(() => undefined));
 
     operation
       .pipe(finalize(() => (this.isSubmitting = false)))
       .subscribe({
         next: () => {
           if (this.isResetMode) {
-            this.message = 'Sua senha foi alterada. Você já pode entrar com a nova senha.';
+            this.message =
+              'Sua senha foi alterada. Você já pode entrar com a nova senha.';
+
             this.token = '';
             this.password = '';
             this.confirmPassword = '';
+
             void this.router.navigate(['/login'], {
               state: { passwordResetMessage: this.message },
             });
+
             return;
           }
 
@@ -104,7 +115,10 @@ export class ForgotPasswordComponent implements OnInit {
             'Se houver uma conta elegível para esse e-mail, você receberá instruções de recuperação.';
         },
         error: (error: HttpErrorResponse) => {
-          if (this.isResetMode && (error.status === 400 || error.status === 422)) {
+          if (
+            this.isResetMode &&
+            (error.status === 400 || error.status === 422)
+          ) {
             this.errorMessage =
               'O link de recuperação é inválido, expirou ou já foi utilizado. Solicite um novo link.';
             return;
