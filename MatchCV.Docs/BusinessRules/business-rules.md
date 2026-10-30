@@ -56,7 +56,7 @@ A descrição da vaga é obrigatória.
 O limite documentado é 30 caracteres úteis.
 
 ### BR-016 — Máximo
-A descrição não pode ultrapassar 3.000 caracteres.
+A descrição da vaga aceita até 15.000 caracteres. O texto de currículo informado diretamente também aceita até 15.000 caracteres. O limite de upload de arquivo permanece em 1 MB e não é alterado por esta regra.
 
 ### BR-017 — Conteúdo textual
 A descrição deve conter conteúdo textual válido. Números e caracteres especiais são permitidos quando semanticamente válidos, como `.NET 10`, `C++` e `Java 21`.
