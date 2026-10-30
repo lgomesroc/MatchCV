@@ -29,6 +29,7 @@
 - [Implantação](Deployment.md)
 - [Testes](Testing.md)
 - [Validação ponta a ponta com serviços reais](Real-Services-E2E-Validation.md)
+- [Validação do worker e serviços reais](Live-Service-Validation.md)
 
 ## Segurança e negócio
 
