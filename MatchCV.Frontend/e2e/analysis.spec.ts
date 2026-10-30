@@ -49,7 +49,6 @@ async function loginAndOpenAnalysis(page: Page): Promise<void> {
   await page.getByRole('button', { name: 'Entrar' }).click();
 
   await expect(page).toHaveURL(/\/analysis$/);
-
   await expect(
     page.getByRole('heading', { name: /analise seu currículo/i }),
   ).toBeVisible();
@@ -66,7 +65,7 @@ test.describe('Análise de currículo', () => {
     ).toBeDisabled();
   });
 
-  test('envia os campos corretos e apresenta o resultado da API', async ({
+  test('envia os campos corretos, acompanha a análise e apresenta o resultado', async ({
     page,
   }) => {
     let submittedBody = '';
@@ -82,6 +81,14 @@ test.describe('Análise de currículo', () => {
       submittedBody = body ?? '';
 
       await route.fulfill({
+        status: 202,
+        contentType: 'application/json',
+        body: JSON.stringify({ analysis_id: 'e2e-analysis', status: 'pending' }),
+      });
+    });
+
+    await page.route('**/api/v1/analysis/e2e-analysis', async (route) => {
+      await route.fulfill({
         status: 200,
         contentType: 'application/json',
         body: JSON.stringify(analysisResponse),
@@ -89,7 +96,6 @@ test.describe('Análise de currículo', () => {
     });
 
     await loginAndOpenAnalysis(page);
-
     await page.getByLabel('Descrição da vaga').fill(jobDescription);
     await page.getByLabel('Seu currículo').fill(resumeText);
 
@@ -106,16 +112,13 @@ test.describe('Análise de currículo', () => {
     await expect(
       page.getByText('Experiência com APIs REST', { exact: true }),
     ).toBeVisible();
-
     await expect(
       page.getByText('Experiência com Kubernetes', { exact: true }),
     ).toBeVisible();
-
     await expect(
-      page.getByText(
-        'Descrever responsabilidades e resultados concretos',
-        { exact: true },
-      ),
+      page.getByText('Descrever responsabilidades e resultados concretos', {
+        exact: true,
+      }),
     ).toBeVisible();
 
     expect(submittedBody).toContain('name="job_description"');
@@ -132,17 +135,13 @@ test.describe('Análise de currículo', () => {
       await route.fulfill({
         status: 500,
         contentType: 'application/json',
-        body: JSON.stringify({
-          detail: 'Erro simulado no servidor',
-        }),
+        body: JSON.stringify({ detail: 'Erro simulado no servidor' }),
       });
     });
 
     await loginAndOpenAnalysis(page);
-
     await page.getByLabel('Descrição da vaga').fill(jobDescription);
     await page.getByLabel('Seu currículo').fill(resumeText);
-
     await page.getByRole('button', { name: /analisar currículo/i }).click();
 
     await expect(
@@ -150,7 +149,6 @@ test.describe('Análise de currículo', () => {
         name: /não foi possível concluir a análise/i,
       }),
     ).toBeVisible();
-
     await expect(page.getByRole('alert')).toContainText(
       'Erro simulado no servidor',
     );
@@ -160,5 +158,9 @@ test.describe('Análise de currículo', () => {
     await expect(
       page.getByRole('heading', { name: /analise seu currículo/i }),
     ).toBeVisible();
+    await expect(page.getByLabel('Descrição da vaga')).toHaveValue(
+      jobDescription,
+    );
+    await expect(page.getByLabel('Seu currículo')).toHaveValue(resumeText);
   });
 });
