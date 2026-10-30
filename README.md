@@ -4,6 +4,14 @@ O MatchCV analisa um currículo em relação a uma descrição de vaga usando pr
 
 O sistema não deve inventar experiências, cargos, empresas, tecnologias, certificações, formação ou resultados que não estejam evidenciados nas informações fornecidas.
 
+## Status da versão
+
+**V1 concluída e fechada.**
+
+O escopo planejado para a primeira versão do MatchCV foi concluído. A V1 está encerrada e passa a ser a versão de referência do projeto. Novas funcionalidades ou mudanças de escopo deverão ser tratadas como evolução de uma futura versão, sem reabrir o escopo da V1.
+
+O encerramento da V1 não significa que o sistema esteja livre de possíveis correções: ajustes necessários para corrigir defeitos, segurança, compatibilidade ou estabilidade poderão ser realizados sem caracterizar reabertura do escopo funcional.
+
 ## Aplicação publicada
 
 - **Frontend:** https://matchcv-frontend-020d.onrender.com
@@ -99,10 +107,6 @@ O índice completo está em [MatchCV.Docs/README.md](MatchCV.Docs/README.md). Do
 ## Privacidade
 
 Currículos contêm dados pessoais e profissionais. O documento original não deve ser armazenado permanentemente nem incluído no Git; logs devem evitar conteúdo integral do currículo. A retenção de resultados e dados de conta deve seguir uma política definida para o ambiente.
-
-## Estado do projeto
-
-O projeto está em desenvolvimento. Consulte o [Roadmap](MatchCV.Docs/Roadmap.md) e valide os fluxos com os testes apropriados antes de considerar qualquer recurso pronto para produção.
 
 ## Licença
 
