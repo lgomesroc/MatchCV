@@ -16,7 +16,7 @@ class JobDescription:
     content: str
 
     MIN_USEFUL_CHARACTERS = 30
-    MAX_CHARACTERS = 3000
+    MAX_CHARACTERS = 15000
 
     @classmethod
     def create(
@@ -78,7 +78,7 @@ class JobDescription:
         if len(preserved_content) > cls.MAX_CHARACTERS:
             raise DomainException(
                 "A descrição da vaga não pode ultrapassar "
-                "3000 caracteres."
+                "15000 caracteres."
             )
 
         ProfanityValidator.validate(

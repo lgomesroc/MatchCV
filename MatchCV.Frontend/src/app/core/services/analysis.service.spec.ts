@@ -1,6 +1,4 @@
-
 import {
-  HttpClient,
   HttpErrorResponse,
   provideHttpClient,
 } from '@angular/common/http';
@@ -10,7 +8,7 @@ import {
 } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 
-import { AnalysisService } from './analysis.service';
+import { AnalysisService, AnalysisPollingTimeoutError } from './analysis.service';
 import { environment } from '../../../environments/environment';
 
 describe('AnalysisService', () => {
@@ -33,7 +31,7 @@ describe('AnalysisService', () => {
   });
 
   afterEach(() => {
-    httpMock.verify();
+    httpMock.verify({ ignoreCancelled: true });
     vi.useRealTimers();
   });
 
@@ -57,14 +55,10 @@ describe('AnalysisService', () => {
 
     expect(request.request.method).toBe('POST');
     expect(request.request.body).toBeInstanceOf(FormData);
-    expect(
-      request.request.body.get('job_description'),
-    ).toBe(
+    expect(request.request.body.get('job_description')).toBe(
       'Descrição de uma vaga de desenvolvimento com mais de trinta caracteres.',
     );
-    expect(
-      request.request.body.get('resume_text'),
-    ).toBe(
+    expect(request.request.body.get('resume_text')).toBe(
       'Currículo de teste com experiência em desenvolvimento.',
     );
     expect(request.request.body.get('resume')).toBeNull();
@@ -126,6 +120,46 @@ describe('AnalysisService', () => {
     );
     statusRequest.flush({ status: 'completed', analysis_id: 'analysis-456' });
     vi.advanceTimersByTime(0);
+  });
+
+  it('deve encerrar o polling após cinco minutos sem criar outra análise', () => {
+    vi.useFakeTimers();
+    let receivedError: unknown;
+    let completed = false;
+
+    service.analyze(
+      'Descrição de uma vaga de desenvolvimento com mais de trinta caracteres.',
+      'Currículo de teste com experiência em desenvolvimento.',
+      null,
+    ).subscribe({
+      error: (error: unknown) => {
+        receivedError = error;
+      },
+      complete: () => {
+        completed = true;
+      },
+    });
+
+    const createRequest = httpMock.expectOne(apiUrl);
+    expect(createRequest.request.method).toBe('POST');
+    createRequest.flush({ status: 'pending', analysis_id: 'analysis-timeout' });
+
+    vi.advanceTimersByTime(0);
+    expect(
+      httpMock.expectOne(`${environment.apiUrl}/analysis/analysis-timeout`).request.method,
+    ).toBe('GET');
+
+    vi.advanceTimersByTime(AnalysisService.ANALYSIS_POLLING_TIMEOUT_MS);
+
+    expect(receivedError).toBeInstanceOf(AnalysisPollingTimeoutError);
+    expect(completed).toBe(false);
+    expect(service.getErrorMessage(receivedError)).toContain(
+      'Ela pode continuar sendo processada no servidor',
+    );
+    expect(service.getErrorMessage(receivedError)).toContain(
+      'Não criamos outra análise automaticamente',
+    );
+    httpMock.expectNone(apiUrl);
   });
 
   it('deve retornar a mensagem padrão para erros que não sejam HTTP', () => {

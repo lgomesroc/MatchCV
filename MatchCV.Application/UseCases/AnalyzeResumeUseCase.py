@@ -253,6 +253,11 @@ class AnalyzeResumeUseCase:
 
         normalized_text = resume_text.strip()
 
+        if len(normalized_text) > Resume.MAX_CHARACTERS:
+            raise DomainException(
+                "O currículo não pode ultrapassar 15000 caracteres."
+            )
+
         useful_characters = len(
             "".join(
                 character

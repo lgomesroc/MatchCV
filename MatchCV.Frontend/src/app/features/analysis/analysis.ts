@@ -44,7 +44,8 @@ export class AnalysisComponent {
   result: AnalysisResponse | null = null;
   errorMessage = '';
 
-  private readonly maxJobDescriptionCharacters = 3000;
+  private readonly maxJobDescriptionCharacters = 15000;
+  private readonly maxResumeTextCharacters = 15000;
   private readonly maxResumeFileSizeBytes = 1_048_576;
   private readonly allowedExtensions = ['.pdf', '.doc', '.docx'];
 
@@ -71,6 +72,9 @@ export class AnalysisComponent {
     if (this.containsEmojiOrEmoticon(value)) {
       this.errorMessage =
         'O currículo não pode conter emojis ou emoticons.';
+    } else if (value.trim().length > this.maxResumeTextCharacters) {
+      this.errorMessage =
+        'O currículo não pode ultrapassar 15000 caracteres.';
     }
   }
 
@@ -133,6 +137,7 @@ export class AnalysisComponent {
     return (
       job.length >= 30 &&
       job.length <= this.maxJobDescriptionCharacters &&
+      this.resumeText.trim().length <= this.maxResumeTextCharacters &&
       hasResume &&
       !this.containsEmojiOrEmoticon(this.jobDescription) &&
       !this.containsEmojiOrEmoticon(this.resumeText)

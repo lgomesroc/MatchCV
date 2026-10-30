@@ -3,16 +3,36 @@ import {
   HttpErrorResponse,
 } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable, filter, switchMap, take, takeWhile, tap, throwError, timer } from 'rxjs';
+import {
+  Observable,
+  filter,
+  switchMap,
+  take,
+  takeUntil,
+  takeWhile,
+  tap,
+  throwError,
+  throwIfEmpty,
+  timer,
+} from 'rxjs';
 
 import { environment } from '../../../environments/environment';
 import { AnalysisResponse } from '../models/analysis-response';
 import { MemoryCacheService } from './memory-cache.service';
 
+export class AnalysisPollingTimeoutError extends Error {
+  constructor() {
+    super('O tempo máximo de espera pela análise foi excedido.');
+    this.name = 'AnalysisPollingTimeoutError';
+  }
+}
+
 @Injectable({
   providedIn: 'root',
 })
 export class AnalysisService {
+  static readonly ANALYSIS_POLLING_TIMEOUT_MS = 5 * 60 * 1000;
+
   private readonly http = inject(HttpClient);
   private readonly memoryCache = inject(MemoryCacheService);
 
@@ -49,6 +69,8 @@ export class AnalysisService {
           takeWhile((response) => response.status === 'pending' || response.status === 'processing', true),
           filter((response) => response.status === 'completed' || response.status === 'failed'),
           take(1),
+          takeUntil(timer(AnalysisService.ANALYSIS_POLLING_TIMEOUT_MS)),
+          throwIfEmpty(() => new AnalysisPollingTimeoutError()),
           tap(() => this.invalidateAnalysisCache()),
         );
       }),
@@ -61,6 +83,10 @@ export class AnalysisService {
   }
 
   getErrorMessage(error: unknown): string {
+    if (error instanceof AnalysisPollingTimeoutError) {
+      return 'A análise está demorando mais que o esperado. Ela pode continuar sendo processada no servidor. Não criamos outra análise automaticamente; aguarde um pouco antes de tentar novamente.';
+    }
+
     if (!(error instanceof HttpErrorResponse)) {
       return 'Não foi possível realizar a análise.';
     }

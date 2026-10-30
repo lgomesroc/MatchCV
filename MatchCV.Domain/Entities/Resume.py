@@ -20,6 +20,7 @@ class Resume:
     MAX_FILE_SIZE_BYTES = 1_048_576
     MAX_PAGE_COUNT = 2
     MIN_USEFUL_CHARACTERS = 30
+    MAX_CHARACTERS = 15000
 
     @classmethod
     def create(
@@ -61,6 +62,11 @@ class Resume:
             )
 
         normalized_text = extracted_text.strip()
+
+        if len(normalized_text) > cls.MAX_CHARACTERS:
+            raise DomainException(
+                "O currículo não pode ultrapassar 15000 caracteres extraídos."
+            )
 
         useful_characters = len(
             "".join(

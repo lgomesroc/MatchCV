@@ -286,6 +286,14 @@ class TestAnalyzeResumeUseCase:
         ):
             AnalyzeResumeUseCase._validate_resume_text(resume_text)
 
+    def test_rejects_resume_text_longer_than_15000_characters(self):
+        with pytest.raises(DomainException, match="15000 caracteres"):
+            AnalyzeResumeUseCase._validate_resume_text("A" * 15001)
+
+    def test_accepts_resume_text_at_maximum_length(self):
+        result = AnalyzeResumeUseCase._validate_resume_text("A" * 15000)
+        assert len(result) == Resume.MAX_CHARACTERS
+
     def test_strips_whitespace_from_valid_resume_text(self):
         resume_text = f"   {VALID_RESUME_TEXT}   "
 
