@@ -1,3 +1,4 @@
+import importlib
 import json
 from datetime import date
 from urllib import error
@@ -8,6 +9,10 @@ import pytest
 from MatchCV.AI.Exceptions.AIProviderException import AIProviderException
 from MatchCV.AI.Models.AIAnalysisResponse import AIAnalysisResponse
 from MatchCV.AI.Services.AIHttpClient import AIHttpClient
+
+AI_HTTP_CLIENT_MODULE = importlib.import_module(
+    "MatchCV.AI.Services.AIHttpClient"
+)
 from MatchCV.AI.Services.AIProviderService import AIProviderService
 from MatchCV.AI.Services.AIResponseParser import AIResponseParser
 from MatchCV.AI.Services.AnalysisPromptBuilder import AnalysisPromptBuilder
@@ -136,7 +141,11 @@ def test_http_429_is_classified_as_retryable(monkeypatch):
             fp=Mock(read=Mock(return_value=b'{"error":"quota"}')),
         )
 
-    monkeypatch.setattr("MatchCV.AI.Services.AIHttpClient.request.urlopen", raise_rate_limit)
+    monkeypatch.setattr(
+        AI_HTTP_CLIENT_MODULE.request,
+        "urlopen",
+        raise_rate_limit,
+    )
 
     with pytest.raises(AIProviderException) as raised:
         AIHttpClient.post_json(
@@ -151,7 +160,7 @@ def test_http_429_is_classified_as_retryable(monkeypatch):
 
 def test_http_timeout_is_classified_as_retryable(monkeypatch):
     monkeypatch.setattr(
-        "MatchCV.AI.Services.AIHttpClient.request.urlopen",
+        AI_HTTP_CLIENT_MODULE.request,
         Mock(side_effect=TimeoutError("tempo esgotado")),
     )
 
