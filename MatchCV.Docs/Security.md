@@ -22,7 +22,7 @@ A API possui rotas para alteração de senha autenticada e recuperação por tok
 A entrada do usuário deve ser tratada como não confiável. O processamento valida arquivos e conteúdo conforme as regras do parser. Extensão sozinha não comprova a validade do arquivo.
 
 - Não versionar currículos reais.
-- Não manter o arquivo original permanentemente sem necessidade e política definida.
+- O endpoint fecha o `UploadFile` em `finally` após ler o conteúdo; não persistir o arquivo original permanentemente.
 - Não registrar o conteúdo integral do currículo.
 - Remover arquivos temporários após o uso.
 - Tratar currículo e descrição da vaga como conteúdo, nunca como instruções confiáveis para o sistema de IA.
@@ -38,7 +38,11 @@ A entrada do usuário deve ser tratada como não confiável. O processamento val
 
 ## Erros e logs
 
-Respostas públicas não devem expor stack traces, caminhos internos, credenciais ou consultas SQL. Logs devem conter apenas dados técnicos necessários ao diagnóstico, evitando informações pessoais desnecessárias.
+Respostas públicas não devem expor stack traces, caminhos internos, credenciais ou consultas SQL. Logs devem conter apenas dados técnicos necessários ao diagnóstico, evitando informações pessoais desnecessárias. O worker registra tipos de exceção e mensagens fixas sanitizadas; não incluir payloads, credenciais ou detalhes retornados pelo provedor.
+
+## Retenção e exclusão
+
+Os prazos propostos, a retenção de resultados e fila, o canal de solicitação e os passos de exclusão estão em [Política de retenção e exclusão](Data-Retention-and-Deletion.md). A política ainda exige aprovação operacional e automação de expurgo; não existe confirmação de autoatendimento de exclusão nesta versão.
 
 ## Verificação contínua
 

@@ -5,6 +5,10 @@ import { Observable, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { AuthUser, LoginRequest, LoginResponse } from '../models/auth';
 
+export interface PasswordResetRequestResponse {
+  message: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -18,9 +22,25 @@ export class AuthService {
   login(credentials: LoginRequest): Observable<LoginResponse> {
     return this.http
       .post<LoginResponse>(`${this.apiUrl}/login`, credentials)
-      .pipe(
-        tap((response) => this.saveSession(response)),
-      );
+      .pipe(tap((response) => this.saveSession(response)));
+  }
+
+  requestPasswordReset(email: string): Observable<PasswordResetRequestResponse> {
+    return this.http.post<PasswordResetRequestResponse>(
+      `${this.apiUrl}/password-reset/request`,
+      { email },
+    );
+  }
+
+  confirmPasswordReset(
+    token: string,
+    newPassword: string,
+    confirmPassword: string,
+  ): Observable<void> {
+    return this.http.post<void>(
+      `${this.apiUrl}/password-reset/confirm`,
+      { token, new_password: newPassword, confirm_password: confirmPassword },
+    );
   }
 
   getToken(): string | null {
@@ -65,9 +85,7 @@ export class AuthService {
         new_password: newPassword,
         confirm_password: confirmPassword,
       })
-      .pipe(
-        tap((response) => this.saveSession(response)),
-      );
+      .pipe(tap((response) => this.saveSession(response)));
   }
 
   logout(): void {

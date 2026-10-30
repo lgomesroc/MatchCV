@@ -11,7 +11,8 @@ MatchCV/
 ├── .github/
 │   └──workflows/
 │   │   ├── cd.yml
-│   │   └── ci.yml
+│   │   ├── ci.yml
+│   │   └── sql-server-integration.yml
 ├── Docs/
 │   └── test-job-description.txt
 ├── MatchCV/
@@ -83,7 +84,8 @@ MatchCV/
 │   │   │   ├── 005_analysis_worker_queue.sql
 │   │   │   ├── 006_password_reset_tokens.sql
 │   │   │   ├── 007_admin_password_policy.sql
-│   │   │   └── 008_analysis_quota_reservations.sql
+│   │   │   ├── 008_analysis_quota_reservations.sql
+│   │   │   └── 009_job_description_text_limit.sql
 │   │   ├── __init__.py
 │   │   ├── 001_initial_schema.sql
 │   │   ├── 002_user_analysis_usage.sql
@@ -92,7 +94,8 @@ MatchCV/
 │   │   ├── 005_analysis_worker_queue.sql
 │   │   ├── 006_password_reset_tokens.sql
 │   │   ├── 007_admin_password_policy.sql
-│   │   └── 008_analysis_quota_reservations.sql
+│   │   ├── 008_analysis_quota_reservations.sql
+│   │   └── 009_job_description_text_limit.sql
 │   └── __init__.py
 ├── MatchCV.Docs/
 │   ├── BusinessRules/
@@ -100,11 +103,13 @@ MatchCV/
 │   ├── Decisions/
 │   │   └── Architecture-Decisions.md
 │   ├── AI-Integration.md
+│   ├── Analysis-Polling-Timeout.md
 │   ├── API.md
 │   ├── API-Integration.md
 │   ├── Architecture.md
 │   ├── Backend.md
 │   ├── CI-CD.md
+│   ├── Data-Retention-and-Deletion.md
 │   ├── Database.md
 │   ├── Deployment.md
 │   ├── Development-Guide.md
@@ -112,9 +117,12 @@ MatchCV/
 │   ├── Frontend.md
 │   ├── Getting-Started.md
 │   ├── Infrastructure.md
+│   ├── Live-Service-Validation.md
+│   ├── Password-Recovery.md
 │   ├── Privacy.md
 │   ├── Project-Structure.md
 │   ├── README.md
+│   ├── Real-Services-E2E-Validation.md
 │   ├── Resume-Processing.md
 │   ├── Roadmap.md
 │   ├── Security.md
@@ -145,6 +153,8 @@ MatchCV/
 ├── MatchCV.Frontend/
 │   ├── e2e/
 │   │   ├── analysis.spec.ts
+│   │   ├── analysis-states.spec.ts
+│   │   ├── live-services.spec.ts
 │   │   ├── login.spec.ts
 │   │   └── registration.spec.ts
 │   ├── src/
@@ -231,6 +241,8 @@ MatchCV/
 │   ├── Database/
 │   │   ├── __init__.py
 │   │   └── DatabaseConnection.py
+│   ├── Email/
+│   │   └── PasswordResetEmailSender.py
 │   ├── Models/
 │   │   ├── __init__.py
 │   │   ├── AnalysisRecord.py
@@ -249,6 +261,7 @@ MatchCV/
 │   ├── Services/
 │   │   ├── __init__.py
 │   │   ├── AIAnalysisProvider.py
+│   │   ├── PasswordResetEmailSender.py
 │   │   └── ResumeParserAdapter.py
 │   └── __init__.py
 ├── MatchCV.Login/
@@ -291,16 +304,20 @@ MatchCV/
 │   └── __init__.py
 ├── MatchCV.Script/
 │   ├── change_admin_password.py
+│   ├── ci_apply_test_migrations.py
 │   ├── create_admin.py
-│   └── reset_admin_password.py
+│   ├── reset_admin_password.py
+│   └── smoke_test_live_flow.py
 ├── MatchCV.Tests/
 │   ├── Integration/
 │   │   ├── Api/
 │   │   │   ├── __init__.py
 │   │   │   ├── test_analysis_router.py
+│   │   │   ├── test_analysis_upload_cleanup.py
 │   │   │   ├── test_api_contract.py
 │   │   │   ├── test_auth_router.py
 │   │   │   ├── test_health_endpoint.py
+│   │   │   ├── test_password_reset_router.py
 │   │   │   └── test_swagger_security.py
 │   │   ├── Database/
 │   │   │   ├── __init__.py
@@ -308,13 +325,15 @@ MatchCV/
 │   │   │   └── test_database_schema.py
 │   │   ├── Parser/
 │   │   │   ├── __init__.py
+│   │   │   ├── test_real_resume_files.py
 │   │   │   └── test_resume_parsing_pipeline.py
 │   │   ├── Repositories/
 │   │   │   ├── __init__.py
 │   │   │   ├── repository_test_fixtures.py
 │   │   │   ├── test_sql_server_analysis_repository.py
 │   │   │   ├── test_sql_server_job_description_repository.py
-│   │   │   └── test_sql_server_user_repository.py
+│   │   │   ├── test_sql_server_user_repository.py
+│   │   │   └── test_sql_server_workflow_persistence.py
 │   │   └── TestDatabase/
 │   │   │   ├── test_connection.py
 │   │   │   ├── test_database_fixtures.py
@@ -322,6 +341,8 @@ MatchCV/
 │   │   ├── __init__.py
 │   │   └── conftest.py
 │   └── Unit/
+│   │   ├── AI/
+│   │   │   └── test_ai_representative_cases.py
 │   │   ├── Application/
 │   │   │   ├── __init__.py
 │   │   │   ├── test_analyze_resume_use_case.py
@@ -337,6 +358,8 @@ MatchCV/
 │   │   │   ├── test_profanity_validator.py
 │   │   │   ├── test_resume.py
 │   │   │   └── test_text_content_validator.py
+│   │   ├── Infrastructure/
+│   │   │   └── test_password_reset_email_sender.py
 │   │   ├── Login/
 │   │   │   ├── test_authentication_service.py
 │   │   │   ├── test_current_user_authorization.py

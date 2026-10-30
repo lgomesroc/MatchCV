@@ -23,7 +23,7 @@ Dependendo do fluxo utilizado, podem ser tratados:
 - Armazenar somente dados necessários ao funcionamento do produto.
 - Definir e documentar o período de retenção dos resultados e dos dados da conta.
 
-A política formal de retenção e os procedimentos de exclusão devem ser confirmados antes de declarar concluído o ciclo de vida de dados.
+Os prazos operacionais propostos, o tratamento de resultados antigos, a fila e o procedimento de exclusão estão documentados em [Política de retenção e exclusão](Data-Retention-and-Deletion.md). Esses prazos ainda exigem aprovação e automação de expurgo; não devem ser anunciados como garantidos até essa implementação.
 
 ## Provedores externos
 
@@ -35,8 +35,8 @@ Tokens, senhas, chaves e strings de conexão não devem ser registrados em logs 
 
 ## Direitos e solicitações
 
-Os procedimentos para atender solicitações de acesso, correção ou exclusão devem ser definidos conforme a legislação aplicável e a política de operação. Não declare que há um fluxo automatizado de atendimento sem confirmar sua implementação.
+Ainda não há fluxo de autoatendimento de exclusão confirmado na API/interface. Até que seja implementado, a operação deve configurar e publicar um canal oficial de privacidade e seguir o procedimento documentado em [Política de retenção e exclusão](Data-Retention-and-Deletion.md). Não afirmar que a exclusão automática está disponível.
 
 ## Estado
 
-Este documento registra princípios e cuidados. A política formal de retenção, os procedimentos de exclusão e as configurações de privacidade de cada provedor externo ainda precisam de validação operacional.
+A política operacional proposta está documentada, mas a aprovação dos prazos, o canal oficial, o job de expurgo, a exclusão automatizada e a retenção de backups/provedores ainda precisam de validação operacional.

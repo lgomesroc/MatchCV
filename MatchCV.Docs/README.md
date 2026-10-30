@@ -28,11 +28,15 @@
 - [CI/CD](CI-CD.md)
 - [Implantação](Deployment.md)
 - [Testes](Testing.md)
+- [Validação ponta a ponta com serviços reais](Real-Services-E2E-Validation.md)
+- [Validação do worker e serviços reais](Live-Service-Validation.md)
 
 ## Segurança e negócio
 
 - [Segurança](Security.md)
+- [Recuperação de senha por e-mail](Password-Recovery.md)
 - [Privacidade](Privacy.md)
+- [Política de retenção e exclusão](Data-Retention-and-Deletion.md)
 - [Regras de negócio](Business-Rules.md)
 - [Regras de negócio — referência detalhada](BusinessRules/business-rules.md)
 - [Roadmap](Roadmap.md)
