@@ -65,7 +65,11 @@ async def analyze_resume(
     else:
         if not resume.filename:
             raise HTTPException(status_code=400, detail="O arquivo do currículo não possui nome.")
-        file_content = await resume.read()
+        try:
+            file_content = await resume.read()
+        finally:
+            # Fecha o arquivo temporário do multipart assim que seus bytes são lidos.
+            await resume.close()
         if not file_content:
             raise HTTPException(status_code=400, detail="O arquivo do currículo está vazio.")
         request = AnalyzeResumeRequest(
